@@ -2,12 +2,15 @@ import { BASE_CSS, LANGUAGES, hotspotsOf, loadCatalog, overridesCss } from '../c
 import { MOBILE_SCREEN, deviceOf, h, kids, openMenu, outerSize, preserveFocus } from './dom.js';
 import { icon } from './icons.js';
 import {
-  STORAGE_KEY, loadWorkspace, locate, moveFrameToPage, moveShelfItem, nextFreeX, normalize, parseWorkspace, removePage, restoreFrame, saveDraft, shelveFrame, uniqueId,
+  STORAGE_KEY, loadWorkspace, locate, moveFrameToPage, moveShelfItem, nextFreeX, normalize, parseWorkspace, removePage, restoreFrame, shelveFrame, uniqueId,
   validateWorkspace,
 } from './store.js';
 import { createCanvas } from './canvas.js';
 import { createInspector } from './inspector.js';
 import { openPlay } from './play.js';
+import { createAccount } from './account.js';
+import { createReview, reviewToken } from './review.js';
+import { applyAuthReturn, cloudConfigured } from './cloud.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -81,20 +84,36 @@ async function boot() {
     canvasPage: () => app.shelfPage ?? app.page(),
     locate: (frameId) => locate(app.ws, frameId),
     frameName: (frame) => entryMap.get(frame.catalogId)?.name ?? frame.catalogId,
+    // Copy for the sign-in, sharing and comment UI, in the workspace language (design/catalog/strings.proposed.json).
+    t: (key, vars = {}) => {
+      const text = catalog.strings[app.ws?.settings.language]?.[key] ?? catalog.strings.en[key] ?? key;
+      return text.replace(/\{(\w+)\}/g, (match, name) => (name in vars ? String(vars[name]) : match));
+    },
   };
+  applyAuthReturn();
+  const token = reviewToken();
+  app.review = Boolean(token);
+  let account = null;
+  let review = null;
+  const emptyWorkspace = () => normalize({
+    version: 1, settings: { ...seed.settings, language: navigator.language?.startsWith('pt') ? 'pt' : 'en' }, selectedPageId: 'review', startFrameId: null,
+    pages: [{ id: 'review', name: 'Review', readOnly: true, view: { x: 80, y: 80, zoom: 1 }, frames: [] }], connections: [], overrides: {},
+  });
+  const loadGuest = () => loadWorkspace({ storage, seed, context });
 
-  const loaded = loadWorkspace({ storage, seed, context });
+  const loaded = app.review ? { ws: emptyWorkspace() } : loadGuest();
   app.ws = loaded.ws;
   app.rawDraft = loaded.draftText ?? null;
 
   const notice = $('notice');
   const clearNotice = () => { notice.hidden = true; notice.replaceChildren(); };
-  function showNotice(message, details = []) {
+  function showNotice(message, details = [], actions = []) {
     notice.replaceChildren(...kids([
       h('strong', {}, message),
       details.length ? h('ul', {}, ...details.slice(0, 8).map((detail) => h('li', {}, detail))) : null,
       app.rawDraft != null ? h('button', { onclick: () => download('workspace-draft.json', app.rawDraft) }, 'Download draft') : null,
-      h('button', { onclick: clearNotice }, 'Dismiss'),
+      ...actions.map((action) => h('button', { onclick: action.run }, action.label)),
+      h('button', { onclick: clearNotice }, app.t('workspace_dismiss')),
     ]));
     notice.hidden = false;
   }
@@ -102,13 +121,8 @@ async function boot() {
   if (seedErrors.length) showNotice('The committed workspace.json has problems.', seedErrors);
   else if (loaded.notice) showNotice(loaded.notice);
 
-  function setStatus(ok) {
-    const status = $('save-status');
-    status.textContent = ok ? 'Saved' : 'Not saved';
-    status.classList.toggle('is-failed', !ok);
-    status.title = ok ? '' : 'Browser storage rejected the write. Use Export to keep your work.';
-  }
-  app.save = () => setStatus(saveDraft(storage, app.ws));
+  // Browser draft or cloud copy, decided by the account module; a review page never saves.
+  app.save = () => { if (!app.review) account?.save(); };
 
   const refreshOverrides = () => { $('orbit-overrides').textContent = overridesCss(catalog.tokens, app.ws.overrides); };
   app.change = () => {
@@ -263,6 +277,7 @@ async function boot() {
         h('button', { 'data-f': 'shelf-move', onclick: () => app.moveShelf(item.frame.id, shelf, other) }, `Move to ${SHELF_NAMES[other]}`)),
       app.shelfView.frameId ? null : h('button', { class: 'ws-link', onclick: () => app.openShelf(shelf, item.frame.id) }, 'View this screen alone'),
       h('p', { class: 'ws-hint' }, 'Shelved screens are read-only. Restore one to inspect, edit or connect it.'),
+      ...(account?.active() ? account.commentsView() : []),
     ]);
   };
 
@@ -323,7 +338,7 @@ async function boot() {
     for (const key of ['move', 'inspect', 'prototype']) tools[key].setAttribute('aria-pressed', String(key === app.mode));
   }
   // Choosing a tab in the inspector switches the canvas to that mode too.
-  app.onTab = (name) => { if (app.mode !== name) app.setMode(name); };
+  app.onTab = (name) => { if (name !== 'comments' && app.mode !== name) app.setMode(name); };
   function syncToolbar() {
     const { palette, mode, language, device = 'ios' } = app.ws.settings;
     const label = (key, text) => { tools[key].title = text; tools[key].setAttribute('aria-label', text); };
@@ -336,6 +351,8 @@ async function boot() {
     label('mode', `Mode: ${capital(mode)}`);
     label('language', `Language: ${LANGUAGE_NAMES[language] ?? language}`);
     label('device', `Device: ${DEVICE_NAMES[device]}`);
+    $('tab-comments').textContent = app.t('workspace_comments');
+    if (app.review) $('save-status').textContent = app.t('workspace_review');
     syncModes();
   }
 
@@ -436,6 +453,7 @@ async function boot() {
   }
 
   function renderSidebar() {
+    if (app.review) { left.replaceChildren(...(review?.sidebarView() ?? [])); return; }
     preserveFocus(left, () => {
       const { ws } = app;
       const page = app.page();
@@ -500,40 +518,51 @@ async function boot() {
       showNotice('Import failed. The current workspace was not changed.', errors);
       return;
     }
+    const replaced = await account.replace(data, 'import');
+    if (replaced !== null) return;
     app.ws = data;
     app.selection = null;
     clearNotice();
     app.commit();
   };
-  function reset() {
+  async function reset() {
+    if (account.active()) { await account.replace(normalize(structuredClone(seed)), 'reset'); return; }
     if (!confirm('Discard the local draft and reload the committed workspace.json?')) return;
     try { storage.removeItem(STORAGE_KEY); } catch { /* the draft stays but is replaced on the next save */ }
     app.ws = normalize(structuredClone(seed));
     app.selection = null;
     app.rawDraft = null;
     clearNotice();
-    setStatus(true);
     app.refresh();
+    app.save();
   }
   const themeNames = { system: 'System', light: 'Light', dark: 'Dark' };
+  function setTheme(theme) {
+    applyTheme(theme);
+    try { if (theme === 'system') localStorage.removeItem(THEME_KEY); else localStorage.setItem(THEME_KEY, theme); } catch { /* the theme still applies for this session */ }
+  }
   $('main-menu').onclick = (e) => openMenu(e.currentTarget, [
-    { heading: 'Workspace' },
-    { label: 'Export workspace.json', run: () => download('workspace.json', `${JSON.stringify(app.ws, null, 2)}\n`) },
-    { label: 'Import workspace.json…', run: () => $('import-file').click() },
-    { label: 'Reset to committed workspace…', run: reset },
+    ...(app.review ? [
+      { heading: app.t('workspace_review') },
+      { label: app.t('workspace_review_open_workspace'), run: () => { location.href = location.pathname; } },
+    ] : [
+      { heading: 'Workspace' },
+      { label: 'Export workspace.json', run: () => download('workspace.json', `${JSON.stringify(app.ws, null, 2)}\n`) },
+      { label: 'Import workspace.json…', run: () => $('import-file').click() },
+      { label: 'Reset to committed workspace…', run: reset },
+      ...account.menuItems(),
+    ]),
     { heading: 'Theme' },
     ...Object.entries(themeNames).map(([theme, label]) => ({
       label, icon: icon(theme), checked: currentTheme() === theme,
-      run: () => {
-        applyTheme(theme);
-        try { if (theme === 'system') localStorage.removeItem(THEME_KEY); else localStorage.setItem(THEME_KEY, theme); } catch { /* the theme still applies for this session */ }
-      },
+      run: () => { setTheme(theme); account?.preferencesChanged(preferences()); },
     })),
   ]);
 
   document.addEventListener('keydown', (e) => {
     if (e.defaultPrevented || e.ctrlKey || e.metaKey || e.altKey || e.target.closest?.('input, textarea, select, [contenteditable], dialog')) return;
     if (e.key === 'Escape' && (app.canvas.endLink() || app.closeShelf())) { e.preventDefault(); return; }
+    if (app.review) return;
     const mode = !e.shiftKey && { v: 'inspect', h: 'move', p: 'prototype' }[e.key.toLowerCase()];
     if (mode) { e.preventDefault(); app.setMode(mode); return; }
     const frameId = app.selection?.frameId;
@@ -567,6 +596,7 @@ async function boot() {
       panels[side] = show;
       try { localStorage.setItem(PANELS_KEY, JSON.stringify(panels)); } catch { /* the toggle still works for this session */ }
       applyPanels();
+      account?.preferencesChanged(preferences());
       $(show ? `toggle-${side}` : `show-${side}`).focus();
     };
     $(`toggle-${side}`).onclick = () => toggle(false);
@@ -574,9 +604,57 @@ async function boot() {
   }
   applyPanels();
 
+  // Profile preferences synced for signed-in accounts: workspace theme and panel visibility.
+  function preferences() {
+    return { theme: currentTheme(), panels: { left: panels.left !== false, right: panels.right !== false } };
+  }
+  function applyPreferences(next) {
+    if (next.theme) setTheme(next.theme);
+    if (next.panels) {
+      panels = { ...panels, ...next.panels };
+      try { localStorage.setItem(PANELS_KEY, JSON.stringify(panels)); } catch { /* applies for this session */ }
+      applyPanels();
+    }
+  }
+
+  const env = {
+    t: app.t, storage, seed, context, download, showNotice, clearNotice, showToast, loadGuest: () => loadGuest().ws,
+    emptyWorkspace, preferences, applyPreferences, renderAccount: renderReviewAccount,
+  };
+  if (app.review) {
+    review = createReview(app, env, token);
+    app.commentsView = () => review.commentsView();
+    app.reviewEmptyText = () => review.emptyText();
+  } else {
+    account = createAccount(app, env);
+    app.commentsView = () => account.commentsView();
+    app.shareAction = (frameId) => account.shareAction(frameId);
+    app.onCloudStatus = () => app.canvas.updateSelection();
+  }
+  function renderReviewAccount() {
+    const box = $('account');
+    const user = review?.user();
+    box.hidden = !review?.cloud();
+    if (box.hidden) return;
+    box.replaceChildren(user
+      ? h('button', {
+        class: 'ws-account-button', 'data-f': 'account', 'aria-label': app.t('workspace_signed_in_as', { name: user.name }), title: user.name, 'aria-haspopup': 'menu',
+        onclick: (e) => openMenu(e.currentTarget, [{ heading: user.name }, { label: app.t('workspace_sign_out'), run: () => review.signOut() }]),
+      }, user.avatarUrl ? h('img', { class: 'ws-avatar', src: user.avatarUrl, alt: '', width: 26, height: 26, referrerPolicy: 'no-referrer' }) : h('span', { class: 'ws-avatar' }, user.name[0]?.toUpperCase()))
+      : h('button', { class: 'ws-signin', 'data-f': 'sign-in', onclick: () => review.signIn() }, app.t('workspace_sign_in')));
+  }
+
+  // The review page shows comments only; the workspace adds a Comments tab when sign-in is configured.
+  $('tab-comments').hidden = !(app.review || cloudConfigured());
+  $('tab-comments').textContent = app.t('workspace_comments');
+  for (const id of ['tab-inspect', 'tab-prototype', 'play']) $(id).hidden = app.review;
+  document.querySelector('.ws-segment').hidden = app.review;
+  if (app.review) { app.mode = 'move'; app.inspector.showTab('comments'); }
+  addEventListener('hashchange', () => { if (reviewToken() !== token) location.reload(); });
+
   app.refresh();
   app.canvas.setMode(app.mode);
-  setStatus(true);
+  await (review ?? account).start();
 }
 
 boot().catch((error) => {
