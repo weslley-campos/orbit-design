@@ -20,11 +20,13 @@ export function preserveFocus(root, render) {
 
 let menu;
 let menuTrigger;
+let closedAt = 0;
 
-export function openMenu(trigger, items) {
+export function openMenu(trigger, items, { above = false } = {}) {
   if (!menu) {
     menu = h('div', { popover: 'auto', class: 'ws-menu', role: 'menu' });
     menu.addEventListener('toggle', (e) => {
+      if (e.newState === 'closed') { menuTrigger.setAttribute('aria-expanded', 'false'); closedAt = performance.now(); }
       if (e.newState !== 'closed' || !(document.activeElement === document.body || menu.contains(document.activeElement))) return;
       (menuTrigger.isConnected ? menuTrigger : document.querySelector(`[data-f="${menuTrigger.dataset.f}"]`))?.focus();
     });
@@ -37,16 +39,29 @@ export function openMenu(trigger, items) {
     });
     document.body.append(menu);
   }
+  // A click on the trigger of an open menu closes it: light dismiss already hid it on pointerdown.
+  if (menuTrigger === trigger && performance.now() - closedAt < 400) return;
   menuTrigger = trigger;
+  menu.classList.toggle('is-balloon', above);
   menu.replaceChildren(...items.map((item) => (item.heading
     ? h('div', { class: 'ws-menu-heading' }, item.heading)
-    : h('button', { role: 'menuitem', disabled: item.disabled, onclick: () => { menu.hidePopover(); item.run(); } },
-      item.label, item.tag ? h('span', { class: 'ws-tag' }, item.tag) : null))));
+    : h('button', {
+      role: item.checked == null ? 'menuitem' : 'menuitemradio',
+      'aria-checked': item.checked == null ? null : String(item.checked),
+      disabled: item.disabled,
+      onclick: () => { menu.hidePopover(); item.run(); },
+    }, item.icon ?? null, h('span', { class: 'ws-menu-label' }, item.label), item.tag ? h('span', { class: 'ws-tag' }, item.tag) : null))));
   const rect = trigger.getBoundingClientRect();
-  Object.assign(menu.style, { top: `${rect.bottom + 2}px`, left: `${rect.left}px`, maxHeight: `${innerHeight - rect.bottom - 12}px` });
+  Object.assign(menu.style, above
+    ? { top: 'auto', bottom: `${innerHeight - rect.top + 10}px`, left: `${rect.left}px`, maxHeight: `${rect.top - 20}px` }
+    : { top: `${rect.bottom + 2}px`, bottom: 'auto', left: `${rect.left}px`, maxHeight: `${innerHeight - rect.bottom - 12}px` });
   menu.showPopover();
-  menu.style.left = `${Math.max(8, Math.min(rect.left, innerWidth - menu.offsetWidth - 8))}px`;
-  menu.querySelector('button:not(:disabled)')?.focus();
+  trigger.setAttribute('aria-expanded', 'true');
+  const want = above ? rect.left + rect.width / 2 - menu.offsetWidth / 2 : rect.left;
+  const left = Math.max(8, Math.min(want, innerWidth - menu.offsetWidth - 8));
+  menu.style.left = `${left}px`;
+  menu.style.setProperty('--ws-tip', `${rect.left + rect.width / 2 - left}px`);
+  (menu.querySelector('[aria-checked="true"]:not(:disabled)') ?? menu.querySelector('button:not(:disabled)'))?.focus();
 }
 
 // ponytail: iPhone island size and insets are approximations taken from the 17 Pro (Apple does not publish iPhone 18 Pro values in points); the Pixel values are a generic Pixel with approximate status bar, navigation bar and camera sizes.
