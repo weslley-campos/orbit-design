@@ -24,6 +24,8 @@ jobs:
           node-version: 22
       - name: Check workspace
         run: node design/check.mjs
+      - name: Check the cloud service boundary
+        run: node supabase/tests/service.test.mjs
       - name: Stamp asset URLs with the commit
         run: |
           cp -R design _site

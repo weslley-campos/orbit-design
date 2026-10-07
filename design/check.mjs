@@ -154,4 +154,5 @@ if (existsSync(seedPath) && existsSync(tokensPath) && existsSync(join(catalogDir
 } else {
   console.log('seed check skipped: workspace.json, tokens.json or the catalog is not there yet');
 }
+await import('./check-sync.mjs');
 console.log('design/check.mjs passed');

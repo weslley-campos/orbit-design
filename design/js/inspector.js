@@ -21,7 +21,7 @@ async function copyText(text) {
 
 export function createInspector(app) {
   const panel = document.getElementById('panel');
-  const tabs = { inspect: document.getElementById('tab-inspect'), prototype: document.getElementById('tab-prototype') };
+  const tabs = { inspect: document.getElementById('tab-inspect'), prototype: document.getElementById('tab-prototype'), comments: document.getElementById('tab-comments') };
   let tab = 'inspect';
 
   function showTab(name) {
@@ -273,7 +273,10 @@ export function createInspector(app) {
   }
 
   function render() {
-    preserveFocus(panel, () => panel.replaceChildren(...(app.canvasPage()?.shelf ? app.shelfInfo() : tab === 'inspect' ? inspectView() : prototypeView())));
+    const view = app.review ? app.commentsView()
+      : app.canvasPage()?.shelf ? app.shelfInfo()
+        : tab === 'comments' ? app.commentsView() : tab === 'inspect' ? inspectView() : prototypeView();
+    preserveFocus(panel, () => panel.replaceChildren(...view));
   }
 
   return { render, showTab, tab: () => tab };

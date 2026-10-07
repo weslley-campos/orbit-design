@@ -28,7 +28,7 @@ export function createCanvas(app) {
   const els = new Map();
   // Shelf frames carry their own platform, since one shelf view mixes screens from several pages.
   const host = (frame, page) => ('platform' in frame ? frame : page);
-  const readOnly = () => Boolean(app.canvasPage()?.shelf);
+  const readOnly = () => Boolean(app.canvasPage()?.shelf || app.canvasPage()?.readOnly);
   const view = () => app.canvasPage()?.view;
   const zoom = () => view()?.zoom ?? 1;
 
@@ -170,7 +170,9 @@ export function createCanvas(app) {
   const barButton = (name, label, onclick) => h('button', { class: 'ws-icon', 'aria-label': label, title: label, 'data-f': `bar-${name}`, onclick }, icon(name));
   function renderBar() {
     const id = app.selection?.frameId;
-    if (!id || !els.has(id) || link) { bar.hidden = true; return; }
+    const page = app.canvasPage();
+    if (!id || !els.has(id) || link || (page?.readOnly && !page.shelf)) { bar.hidden = true; return; }
+    const share = app.shareAction?.(id);
     const shelf = app.canvasPage()?.shelf;
     bar.replaceChildren(...kids(shelf ? [
       barButton('restore', 'Restore screen', () => app.restore(shelf, id)),
@@ -179,6 +181,7 @@ export function createCanvas(app) {
         : barButton('trash', 'Move to Trash', () => app.moveShelf(id, 'archived', 'trash')),
     ] : [
       app.mode === 'prototype' ? barButton('link', 'Connect the whole screen', (e) => startLink(id, null, e)) : null,
+      share ? Object.assign(barButton('share', share.label, share.run), { disabled: share.disabled }) : null,
       barButton('archive', 'Archive screen', () => app.shelve(id, 'archived')),
       barButton('trash', 'Move screen to Trash', () => app.shelve(id, 'trash')),
     ]));
@@ -475,9 +478,9 @@ export function createCanvas(app) {
       els.clear();
       stage.replaceChildren(...(page?.frames ?? []).map((frame) => frameEl(frame, page)), svg, hover, selected);
       empty.hidden = Boolean(page?.frames.length);
-      emptyText.textContent = page?.shelf ? `${page.name} is empty.` : page ? 'This page is empty.' : 'There are no pages.';
+      emptyText.textContent = app.review ? app.reviewEmptyText() : page?.shelf ? `${page.name} is empty.` : page ? 'This page is empty.' : 'There are no pages.';
       emptyAction.textContent = page ? 'Add frame' : 'New page';
-      emptyAction.hidden = Boolean(page?.shelf);
+      emptyAction.hidden = Boolean(page?.shelf || app.review);
       root.classList.toggle('is-shelf', Boolean(page?.shelf));
       if (page) emptyAction.setAttribute('aria-haspopup', 'menu');
       else emptyAction.removeAttribute('aria-haspopup');

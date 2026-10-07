@@ -1,6 +1,6 @@
 # Orbit design workspace
 
-A local, Figma-like tool for reviewing Orbit's screens and components: pages of frames on a pan/zoom canvas, an inspector that reports declared tokens and resources, editable previews, clickable prototype flows and a Play mode. Plain HTML, CSS and ES modules. No framework, build step or network request.
+A local, Figma-like tool for reviewing Orbit's screens and components: pages of frames on a pan/zoom canvas, an inspector that reports declared tokens and resources, editable previews, clickable prototype flows and a Play mode. Plain HTML, CSS and ES modules, with no framework or build step. Without an account it makes no network request; signing in (optional, see [Accounts, cloud saving and review](#accounts-cloud-saving-and-review)) adds cloud saving, share links and comments.
 
 ## Start
 
@@ -12,7 +12,7 @@ Open <http://localhost:4173> in Chrome or Safari. The server sends `Cache-Contro
 
 ## Published preview
 
-`.github/workflows/pages.yml` runs `node design/check.mjs` and publishes `design/` to GitHub Pages on every push to `main` (or manually from the Actions tab): <https://weslley-campos.github.io/orbit-design/>. The deploy stamps script and stylesheet URLs with the commit, so browsers never mix cached modules from an older deploy. Drafts are kept per origin, so the published site and localhost keep separate drafts.
+`.github/workflows/pages.yml` runs `node design/check.mjs` and `node supabase/tests/service.test.mjs`, then publishes `design/` to GitHub Pages on every push to `main` (or manually from the Actions tab): <https://weslley-campos.github.io/orbit-design/>. The deploy stamps script and stylesheet URLs with the commit, so browsers never mix cached modules from an older deploy. Drafts are kept per origin, so the published site and localhost keep separate drafts.
 
 ## Basics
 
@@ -43,19 +43,55 @@ Each field shows the source value, marks drafts as "edited" and offers "Reset to
 
 ## Saving
 
-- Every change is saved to a local draft (`localStorage['orbit.design.workspace']`). The sidebar shows "Saved" or "Not saved" when the browser refuses the write.
+- Signed out, every change is saved to a local draft (`localStorage['orbit.design.workspace']`). The sidebar shows "Saved in this browser", or "Not saved" when the browser refuses the write. Signed in, see [Accounts, cloud saving and review](#accounts-cloud-saving-and-review).
 - A valid draft opens instead of the committed seed `design/workspace.json`.
 - **Export** (main menu) downloads a versioned `workspace.json`; **Import** reads one back. An invalid file (malformed JSON, unsupported version, duplicate ids, missing references, invalid overrides) is rejected with its errors and nothing changes.
-- **Reset** drops the draft and reloads the seed (after a confirmation).
+- **Reset** drops the draft and reloads the seed (after a confirmation). Signed in, Import and Reset replace the cloud copy instead (below).
 - A corrupt or invalid draft is not loaded: the seed opens with a notice and "Download draft".
 - To publish a flow, export, replace `design/workspace.json` with the exported file and commit it.
+
+## Accounts, cloud saving and review
+
+Optional, specified in [docs/specs/workspace-auth-sharing.md](../docs/specs/workspace-auth-sharing.md). With empty values in `design/cloud.config.js` (the default) none of this appears and the workspace stays browser-only.
+
+### Setup (once)
+
+1. Create a [Supabase](https://supabase.com) project. In its SQL editor run [`supabase/migrations/20261007120000_design_workspace_auth_sharing.sql`](../supabase/migrations/20261007120000_design_workspace_auth_sharing.sql) (or `supabase db push` with the Supabase CLI). It creates private tables and the `design_*` functions; clients can call only those functions, which check the signed-in user or the share link on every request.
+2. Create a GitHub OAuth app (GitHub → Settings → Developer settings) with the callback URL `https://<project-ref>.supabase.co/auth/v1/callback`, and enable the GitHub provider in Supabase (Authentication → Sign In / Providers) with its client id and secret.
+3. In Authentication → URL Configuration, set the Site URL to `https://weslley-campos.github.io/orbit-design/` and add `http://localhost:4173/` to the redirect URLs.
+4. Put the project URL and the anon (public) key in `design/cloud.config.js` and commit it. The anon key is meant to be public; never put the service-role key or the GitHub secret in this repository.
+
+The browser loads `@supabase/supabase-js` 2.116.0 from jsDelivr only when the config is filled in.
+
+### Signing in and saving
+
+- **Sign in with GitHub** sits next to the logo. Signing in never deletes the browser draft. A first sign-in on an account without a cloud copy asks whether to upload this browser's draft (pages, edits, Archived, Trash) or start from the committed `workspace.json`. Later sign-ins on any device open the account copy.
+- Every edit is saved to the account after a short pause, including moves, prototype links, Archived/Trash and restoring. Shelf views never save their temporary side-by-side layout. Unsynced edits are also kept in this browser per account (`localStorage['orbit.design.account.<user id>']`), so a closed tab, a reload, going offline or switching accounts loses nothing and never mixes accounts.
+- The sidebar status says *Saving to the cloud…*, *Saved to the cloud* (only after the service acknowledged it), *Offline · changes pending* (retried automatically), *Not saved to the cloud*, *Newer copy in the cloud* or *Cloud copy not loaded*.
+- Profile preferences sync separately from the document: the workspace theme (System/Light/Dark) and which panels are open. The frames' light/dark Mode belongs to the document.
+- Signing out returns to the browser draft. The account menu (avatar) has Download previous cloud copy and Sign out, plus Retry, Download local copy and Load cloud copy while saving has a problem.
+
+### Recovery
+
+- **Newer copy in the cloud**: another device saved since your edits started. The cloud copy is never overwritten. Use *Download local copy* to keep your version, then *Load cloud copy*; re-apply or Import what you need.
+- **Not saved / session ended**: your edits stay in this browser. *Retry*, or sign in again; *Download local copy* always works.
+- **Cloud copy not loaded**: nothing is saved over the account (not even the seed). You keep editing the browser draft; *Retry* when online.
+- **Import** and **Reset** while signed in replace the whole cloud copy, including Archived and Trash, after a confirmation. The previous copy is kept (the last 20); *Download previous cloud copy* gets the latest, which Import restores. Replacing also starts a new review generation: existing share links stop working and comments start over, even for reused frame ids. Both need saved changes and a connection.
+
+### Sharing and comments
+
+- **Share** (in the toolbar above a selected screen, once its changes are saved to the cloud) creates a link like `…/orbit-design/#/review/<64 hex characters>`. Anyone with it can view that one screen as last saved, with its comments; people signed in with GitHub can comment. Nothing else is exposed: no other screens, connections or other screens' edits. Reopening Share shows the same link with **Copy link** and **Revoke link**; a revoked link never works again (share again for a new one).
+- Archiving or trashing a screen (or deleting its page) suspends its link; restoring the same screen resumes it unless it was revoked.
+- **Comments**: the inspector's Comments tab shows the selected screen's thread; shelf views show it read-only. Comments are plain text (1–2,000 characters) and show the author's GitHub name and avatar (never an email), the time and the revision they saw. Each screen instance has its own thread, which follows moves, shelving and restoring. A failed post keeps its text; retrying never duplicates it.
+- **Review page**: a share link opens a read-only page with the screen, its comments and Refresh. A guest can start a comment, sign in and come back to the same screen with the draft. Reviewing never loads or saves the reviewer's own workspace; *Open my workspace* goes back to it.
 
 ## Regenerate and verify
 
 Run the JavaScript self-check from this repository:
 
 ```bash
-node design/check.mjs
+node design/check.mjs                    # workspace, store and cloud-sync checks
+node supabase/tests/service.test.mjs     # database functions on a throwaway local PostgreSQL (13+; set PG_BIN if needed)
 ```
 
 Theme extraction and Kotlin source validation run from the [Orbit application checkout](https://github.com/weslley-campos/orbit). With both repositories next to each other, run these commands from `orbit/` (JDK 21+):
