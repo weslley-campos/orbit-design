@@ -1,0 +1,704 @@
+{
+  "version": 1,
+  "settings": {
+    "palette": "flamingo",
+    "mode": "light",
+    "language": "en",
+    "device": "ios"
+  },
+  "selectedPageId": "page-mobile",
+  "startFrameId": "mobile-splash",
+  "pages": [
+    {
+      "id": "page-design-system",
+      "name": "Design system",
+      "view": {
+        "x": 40,
+        "y": 60,
+        "zoom": 0.3
+      },
+      "frames": [
+        {
+          "id": "design-system-colors",
+          "catalogId": "design-system/colors",
+          "x": 0,
+          "y": 0,
+          "width": 960,
+          "height": 1900
+        },
+        {
+          "id": "design-system-typography",
+          "catalogId": "design-system/typography",
+          "x": 1080,
+          "y": 0,
+          "width": 960,
+          "height": 1600
+        },
+        {
+          "id": "design-system-spacing-sizes",
+          "catalogId": "design-system/spacing-sizes",
+          "x": 2160,
+          "y": 0,
+          "width": 960,
+          "height": 1300
+        },
+        {
+          "id": "design-system-shapes",
+          "catalogId": "design-system/shapes",
+          "x": 0,
+          "y": 2060,
+          "width": 960,
+          "height": 620
+        },
+        {
+          "id": "design-system-elevation-gradients",
+          "catalogId": "design-system/elevation-gradients",
+          "x": 1080,
+          "y": 2060,
+          "width": 960,
+          "height": 700
+        }
+      ]
+    },
+    {
+      "id": "page-components",
+      "name": "Components",
+      "view": {
+        "x": 40,
+        "y": 60,
+        "zoom": 0.3
+      },
+      "frames": [
+        {
+          "id": "components-button",
+          "catalogId": "components/button",
+          "x": 0,
+          "y": 0,
+          "width": 760,
+          "height": 1360
+        },
+        {
+          "id": "components-icon-button",
+          "catalogId": "components/icon-button",
+          "x": 880,
+          "y": 0,
+          "width": 760,
+          "height": 560
+        },
+        {
+          "id": "components-outline-text-field",
+          "catalogId": "components/outline-text-field",
+          "x": 1760,
+          "y": 0,
+          "width": 760,
+          "height": 900
+        },
+        {
+          "id": "components-card",
+          "catalogId": "components/card",
+          "x": 2640,
+          "y": 0,
+          "width": 760,
+          "height": 1400
+        },
+        {
+          "id": "components-filter-chip",
+          "catalogId": "components/filter-chip",
+          "x": 0,
+          "y": 1560,
+          "width": 760,
+          "height": 360
+        },
+        {
+          "id": "components-linear-progress-indicator",
+          "catalogId": "components/linear-progress-indicator",
+          "x": 880,
+          "y": 1560,
+          "width": 760,
+          "height": 760
+        },
+        {
+          "id": "components-top-app-bar",
+          "catalogId": "components/top-app-bar",
+          "x": 1760,
+          "y": 1560,
+          "width": 760,
+          "height": 1100
+        },
+        {
+          "id": "components-navigation-bar",
+          "catalogId": "components/navigation-bar",
+          "x": 2640,
+          "y": 1560,
+          "width": 760,
+          "height": 1020
+        },
+        {
+          "id": "components-bottom-sheet",
+          "catalogId": "components/bottom-sheet",
+          "x": 0,
+          "y": 2780,
+          "width": 392,
+          "height": 640
+        },
+        {
+          "id": "components-snackbar",
+          "catalogId": "components/snackbar",
+          "x": 512,
+          "y": 2780,
+          "width": 402,
+          "height": 460
+        },
+        {
+          "id": "components-animated-logo",
+          "catalogId": "components/animated-logo",
+          "x": 1034,
+          "y": 2780,
+          "width": 760,
+          "height": 420
+        },
+        {
+          "id": "components-checkbox",
+          "catalogId": "components/checkbox",
+          "x": 1914,
+          "y": 2780,
+          "width": 760,
+          "height": 360
+        },
+        {
+          "id": "components-code-field",
+          "catalogId": "components/code-field",
+          "x": 2794,
+          "y": 2780,
+          "width": 760,
+          "height": 640
+        }
+      ]
+    },
+    {
+      "id": "page-mobile",
+      "name": "Screens / Mobile",
+      "platform": "mobile",
+      "view": {
+        "x": 40,
+        "y": 40,
+        "zoom": 0.3
+      },
+      "frames": [
+        {
+          "id": "mobile-splash",
+          "catalogId": "screens/splash",
+          "x": 0,
+          "y": 0,
+          "width": 402,
+          "height": 874
+        },
+        {
+          "id": "mobile-sign-in",
+          "catalogId": "screens/sign-in",
+          "x": 512,
+          "y": 0,
+          "width": 402,
+          "height": 874
+        },
+        {
+          "id": "mobile-create-account",
+          "catalogId": "screens/create-account",
+          "x": 1024,
+          "y": 0,
+          "width": 402,
+          "height": 874
+        },
+        {
+          "id": "mobile-email-validation",
+          "catalogId": "screens/email-validation",
+          "x": 1536,
+          "y": 0,
+          "width": 402,
+          "height": 874
+        },
+        {
+          "id": "mobile-join-family",
+          "catalogId": "screens/join-family",
+          "x": 2048,
+          "y": 0,
+          "width": 402,
+          "height": 874
+        },
+        {
+          "id": "mobile-family-members",
+          "catalogId": "screens/family-members",
+          "x": 2560,
+          "y": 0,
+          "width": 402,
+          "height": 874
+        },
+        {
+          "id": "mobile-invite",
+          "catalogId": "screens/invite",
+          "x": 3072,
+          "y": 0,
+          "width": 402,
+          "height": 874
+        },
+        {
+          "id": "mobile-forgot-password",
+          "catalogId": "screens/forgot-password",
+          "x": 512,
+          "y": 966,
+          "width": 402,
+          "height": 874
+        },
+        {
+          "id": "mobile-email-sent",
+          "catalogId": "screens/email-sent",
+          "x": 1024,
+          "y": 966,
+          "width": 402,
+          "height": 874
+        },
+        {
+          "id": "mobile-legal-terms",
+          "catalogId": "screens/legal-terms",
+          "x": 1536,
+          "y": 966,
+          "width": 402,
+          "height": 874
+        },
+        {
+          "id": "mobile-legal-privacy",
+          "catalogId": "screens/legal-privacy",
+          "x": 2048,
+          "y": 966,
+          "width": 402,
+          "height": 874
+        },
+        {
+          "id": "mobile-home",
+          "catalogId": "screens/home",
+          "x": 3584,
+          "y": 0,
+          "width": 402,
+          "height": 874
+        },
+        {
+          "id": "mobile-home-budget",
+          "catalogId": "screens/home-budget",
+          "x": 4096,
+          "y": 0,
+          "width": 402,
+          "height": 874
+        },
+        {
+          "id": "mobile-home-leftover",
+          "catalogId": "screens/home-leftover",
+          "x": 4608,
+          "y": 0,
+          "width": 402,
+          "height": 874
+        },
+        {
+          "id": "mobile-home-pulse",
+          "catalogId": "screens/home-pulse",
+          "x": 5120,
+          "y": 0,
+          "width": 402,
+          "height": 874
+        },
+        {
+          "id": "mobile-home-month-picker",
+          "catalogId": "screens/home-month-picker",
+          "x": 3584,
+          "y": 966,
+          "width": 402,
+          "height": 874
+        }
+      ]
+    },
+    {
+      "id": "page-desktop",
+      "name": "Screens / Desktop",
+      "platform": "desktop",
+      "view": {
+        "x": 80,
+        "y": 80,
+        "zoom": 0.5
+      },
+      "frames": []
+    },
+    {
+      "id": "page-web",
+      "name": "Screens / Web",
+      "platform": "web",
+      "view": {
+        "x": 80,
+        "y": 80,
+        "zoom": 0.5
+      },
+      "frames": []
+    },
+    {
+      "id": "page-emails",
+      "name": "Emails",
+      "view": {
+        "x": 40,
+        "y": 60,
+        "zoom": 0.5
+      },
+      "frames": [
+        {
+          "id": "emails-verification-code",
+          "catalogId": "emails/verification-code",
+          "x": 0,
+          "y": 0,
+          "width": 664,
+          "height": 544
+        },
+        {
+          "id": "emails-verification-code-stacked",
+          "catalogId": "emails/verification-code-stacked",
+          "x": 784,
+          "y": 0,
+          "width": 664,
+          "height": 892
+        }
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "mobile-splash-frame",
+      "from": {
+        "frameId": "mobile-splash",
+        "hotspotId": null
+      },
+      "to": {
+        "frameId": "mobile-sign-in"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-sign-in-forgot-password",
+      "from": {
+        "frameId": "mobile-sign-in",
+        "hotspotId": "forgot-password"
+      },
+      "to": {
+        "frameId": "mobile-forgot-password"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-sign-in-create-account",
+      "from": {
+        "frameId": "mobile-sign-in",
+        "hotspotId": "create-account"
+      },
+      "to": {
+        "frameId": "mobile-create-account"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-sign-in-terms",
+      "from": {
+        "frameId": "mobile-sign-in",
+        "hotspotId": "terms"
+      },
+      "to": {
+        "frameId": "mobile-legal-terms"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-sign-in-privacy",
+      "from": {
+        "frameId": "mobile-sign-in",
+        "hotspotId": "privacy"
+      },
+      "to": {
+        "frameId": "mobile-legal-privacy"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-legal-terms-back",
+      "from": {
+        "frameId": "mobile-legal-terms",
+        "hotspotId": "back"
+      },
+      "to": {
+        "frameId": "mobile-sign-in"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-legal-privacy-back",
+      "from": {
+        "frameId": "mobile-legal-privacy",
+        "hotspotId": "back"
+      },
+      "to": {
+        "frameId": "mobile-sign-in"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-forgot-password-send",
+      "from": {
+        "frameId": "mobile-forgot-password",
+        "hotspotId": "send"
+      },
+      "to": {
+        "frameId": "mobile-email-sent"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-forgot-password-back",
+      "from": {
+        "frameId": "mobile-forgot-password",
+        "hotspotId": "back"
+      },
+      "to": {
+        "frameId": "mobile-sign-in"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-forgot-password-back-to-sign-in",
+      "from": {
+        "frameId": "mobile-forgot-password",
+        "hotspotId": "back-to-sign-in"
+      },
+      "to": {
+        "frameId": "mobile-sign-in"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-email-sent-back-to-sign-in",
+      "from": {
+        "frameId": "mobile-email-sent",
+        "hotspotId": "back-to-sign-in"
+      },
+      "to": {
+        "frameId": "mobile-sign-in"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-create-account-submit",
+      "from": {
+        "frameId": "mobile-create-account",
+        "hotspotId": "submit"
+      },
+      "to": {
+        "frameId": "mobile-email-validation"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-create-account-back",
+      "from": {
+        "frameId": "mobile-create-account",
+        "hotspotId": "back"
+      },
+      "to": {
+        "frameId": "mobile-sign-in"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-create-account-sign-in",
+      "from": {
+        "frameId": "mobile-create-account",
+        "hotspotId": "sign-in"
+      },
+      "to": {
+        "frameId": "mobile-sign-in"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-create-account-terms",
+      "from": {
+        "frameId": "mobile-create-account",
+        "hotspotId": "terms"
+      },
+      "to": {
+        "frameId": "mobile-legal-terms"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-create-account-privacy",
+      "from": {
+        "frameId": "mobile-create-account",
+        "hotspotId": "privacy"
+      },
+      "to": {
+        "frameId": "mobile-legal-privacy"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-email-validation-confirm",
+      "from": {
+        "frameId": "mobile-email-validation",
+        "hotspotId": "confirm"
+      },
+      "to": {
+        "frameId": "mobile-join-family"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-email-validation-back",
+      "from": {
+        "frameId": "mobile-email-validation",
+        "hotspotId": "back"
+      },
+      "to": {
+        "frameId": "mobile-sign-in"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-join-family-cancel",
+      "from": {
+        "frameId": "mobile-join-family",
+        "hotspotId": "cancel"
+      },
+      "to": {
+        "frameId": "mobile-family-members"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-join-family-join",
+      "from": {
+        "frameId": "mobile-join-family",
+        "hotspotId": "join"
+      },
+      "to": {
+        "frameId": "mobile-home"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-family-members-continue",
+      "from": {
+        "frameId": "mobile-family-members",
+        "hotspotId": "continue"
+      },
+      "to": {
+        "frameId": "mobile-invite"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-family-members-back",
+      "from": {
+        "frameId": "mobile-family-members",
+        "hotspotId": "back"
+      },
+      "to": {
+        "frameId": "mobile-join-family"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-invite-back",
+      "from": {
+        "frameId": "mobile-invite",
+        "hotspotId": "back"
+      },
+      "to": {
+        "frameId": "mobile-family-members"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-email-sent-change-email",
+      "from": {
+        "frameId": "mobile-email-sent",
+        "hotspotId": "change-email"
+      },
+      "to": {
+        "frameId": "mobile-forgot-password"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "emails-verification-code-open-orbit",
+      "from": {
+        "frameId": "emails-verification-code",
+        "hotspotId": "open-orbit"
+      },
+      "to": {
+        "frameId": "mobile-email-validation"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-invite-invite-later",
+      "from": {
+        "frameId": "mobile-invite",
+        "hotspotId": "invite-later"
+      },
+      "to": {
+        "frameId": "mobile-home"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-family-members-add-later",
+      "from": {
+        "frameId": "mobile-family-members",
+        "hotspotId": "add-later"
+      },
+      "to": {
+        "frameId": "mobile-home"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-home-month",
+      "from": {
+        "frameId": "mobile-home",
+        "hotspotId": "month"
+      },
+      "to": {
+        "frameId": "mobile-home-month-picker"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-home-month-picker-close",
+      "from": {
+        "frameId": "mobile-home-month-picker",
+        "hotspotId": "picker-close"
+      },
+      "to": {
+        "frameId": "mobile-home"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-home-month-picker-apply",
+      "from": {
+        "frameId": "mobile-home-month-picker",
+        "hotspotId": "picker-apply"
+      },
+      "to": {
+        "frameId": "mobile-home"
+      },
+      "trigger": "click"
+    }
+  ],
+  "overrides": {
+    "tokens": {},
+    "frames": {}
+  }
+}

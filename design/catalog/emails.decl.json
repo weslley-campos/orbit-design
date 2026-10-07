@@ -1,0 +1,94 @@
+{
+  "components": {},
+  "styles": {
+    "Email/canvas": {
+      "bind": {
+        "background": { "token": "colors.surface.sunken" },
+        "padding": { "token": "spacing.xxLarge" }
+      },
+      "css": { "display": "flex", "justify-content": "center", "align-items": "flex-start", "width": "100%", "height": "100%" }
+    },
+    "Email/column": {
+      "bind": {
+        "width": { "literal": "600dp", "proposal": "standard email body width" },
+        "gap": { "token": "spacing.small" }
+      },
+      "css": { "display": "flex", "flex-direction": "column", "flex-shrink": "0" }
+    },
+    "Email/client": {
+      "bind": { "gap": { "token": "spacing.xxxSmall" } },
+      "css": { "display": "flex", "flex-direction": "column" }
+    },
+    "Email/subject": {
+      "bind": {
+        "font": { "token": "typography.titleMedium" },
+        "color": { "token": "colors.text.primary" }
+      }
+    },
+    "Email/body": {
+      "bind": {
+        "background": { "token": "colors.surface.base" },
+        "border-radius": { "token": "shapes.card" },
+        "border": [
+          { "literal": "1dp", "proposal": "email body outline width" },
+          { "token": "colors.border.base" }
+        ],
+        "padding": { "token": "spacing.xxLarge" },
+        "gap": { "token": "spacing.small" }
+      },
+      "css": { "display": "flex", "flex-direction": "column" }
+    },
+    "Email/topRow": {
+      "css": { "display": "flex", "align-items": "center", "justify-content": "space-between" }
+    },
+    "Email/wordmark": {
+      "bind": {
+        "font": { "token": "typography.titleLarge" },
+        "font-weight": { "literal": "700", "proposal": "text wordmark weight, no logo image in email" },
+        "color": { "token": "colors.text.brand" }
+      }
+    },
+    "Email/switch": {
+      "bind": { "gap": { "token": "spacing.xxSmall" } },
+      "css": { "display": "flex", "align-items": "center" }
+    },
+    "Email/langSelected": {
+      "bind": {
+        "font": { "token": "typography.bodyLarge" },
+        "font-weight": { "literal": "700", "proposal": "selected language is heavier" },
+        "color": { "token": "colors.text.brand" }
+      }
+    },
+    "Email/lang": {
+      "bind": {
+        "font": { "token": "typography.bodyLarge" },
+        "color": { "token": "colors.text.secondary" }
+      }
+    },
+    "Email/title": {
+      "bind": {
+        "font": { "token": "typography.headlineSmall" },
+        "font-weight": { "literal": "700", "proposal": "email title weight" },
+        "color": { "token": "colors.text.primary" }
+      }
+    },
+    "Email/code": {
+      "bind": {
+        "background": { "token": "colors.brand.subtle" },
+        "border-radius": { "token": "shapes.field" },
+        "padding-top": { "token": "spacing.medium" },
+        "padding-bottom": { "token": "spacing.medium" },
+        "font": { "token": "typography.code" },
+        "font-size": { "literal": "40sp", "proposal": "hero verification code; typography.code is too small" },
+        "line-height": { "literal": "48sp", "proposal": "line height for the hero code" },
+        "letter-spacing": { "literal": "0.2em", "proposal": "wide tracking so each digit reads separately" },
+        "color": { "token": "colors.text.primary" }
+      },
+      "css": { "text-align": "center", "width": "100%" }
+    },
+    "Email/block": {
+      "bind": { "gap": { "token": "spacing.small" } },
+      "css": { "display": "flex", "flex-direction": "column" }
+    }
+  }
+}

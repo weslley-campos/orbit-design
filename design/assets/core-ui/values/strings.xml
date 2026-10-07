@@ -1,0 +1,13 @@
+<resources>
+    <string name="palette_spruce">Green</string>
+    <string name="palette_indigo">Dark Blue</string>
+    <string name="palette_plum">Purple</string>
+    <string name="palette_orchid">Violet</string>
+    <string name="palette_flamingo">Pink</string>
+    <string name="palette_azure">Light Blue</string>
+    <string name="palette_ember">Amber</string>
+    <string name="palette_graphite">Gray</string>
+    <string name="snackbar_close">Close</string>
+    <string name="password_show">Show password</string>
+    <string name="password_hide">Hide password</string>
+</resources>

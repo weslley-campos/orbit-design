@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Orbit design workspace</title>
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="workspace.css">
+<style id="orbit-base"></style>
+<style id="orbit-overrides"></style>
+</head>
+<body>
+<header class="ws-toolbar" aria-label="Workspace toolbar">
+  <button id="toggle-left" class="ws-icon" aria-controls="left" aria-expanded="true" aria-label="Hide pages panel">◧</button>
+  <strong class="ws-brand">Orbit design</strong>
+  <label>Palette <select id="palette"></select></label>
+  <label>Mode <select id="mode"></select></label>
+  <label>Language <select id="language"></select></label>
+  <label>Device <select id="device"></select></label>
+  <span class="ws-group" role="group" aria-label="Zoom">
+    <button id="zoom-out" aria-label="Zoom out">−</button>
+    <button id="zoom-pct" aria-label="Reset zoom to 100%">100%</button>
+    <button id="zoom-in" aria-label="Zoom in">+</button>
+    <button id="fit">Fit</button>
+  </span>
+  <button id="play">Play</button>
+  <span class="ws-group">
+    <button id="export">Export</button>
+    <button id="import">Import</button>
+    <input id="import-file" type="file" accept="application/json,.json" aria-label="Import workspace.json" hidden>
+    <button id="reset">Reset</button>
+  </span>
+  <span id="save-status" role="status">Saved</span>
+  <button id="toggle-right" class="ws-icon" aria-controls="right" aria-expanded="true" aria-label="Hide inspector panel">◨</button>
+</header>
+<div id="notice" role="alert" hidden></div>
+<div id="boot-error" role="alert" hidden></div>
+<aside id="left" class="ws-side" aria-label="Pages and frames"></aside>
+<main id="canvas" aria-label="Canvas"></main>
+<aside id="right" class="ws-side" aria-label="Inspector">
+  <div role="tablist" aria-label="Inspector tabs">
+    <button id="tab-inspect" role="tab" aria-selected="true" aria-controls="panel">Inspect</button>
+    <button id="tab-prototype" role="tab" aria-selected="false" aria-controls="panel">Prototype</button>
+  </div>
+  <div id="panel" role="tabpanel" aria-labelledby="tab-inspect" tabindex="0"></div>
+</aside>
+<script type="module" src="js/app.js" onerror="var b=document.getElementById('boot-error');b.hidden=false;b.textContent='A script failed to load. Open the browser console and serve design/ from http://localhost:4173.'"></script>
+</body>
+</html>

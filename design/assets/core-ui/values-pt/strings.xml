@@ -1,0 +1,13 @@
+<resources>
+    <string name="palette_spruce">Verde</string>
+    <string name="palette_indigo">Azul-escuro</string>
+    <string name="palette_plum">Roxo</string>
+    <string name="palette_orchid">Violeta</string>
+    <string name="palette_flamingo">Rosa</string>
+    <string name="palette_azure">Azul-claro</string>
+    <string name="palette_ember">Âmbar</string>
+    <string name="palette_graphite">Cinza</string>
+    <string name="snackbar_close">Fechar</string>
+    <string name="password_show">Mostrar senha</string>
+    <string name="password_hide">Ocultar senha</string>
+</resources>

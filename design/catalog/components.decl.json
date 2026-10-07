@@ -1,0 +1,3236 @@
+{
+  "components": {
+    "OrbitScaffold": {
+      "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitScaffold.kt",
+      "props": {},
+      "snippet": "OrbitScaffold { innerPadding ->\n    // screen content\n}"
+    },
+    "OrbitButton": {
+      "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitButton.kt",
+      "props": {
+        "variant": {
+          "type": "enum",
+          "values": [
+            "Primary",
+            "Outlined",
+            "Text",
+            "Destructive"
+          ],
+          "default": "Primary"
+        },
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "loading": {
+          "type": "boolean",
+          "default": false
+        },
+        "state": {
+          "type": "enum",
+          "values": [
+            "Default",
+            "Hovered",
+            "Pressed",
+            "Focused"
+          ],
+          "default": "Default"
+        }
+      },
+      "snippet": "OrbitButton(\n    onClick = { },\n    variant = OrbitButtonVariant.{variant},\n    enabled = {enabled},\n    loading = {loading},\n) {\n    // content ({state} is an interaction state)\n}"
+    },
+    "OrbitIconButton": {
+      "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitIconButton.kt",
+      "props": {
+        "variant": {
+          "type": "enum",
+          "values": [
+            "Standard",
+            "Filled",
+            "Tonal",
+            "Outlined"
+          ],
+          "default": "Standard"
+        },
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "state": {
+          "type": "enum",
+          "values": [
+            "Default",
+            "Hovered",
+            "Pressed",
+            "Focused"
+          ],
+          "default": "Default"
+        },
+        "contentDescription": {
+          "type": "string",
+          "default": "Close"
+        }
+      },
+      "snippet": "OrbitIconButton(\n    onClick = { },\n    contentDescription = \"{contentDescription}\",\n    variant = OrbitIconButtonVariant.{variant},\n    enabled = {enabled},\n) {\n    // icon ({state} is an interaction state)\n}"
+    },
+    "OrbitOutlineTextField": {
+      "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitOutlineTextField.kt",
+      "props": {
+        "value": {
+          "type": "string",
+          "default": ""
+        },
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "isError": {
+          "type": "boolean",
+          "default": false
+        },
+        "focused": {
+          "type": "boolean",
+          "default": false
+        },
+        "password": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "snippet": "OrbitOutlineTextField(\n    value = \"{value}\",\n    onValueChange = { },\n    enabled = {enabled},\n    isError = {isError},\n    visualTransformation = if ({password}) PasswordVisualTransformation() else VisualTransformation.None,\n    // focused = {focused} is an interaction state\n)"
+    },
+    "OrbitTopAppBar": {
+      "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitTopAppBar.kt",
+      "props": {
+        "variant": {
+          "type": "enum",
+          "values": [
+            "Small",
+            "CenterAligned",
+            "Medium",
+            "Large"
+          ],
+          "default": "Small"
+        },
+        "scrolled": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "snippet": "OrbitTopAppBar(\n    title = \"Overview\",\n    variant = OrbitTopAppBarVariant.{variant},\n    // scrolled = {scrolled} comes from the TopAppBarScrollBehavior\n)"
+    },
+    "OrbitCard": {
+      "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitCard.kt",
+      "props": {
+        "variant": {
+          "type": "enum",
+          "values": [
+            "Base",
+            "Raised",
+            "Gradient"
+          ],
+          "default": "Base"
+        },
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "state": {
+          "type": "enum",
+          "values": [
+            "Default",
+            "Hovered",
+            "Pressed",
+            "Focused"
+          ],
+          "default": "Default"
+        }
+      },
+      "snippet": "OrbitCard(\n    variant = OrbitCardVariant.{variant},\n    onClick = { },\n    enabled = {enabled},\n) {\n    // content ({state} is an interaction state)\n}"
+    },
+    "OrbitFilterChip": {
+      "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitFilterChip.kt",
+      "props": {
+        "selected": {
+          "type": "boolean",
+          "default": false
+        },
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "state": {
+          "type": "enum",
+          "values": [
+            "Default",
+            "Hovered",
+            "Pressed",
+            "Focused"
+          ],
+          "default": "Default"
+        }
+      },
+      "snippet": "OrbitFilterChip(\n    selected = {selected},\n    onClick = { },\n    label = \"Label\",\n    enabled = {enabled},\n    // {state} is an interaction state\n)"
+    },
+    "OrbitLinearProgressIndicator": {
+      "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitLinearProgressIndicator.kt",
+      "props": {
+        "progress": {
+          "type": "number",
+          "default": 0.5
+        },
+        "indeterminate": {
+          "type": "boolean",
+          "default": false
+        },
+        "status": {
+          "type": "enum",
+          "values": [
+            "Primary",
+            "Success",
+            "Warning",
+            "Error"
+          ],
+          "default": "Primary"
+        }
+      },
+      "snippet": "OrbitLinearProgressIndicator(\n    progress = {progress},\n    status = OrbitProgressStatus.{status},\n    // indeterminate = {indeterminate} passes progress = null\n)"
+    },
+    "OrbitNavigationBar": {
+      "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitNavigationBar.kt",
+      "props": {
+        "selectedIndex": {
+          "type": "number",
+          "default": 0
+        },
+        "alwaysShowLabel": {
+          "type": "boolean",
+          "default": true
+        }
+      },
+      "snippet": "OrbitNavigationBar {\n    OrbitNavigationBarItem(\n        selected = index == {selectedIndex},\n        onClick = { },\n        label = \"Home\",\n        icon = { },\n        alwaysShowLabel = {alwaysShowLabel},\n    )\n}"
+    },
+    "OrbitBottomSheet": {
+      "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitBottomSheet.kt",
+      "props": {
+        "showDragHandle": {
+          "type": "boolean",
+          "default": true
+        }
+      },
+      "snippet": "OrbitBottomSheet(\n    onDismissRequest = { },\n    showDragHandle = {showDragHandle},\n) {\n    // content\n}"
+    },
+    "OrbitSnackbar": {
+      "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/snackbar/OrbitSnackbar.kt",
+      "props": {
+        "type": {
+          "type": "enum",
+          "values": [
+            "Success",
+            "Error",
+            "Info",
+            "Warning"
+          ],
+          "default": "Success"
+        }
+      },
+      "snippet": "// internal: shown through SnackbarManager\nsnackbarManager.show(\n    text = Res.string.message,\n    type = SnackbarType.{type},\n)"
+    },
+    "AnimatedOrbitLogo": {
+      "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/AnimatedOrbitLogo.kt",
+      "props": {},
+      "snippet": "AnimatedOrbitLogo(modifier = Modifier.size(256.dp))"
+    },
+    "Checkbox": {
+      "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/OrbitTheme.kt",
+      "props": {
+        "checked": {
+          "type": "boolean",
+          "default": false
+        },
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        }
+      },
+      "snippet": "Checkbox(\n    checked = {checked},\n    onCheckedChange = null,\n    enabled = {enabled},\n    colors = CheckboxDefaults.colors(\n        checkedColor = OrbitTheme.colors.brand.primary,\n        uncheckedColor = OrbitTheme.colors.text.secondary,\n        checkmarkColor = OrbitTheme.colors.surface.background,\n        disabledCheckedColor = OrbitTheme.colors.border.disabled,\n        disabledUncheckedColor = OrbitTheme.colors.border.disabled,\n    ),\n)"
+    },
+    "HorizontalDivider": {
+      "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/OrbitTheme.kt",
+      "props": {},
+      "snippet": "HorizontalDivider(color = OrbitTheme.colors.border.base)"
+    }
+  },
+  "styles": {
+    "OrbitScaffold": {
+      "bind": {
+        "background": {
+          "token": "colors.surface.background",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitScaffold.kt:66"
+        },
+        "color": {
+          "token": "colors.text.primary",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitScaffold.kt:67"
+        },
+        "font-family": {
+          "unmapped": "Material 3 default text style; Orbit text always passes its own style",
+          "css": "system-ui, sans-serif"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "flex-direction": "column",
+        "width": "100%",
+        "height": "100%",
+        "position": "relative",
+        "overflow-x": "hidden",
+        "overflow-y": "auto"
+      }
+    },
+    "OrbitButton": {
+      "bind": {
+        "border-radius": {
+          "token": "shapes.button",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitButton.kt:71"
+        },
+        "padding": [
+          {
+            "token": "spacing.xxSmall",
+            "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitButton.kt:116"
+          },
+          {
+            "token": "spacing.small",
+            "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitButton.kt:115"
+          }
+        ],
+        "font": {
+          "token": "typography.labelLarge",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitButton.kt:120"
+        },
+        "min-width": {
+          "unmapped": "Material 3 ButtonDefaults.MinWidth",
+          "css": "58px"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "align-items": "center",
+        "justify-content": "center",
+        "position": "relative",
+        "overflow": "hidden",
+        "cursor": "pointer",
+        "user-select": "none",
+        "white-space": "nowrap"
+      }
+    },
+    "OrbitButton/size": {
+      "bind": {
+        "min-height": {
+          "literal": "48dp",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitButton.kt:99"
+        }
+      }
+    },
+    "OrbitButton/inRing": {
+      "css": {
+        "flex-grow": "1"
+      }
+    },
+    "OrbitButton/Focused": {
+      "bind": {
+        "border": [
+          {
+            "literal": "2dp",
+            "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitButton.kt:82"
+          },
+          {
+            "token": "colors.border.primary",
+            "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitButton.kt:83"
+          }
+        ],
+        "border-radius": {
+          "token": "shapes.button",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitButton.kt:71"
+        },
+        "padding": {
+          "literal": "4dp",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitButton.kt:85"
+        },
+        "min-height": {
+          "literal": "48dp",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitButton.kt:99"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "border-style": "solid"
+      }
+    },
+    "OrbitButton/Destructive/Focused": {
+      "bind": {
+        "border-color": {
+          "token": "colors.border.error",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitButton.kt:83"
+        }
+      }
+    },
+    "OrbitButton/overlay": {
+      "css": {
+        "position": "absolute",
+        "inset": "0",
+        "pointer-events": "none"
+      }
+    },
+    "OrbitButton/Primary": {
+      "bind": {
+        "background": {
+          "token": "gradients.primary",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitButton.kt:90"
+        },
+        "color": {
+          "token": "colors.text.onInk",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitButton.kt:153"
+        }
+      }
+    },
+    "OrbitButton/Destructive": {
+      "bind": {
+        "background": {
+          "token": "colors.direction.loss",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitButton.kt:164"
+        },
+        "color": {
+          "token": "colors.text.onLoss",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitButton.kt:164"
+        }
+      }
+    },
+    "OrbitButton/Outlined": {
+      "bind": {
+        "background": {
+          "token": "colors.surface.base",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitButton.kt:159"
+        },
+        "color": {
+          "token": "colors.brand.primary",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitButton.kt:161"
+        },
+        "border": [
+          {
+            "literal": "1dp",
+            "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitButton.kt:110"
+          },
+          {
+            "token": "colors.border.primary",
+            "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitButton.kt:110"
+          }
+        ]
+      },
+      "css": {
+        "border-style": "solid"
+      }
+    },
+    "OrbitButton/Text": {
+      "bind": {
+        "background": {
+          "literal": "transparent",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitButton.kt:158"
+        },
+        "color": {
+          "token": "colors.brand.primary",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitButton.kt:161"
+        }
+      }
+    },
+    "OrbitButton/Outlined/Hovered": {
+      "bind": {
+        "background": {
+          "token": "colors.brand.subtle",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitButton.kt:157"
+        }
+      }
+    },
+    "OrbitButton/Outlined/Pressed": {
+      "bind": {
+        "background": {
+          "token": "colors.brand.subtleSolid",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitButton.kt:156"
+        }
+      }
+    },
+    "OrbitButton/Text/Hovered": {
+      "bind": {
+        "background": {
+          "token": "colors.brand.subtle",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitButton.kt:157"
+        }
+      }
+    },
+    "OrbitButton/Text/Pressed": {
+      "bind": {
+        "background": {
+          "token": "colors.brand.subtleSolid",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitButton.kt:156"
+        }
+      }
+    },
+    "OrbitButton/overlay/Primary/Hovered": {
+      "bind": {
+        "background": {
+          "token": "colors.text.onInk",
+          "alpha": 0.08,
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitButton.kt:153"
+        }
+      }
+    },
+    "OrbitButton/overlay/Primary/Pressed": {
+      "bind": {
+        "background": {
+          "token": "colors.text.onInk",
+          "alpha": 0.12,
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitButton.kt:153"
+        }
+      }
+    },
+    "OrbitButton/overlay/Destructive/Hovered": {
+      "bind": {
+        "background": {
+          "token": "colors.text.onLoss",
+          "alpha": 0.08,
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitButton.kt:164"
+        }
+      }
+    },
+    "OrbitButton/overlay/Destructive/Pressed": {
+      "bind": {
+        "background": {
+          "token": "colors.text.onLoss",
+          "alpha": 0.12,
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitButton.kt:164"
+        }
+      }
+    },
+    "OrbitButton/Primary/Disabled": {
+      "bind": {
+        "opacity": {
+          "unmapped": "OrbitButton fades a disabled button with DisabledAlpha",
+          "css": "0.38"
+        }
+      }
+    },
+    "OrbitButton/Outlined/Disabled": {
+      "bind": {
+        "opacity": {
+          "unmapped": "OrbitButton fades a disabled button with DisabledAlpha",
+          "css": "0.38"
+        }
+      }
+    },
+    "OrbitButton/Text/Disabled": {
+      "bind": {
+        "opacity": {
+          "unmapped": "OrbitButton fades a disabled button with DisabledAlpha",
+          "css": "0.38"
+        }
+      }
+    },
+    "OrbitButton/Destructive/Disabled": {
+      "bind": {
+        "opacity": {
+          "unmapped": "OrbitButton fades a disabled button with DisabledAlpha",
+          "css": "0.38"
+        }
+      }
+    },
+    "OrbitButton/spinner": {
+      "bind": {
+        "width": {
+          "token": "sizes.small",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitButton.kt:123"
+        },
+        "height": {
+          "token": "sizes.small",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitButton.kt:123"
+        },
+        "border-radius": {
+          "unmapped": "Material 3 CircularProgressIndicator is circular",
+          "css": "50%"
+        },
+        "margin-right": {
+          "token": "spacing.xxSmall",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitButton.kt:128"
+        },
+        "border": [
+          {
+            "literal": "2dp",
+            "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitButton.kt:126"
+          },
+          {
+            "token": "colors.text.onInk",
+            "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitButton.kt:153"
+          }
+        ],
+        "border-top-color": {
+          "literal": "transparent",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitButton.kt:125"
+        },
+        "animation-duration": {
+          "unmapped": "Material 3 CircularProgressIndicator indeterminate rotation period",
+          "css": "1332ms"
+        }
+      },
+      "css": {
+        "border-style": "solid",
+        "flex-shrink": "0",
+        "animation-name": "orbit-rotate",
+        "animation-timing-function": "linear",
+        "animation-iteration-count": "infinite"
+      }
+    },
+    "OrbitButton/spinner/Primary": {
+      "bind": {
+        "border-color": {
+          "token": "colors.text.onInk",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitButton.kt:124"
+        },
+        "border-top-color": {
+          "literal": "transparent",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitButton.kt:125"
+        }
+      }
+    },
+    "OrbitButton/spinner/Outlined": {
+      "bind": {
+        "border-color": {
+          "token": "colors.brand.primary",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitButton.kt:124"
+        },
+        "border-top-color": {
+          "literal": "transparent",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitButton.kt:125"
+        }
+      }
+    },
+    "OrbitButton/spinner/Text": {
+      "bind": {
+        "border-color": {
+          "token": "colors.brand.primary",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitButton.kt:124"
+        },
+        "border-top-color": {
+          "literal": "transparent",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitButton.kt:125"
+        }
+      }
+    },
+    "OrbitButton/spinner/Destructive": {
+      "bind": {
+        "border-color": {
+          "token": "colors.text.onLoss",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitButton.kt:124"
+        },
+        "border-top-color": {
+          "literal": "transparent",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitButton.kt:125"
+        }
+      }
+    },
+    "OrbitIconButton": {
+      "bind": {
+        "border-radius": {
+          "token": "shapes.pill",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitIconButton.kt:61"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "align-items": "center",
+        "justify-content": "center",
+        "position": "relative",
+        "overflow": "hidden",
+        "cursor": "pointer",
+        "user-select": "none",
+        "flex-shrink": "0"
+      }
+    },
+    "OrbitIconButton/size": {
+      "bind": {
+        "min-width": {
+          "literal": "48dp",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitIconButton.kt:92"
+        },
+        "min-height": {
+          "literal": "48dp",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitIconButton.kt:92"
+        }
+      }
+    },
+    "OrbitIconButton/Focused": {
+      "bind": {
+        "border": [
+          {
+            "literal": "2dp",
+            "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitIconButton.kt:75"
+          },
+          {
+            "token": "colors.border.primary",
+            "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitIconButton.kt:75"
+          }
+        ],
+        "border-radius": {
+          "token": "shapes.pill",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitIconButton.kt:61"
+        },
+        "padding": {
+          "literal": "4dp",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitIconButton.kt:75"
+        },
+        "min-width": {
+          "literal": "48dp",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitIconButton.kt:92"
+        },
+        "min-height": {
+          "literal": "48dp",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitIconButton.kt:92"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "border-style": "solid",
+        "flex-shrink": "0"
+      }
+    },
+    "OrbitIconButton/inRing": {
+      "css": {
+        "flex-grow": "1"
+      }
+    },
+    "OrbitIconButton/overlay": {
+      "css": {
+        "position": "absolute",
+        "inset": "0",
+        "pointer-events": "none"
+      }
+    },
+    "OrbitIconButton/Standard": {
+      "bind": {
+        "background": {
+          "literal": "transparent",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitIconButton.kt:134"
+        },
+        "color": {
+          "token": "colors.text.secondary",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitIconButton.kt:136"
+        }
+      }
+    },
+    "OrbitIconButton/Filled": {
+      "bind": {
+        "background": {
+          "token": "gradients.primary",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitIconButton.kt:85"
+        },
+        "color": {
+          "token": "colors.text.onInk",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitButton.kt:153"
+        }
+      }
+    },
+    "OrbitIconButton/Tonal": {
+      "bind": {
+        "background": {
+          "token": "colors.brand.subtleSolid",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitIconButton.kt:145"
+        },
+        "color": {
+          "token": "colors.brand.primary",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitIconButton.kt:145"
+        }
+      }
+    },
+    "OrbitIconButton/Outlined": {
+      "bind": {
+        "background": {
+          "token": "colors.surface.base",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitButton.kt:159"
+        },
+        "color": {
+          "token": "colors.brand.primary",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitButton.kt:161"
+        },
+        "border": [
+          {
+            "literal": "1dp",
+            "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitIconButton.kt:80"
+          },
+          {
+            "token": "colors.border.primary",
+            "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitIconButton.kt:80"
+          }
+        ]
+      },
+      "css": {
+        "border-style": "solid"
+      }
+    },
+    "OrbitIconButton/Standard/Hovered": {
+      "bind": {
+        "background": {
+          "token": "colors.brand.subtle",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitIconButton.kt:133"
+        }
+      }
+    },
+    "OrbitIconButton/Standard/Pressed": {
+      "bind": {
+        "background": {
+          "token": "colors.brand.subtleSolid",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitIconButton.kt:132"
+        }
+      }
+    },
+    "OrbitIconButton/Outlined/Hovered": {
+      "bind": {
+        "background": {
+          "token": "colors.brand.subtle",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitButton.kt:157"
+        }
+      }
+    },
+    "OrbitIconButton/Outlined/Pressed": {
+      "bind": {
+        "background": {
+          "token": "colors.brand.subtleSolid",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitButton.kt:156"
+        }
+      }
+    },
+    "OrbitIconButton/overlay/Filled/Hovered": {
+      "bind": {
+        "background": {
+          "token": "colors.text.onInk",
+          "alpha": 0.08,
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitButton.kt:153"
+        }
+      }
+    },
+    "OrbitIconButton/overlay/Filled/Pressed": {
+      "bind": {
+        "background": {
+          "token": "colors.text.onInk",
+          "alpha": 0.12,
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitButton.kt:153"
+        }
+      }
+    },
+    "OrbitIconButton/overlay/Tonal/Hovered": {
+      "bind": {
+        "background": {
+          "token": "colors.brand.primary",
+          "alpha": 0.08,
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitIconButton.kt:145"
+        }
+      }
+    },
+    "OrbitIconButton/overlay/Tonal/Pressed": {
+      "bind": {
+        "background": {
+          "token": "colors.brand.primary",
+          "alpha": 0.12,
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitIconButton.kt:145"
+        }
+      }
+    },
+    "OrbitIconButton/Standard/Disabled": {
+      "bind": {
+        "background": {
+          "literal": "transparent",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitIconButton.kt:131"
+        },
+        "color": {
+          "token": "colors.text.disabled",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitIconButton.kt:136"
+        }
+      }
+    },
+    "OrbitIconButton/Filled/Disabled": {
+      "bind": {
+        "background": {
+          "token": "colors.surface.sunken",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitButton.kt:144"
+        },
+        "color": {
+          "token": "colors.text.disabled",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitButton.kt:145"
+        }
+      }
+    },
+    "OrbitIconButton/Tonal/Disabled": {
+      "bind": {
+        "background": {
+          "token": "colors.surface.sunken",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitIconButton.kt:147"
+        },
+        "color": {
+          "token": "colors.text.disabled",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitIconButton.kt:147"
+        }
+      }
+    },
+    "OrbitIconButton/Outlined/Disabled": {
+      "bind": {
+        "background": {
+          "token": "colors.surface.sunken",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitButton.kt:144"
+        },
+        "color": {
+          "token": "colors.text.disabled",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitButton.kt:145"
+        },
+        "border": [
+          {
+            "literal": "1dp",
+            "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitIconButton.kt:80"
+          },
+          {
+            "token": "colors.border.disabled",
+            "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitIconButton.kt:80"
+          }
+        ]
+      }
+    },
+    "OrbitIconButton/icon/close": {
+      "bind": {
+        "icon": {
+          "resource": "CoreUiRes.drawable.ic_close"
+        },
+        "width": {
+          "unmapped": "Material 3 Icon default size",
+          "css": "24px"
+        },
+        "height": {
+          "unmapped": "Material 3 Icon default size",
+          "css": "24px"
+        }
+      }
+    },
+    "OrbitOutlineTextField": {
+      "css": {
+        "display": "flex",
+        "flex-direction": "column",
+        "width": "100%"
+      }
+    },
+    "OrbitOutlineTextField/box": {
+      "bind": {
+        "border-radius": {
+          "token": "shapes.field",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitOutlineTextField.kt:73"
+        },
+        "min-height": {
+          "unmapped": "Material 3 OutlinedTextField minimum height",
+          "css": "56px"
+        },
+        "padding": {
+          "unmapped": "Material 3 OutlinedTextField horizontal padding",
+          "css": "0 16px"
+        },
+        "border-width": {
+          "unmapped": "Material 3 OutlinedTextField unfocused outline thickness",
+          "css": "1px"
+        },
+        "gap": {
+          "unmapped": "Material 3 OutlinedTextField icon spacing",
+          "css": "4px"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "border-style": "solid",
+        "align-items": "center",
+        "position": "relative"
+      }
+    },
+    "OrbitOutlineTextField/box/FocusedThickness": {
+      "bind": {
+        "border-width": {
+          "unmapped": "Material 3 OutlinedTextField focused outline thickness",
+          "css": "2px"
+        }
+      }
+    },
+    "OrbitOutlineTextField/content": {
+      "css": {
+        "display": "flex",
+        "align-items": "center",
+        "flex-grow": "1",
+        "position": "relative",
+        "align-self": "stretch"
+      }
+    },
+    "OrbitOutlineTextField/label/Floated": {
+      "bind": {
+        "padding": {
+          "unmapped": "Material 3 OutlinedTextField label notch padding",
+          "css": "0 4px"
+        },
+        "margin-left": {
+          "unmapped": "Material 3 OutlinedTextField floating label inset",
+          "css": "-4px"
+        }
+      },
+      "css": {
+        "top": "0",
+        "transform": "translateY(-50%)"
+      }
+    },
+    "OrbitOutlineTextField/label/FloatedLeading": {
+      "bind": {
+        "margin-left": {
+          "unmapped": "Material 3 floated label aligns to container start padding: leading icon 24px + gap 4px + notch inset 4px",
+          "css": "-32px"
+        }
+      }
+    },
+    "OrbitOutlineTextField/label": {
+      "bind": {
+        "font": {
+          "token": "typography.bodySmall",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitOutlineTextField.kt:61"
+        }
+      },
+      "css": {
+        "position": "absolute",
+        "top": "50%",
+        "transform": "translateY(-50%)",
+        "white-space": "nowrap",
+        "pointer-events": "none"
+      }
+    },
+    "OrbitOutlineTextField/input": {
+      "bind": {
+        "font": {
+          "token": "typography.bodyMedium",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitOutlineTextField.kt:60"
+        },
+        "color": {
+          "token": "colors.text.primary",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitOutlineTextField.kt:76"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "align-items": "center",
+        "white-space": "nowrap"
+      }
+    },
+    "OrbitOutlineTextField/input/Disabled": {
+      "bind": {
+        "color": {
+          "token": "colors.text.disabled",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitOutlineTextField.kt:77"
+        }
+      }
+    },
+    "OrbitOutlineTextField/placeholder": {
+      "bind": {
+        "font": {
+          "token": "typography.bodyMedium",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitOutlineTextField.kt:62"
+        },
+        "color": {
+          "token": "colors.text.tertiary",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitOutlineTextField.kt:88"
+        }
+      },
+      "css": {
+        "white-space": "nowrap"
+      }
+    },
+    "OrbitOutlineTextField/placeholder/Disabled": {
+      "bind": {
+        "color": {
+          "token": "colors.text.disabled",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitOutlineTextField.kt:89"
+        }
+      }
+    },
+    "OrbitOutlineTextField/caret": {
+      "bind": {
+        "width": {
+          "unmapped": "Material 3 text field cursor width",
+          "css": "2px"
+        },
+        "height": {
+          "unmapped": "Material 3 text field cursor height (line height)",
+          "css": "1.2em"
+        },
+        "background": {
+          "token": "colors.brand.primary",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitOutlineTextField.kt:107"
+        }
+      }
+    },
+    "OrbitOutlineTextField/caret/Error": {
+      "bind": {
+        "background": {
+          "token": "colors.text.error",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitOutlineTextField.kt:108"
+        }
+      }
+    },
+    "OrbitOutlineTextField/supporting": {
+      "bind": {
+        "font": {
+          "token": "typography.bodySmall",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitOutlineTextField.kt:63"
+        },
+        "color": {
+          "token": "colors.text.secondary",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitOutlineTextField.kt:96"
+        },
+        "padding": {
+          "unmapped": "Material 3 OutlinedTextField supporting text padding",
+          "css": "4px 16px 0"
+        }
+      }
+    },
+    "OrbitOutlineTextField/slot": {
+      "bind": {
+        "color": {
+          "token": "colors.text.secondary",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitOutlineTextField.kt:100"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "align-items": "center",
+        "flex-shrink": "0"
+      }
+    },
+    "OrbitOutlineTextField/box/Default": {
+      "bind": {
+        "background": {
+          "token": "colors.surface.base",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitOutlineTextField.kt:80"
+        },
+        "border-color": {
+          "token": "colors.border.base",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitOutlineTextField.kt:84"
+        }
+      }
+    },
+    "OrbitOutlineTextField/label/Default": {
+      "bind": {
+        "color": {
+          "token": "colors.text.secondary",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitOutlineTextField.kt:92"
+        },
+        "background": {
+          "token": "colors.surface.base",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitOutlineTextField.kt:80"
+        }
+      }
+    },
+    "OrbitOutlineTextField/box/Focused": {
+      "bind": {
+        "background": {
+          "token": "colors.surface.base",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitOutlineTextField.kt:79"
+        },
+        "border-color": {
+          "token": "colors.border.primary",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitOutlineTextField.kt:83"
+        }
+      }
+    },
+    "OrbitOutlineTextField/label/Focused": {
+      "bind": {
+        "color": {
+          "token": "colors.brand.primary",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitOutlineTextField.kt:91"
+        },
+        "background": {
+          "token": "colors.surface.base",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitOutlineTextField.kt:79"
+        }
+      }
+    },
+    "OrbitOutlineTextField/box/Error": {
+      "bind": {
+        "background": {
+          "token": "colors.surface.base",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitOutlineTextField.kt:82"
+        },
+        "border-color": {
+          "token": "colors.border.error",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitOutlineTextField.kt:86"
+        }
+      }
+    },
+    "OrbitOutlineTextField/label/Error": {
+      "bind": {
+        "color": {
+          "token": "colors.text.error",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitOutlineTextField.kt:94"
+        },
+        "background": {
+          "token": "colors.surface.base",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitOutlineTextField.kt:82"
+        }
+      }
+    },
+    "OrbitOutlineTextField/supporting/Error": {
+      "bind": {
+        "color": {
+          "token": "colors.text.error",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitOutlineTextField.kt:98"
+        }
+      }
+    },
+    "OrbitOutlineTextField/slot/Error": {
+      "bind": {
+        "color": {
+          "token": "colors.text.error",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitOutlineTextField.kt:102"
+        }
+      }
+    },
+    "OrbitOutlineTextField/box/Disabled": {
+      "bind": {
+        "background": {
+          "token": "colors.surface.sunken",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitOutlineTextField.kt:81"
+        },
+        "border-color": {
+          "token": "colors.border.disabled",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitOutlineTextField.kt:85"
+        }
+      }
+    },
+    "OrbitOutlineTextField/label/Disabled": {
+      "bind": {
+        "color": {
+          "token": "colors.text.disabled",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitOutlineTextField.kt:93"
+        },
+        "background": {
+          "token": "colors.surface.sunken",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitOutlineTextField.kt:81"
+        }
+      }
+    },
+    "OrbitOutlineTextField/supporting/Disabled": {
+      "bind": {
+        "color": {
+          "token": "colors.text.disabled",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitOutlineTextField.kt:97"
+        }
+      }
+    },
+    "OrbitOutlineTextField/slot/Disabled": {
+      "bind": {
+        "color": {
+          "token": "colors.text.disabled",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitOutlineTextField.kt:101"
+        }
+      }
+    },
+    "OrbitTopAppBar": {
+      "bind": {
+        "background": {
+          "token": "colors.surface.background",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitTopAppBar.kt:46"
+        },
+        "color": {
+          "token": "colors.text.primary",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitTopAppBar.kt:49"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "flex-direction": "column",
+        "width": "100%"
+      }
+    },
+    "OrbitTopAppBar/Scrolled": {
+      "bind": {
+        "background": {
+          "token": "colors.surface.raised",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitTopAppBar.kt:47"
+        }
+      }
+    },
+    "OrbitTopAppBar/Medium": {
+      "bind": {
+        "height": {
+          "unmapped": "Material 3 MediumTopAppBar expanded height",
+          "css": "112px"
+        }
+      }
+    },
+    "OrbitTopAppBar/Large": {
+      "bind": {
+        "height": {
+          "unmapped": "Material 3 LargeTopAppBar expanded height",
+          "css": "152px"
+        }
+      }
+    },
+    "OrbitTopAppBar/row": {
+      "bind": {
+        "height": {
+          "unmapped": "Material 3 TopAppBar container height",
+          "css": "64px"
+        },
+        "padding": {
+          "unmapped": "Material 3 TopAppBar horizontal padding",
+          "css": "0 4px"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "align-items": "center",
+        "flex-shrink": "0"
+      }
+    },
+    "OrbitTopAppBar/title": {
+      "bind": {
+        "font": {
+          "token": "typography.titleLarge",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitTopAppBar.kt:56"
+        },
+        "color": {
+          "token": "colors.text.primary",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitTopAppBar.kt:49"
+        }
+      },
+      "css": {
+        "flex-grow": "1",
+        "white-space": "nowrap",
+        "overflow": "hidden",
+        "text-overflow": "ellipsis"
+      }
+    },
+    "OrbitTopAppBar/title/WithIcon": {
+      "bind": {
+        "margin-left": {
+          "unmapped": "Material 3 TopAppBar title inset after navigation icon",
+          "css": "20px"
+        }
+      }
+    },
+    "OrbitTopAppBar/title/NoIcon": {
+      "bind": {
+        "margin-left": {
+          "unmapped": "Material 3 TopAppBar title inset without navigation icon",
+          "css": "12px"
+        }
+      }
+    },
+    "OrbitTopAppBar/title/Center": {
+      "css": {
+        "text-align": "center"
+      }
+    },
+    "OrbitTopAppBar/title/Medium": {
+      "bind": {
+        "font": {
+          "token": "typography.headlineLarge",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitTopAppBar.kt:54"
+        }
+      }
+    },
+    "OrbitTopAppBar/title/Large": {
+      "bind": {
+        "font": {
+          "token": "typography.displaySmall",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitTopAppBar.kt:55"
+        }
+      }
+    },
+    "OrbitTopAppBar/expanded": {
+      "css": {
+        "display": "flex",
+        "align-items": "flex-end",
+        "flex-grow": "1"
+      }
+    },
+    "OrbitTopAppBar/expanded/Medium": {
+      "bind": {
+        "padding": {
+          "unmapped": "Material 3 MediumTopAppBar expanded title padding",
+          "css": "0 16px 24px"
+        }
+      }
+    },
+    "OrbitTopAppBar/expanded/Large": {
+      "bind": {
+        "padding": {
+          "unmapped": "Material 3 LargeTopAppBar expanded title padding",
+          "css": "0 16px 28px"
+        }
+      }
+    },
+    "OrbitTopAppBar/actions": {
+      "css": {
+        "display": "flex",
+        "align-items": "center"
+      }
+    },
+    "OrbitCard": {
+      "bind": {
+        "border-radius": {
+          "token": "shapes.card",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitCard.kt:54"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "flex-direction": "column",
+        "overflow": "hidden"
+      }
+    },
+    "OrbitCard/Base": {
+      "bind": {
+        "background": {
+          "token": "colors.surface.base",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitCard.kt:110"
+        },
+        "color": {
+          "token": "colors.text.primary",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitCard.kt:110"
+        },
+        "box-shadow": {
+          "token": "elevation.flatShadow",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitCard.kt:71"
+        },
+        "border": [
+          {
+            "literal": "1dp",
+            "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitCard.kt:84"
+          },
+          {
+            "token": "colors.border.base",
+            "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitCard.kt:84"
+          }
+        ]
+      },
+      "css": {
+        "border-style": "solid"
+      }
+    },
+    "OrbitCard/Base/Disabled": {
+      "bind": {
+        "background": {
+          "token": "colors.surface.sunken",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitCard.kt:108"
+        },
+        "color": {
+          "token": "colors.text.disabled",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitCard.kt:108"
+        },
+        "box-shadow": {
+          "token": "elevation.flatShadow",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitCard.kt:79"
+        },
+        "border": [
+          {
+            "literal": "1dp",
+            "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitCard.kt:84"
+          },
+          {
+            "token": "colors.border.disabled",
+            "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitCard.kt:84"
+          }
+        ]
+      }
+    },
+    "OrbitCard/Raised": {
+      "bind": {
+        "background": {
+          "token": "colors.surface.raised",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitCard.kt:111"
+        },
+        "color": {
+          "token": "colors.text.primary",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitCard.kt:111"
+        },
+        "box-shadow": {
+          "token": "elevation.cardShadow",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitCard.kt:69"
+        },
+        "border": [
+          {
+            "literal": "1dp",
+            "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitCard.kt:84"
+          },
+          {
+            "token": "colors.border.base",
+            "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitCard.kt:84"
+          }
+        ]
+      },
+      "css": {
+        "border-style": "solid"
+      }
+    },
+    "OrbitCard/Raised/Disabled": {
+      "bind": {
+        "background": {
+          "token": "colors.surface.sunken",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitCard.kt:108"
+        },
+        "color": {
+          "token": "colors.text.disabled",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitCard.kt:108"
+        },
+        "box-shadow": {
+          "token": "elevation.flatShadow",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitCard.kt:79"
+        },
+        "border": [
+          {
+            "literal": "1dp",
+            "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitCard.kt:84"
+          },
+          {
+            "token": "colors.border.disabled",
+            "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitCard.kt:84"
+          }
+        ]
+      }
+    },
+    "OrbitCard/Gradient": {
+      "bind": {
+        "background": {
+          "token": "gradients.primary",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitCard.kt:57"
+        },
+        "color": {
+          "token": "colors.text.onInk",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitCard.kt:112"
+        },
+        "box-shadow": {
+          "token": "elevation.flatShadow",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitCard.kt:71"
+        },
+        "border-radius": {
+          "token": "shapes.hero",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitCard.kt:54"
+        }
+      }
+    },
+    "OrbitCard/Gradient/Disabled": {
+      "bind": {
+        "background": {
+          "token": "colors.surface.sunken",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitCard.kt:108"
+        },
+        "color": {
+          "token": "colors.text.disabled",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitCard.kt:108"
+        },
+        "box-shadow": {
+          "token": "elevation.flatShadow",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitCard.kt:79"
+        }
+      }
+    },
+    "OrbitCard/Raised/Hovered": {
+      "bind": {
+        "box-shadow": {
+          "token": "elevation.floatingShadow",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitCard.kt:77"
+        }
+      }
+    },
+    "OrbitCard/Focused": {
+      "bind": {
+        "border": [
+          {
+            "literal": "2dp",
+            "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitCard.kt:82"
+          },
+          {
+            "token": "colors.border.primary",
+            "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitCard.kt:82"
+          }
+        ]
+      },
+      "css": {
+        "border-style": "solid"
+      }
+    },
+    "OrbitCard/content": {
+      "bind": {
+        "padding": {
+          "token": "spacing.small",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitCard.kt:176"
+        },
+        "gap": {
+          "token": "spacing.xxSmall",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitCard.kt:177"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "flex-direction": "column"
+      }
+    },
+    "OrbitCard/title": {
+      "bind": {
+        "font": {
+          "token": "typography.titleLarge",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitCard.kt:179"
+        }
+      }
+    },
+    "OrbitCard/amount": {
+      "bind": {
+        "font": {
+          "token": "typography.moneyDisplay",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitCard.kt:180"
+        }
+      }
+    },
+    "OrbitFilterChip": {
+      "bind": {
+        "height": {
+          "unmapped": "Material 3 FilterChipDefaults.Height",
+          "css": "32px"
+        },
+        "padding": {
+          "unmapped": "Material 3 FilterChip label horizontal padding",
+          "css": "0 16px"
+        },
+        "border-radius": {
+          "token": "shapes.pill",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitFilterChip.kt:69"
+        },
+        "font": {
+          "token": "typography.labelMedium",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitFilterChip.kt:64"
+        },
+        "background": {
+          "token": "colors.surface.base",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitFilterChip.kt:99"
+        },
+        "color": {
+          "token": "colors.text.secondary",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitFilterChip.kt:55"
+        },
+        "border-width": {
+          "literal": "1dp",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitFilterChip.kt:85"
+        },
+        "border-color": {
+          "token": "colors.border.base",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitFilterChip.kt:59"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "border-style": "solid",
+        "align-items": "center",
+        "white-space": "nowrap",
+        "cursor": "pointer",
+        "user-select": "none"
+      }
+    },
+    "OrbitFilterChip/Selected": {
+      "bind": {
+        "background": {
+          "token": "colors.brand.subtleSolid",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitFilterChip.kt:98"
+        },
+        "color": {
+          "token": "colors.brand.primary",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitFilterChip.kt:75"
+        },
+        "border-color": {
+          "token": "colors.border.primary",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitFilterChip.kt:58"
+        }
+      }
+    },
+    "OrbitFilterChip/Hovered": {
+      "bind": {
+        "background": {
+          "token": "colors.brand.subtle",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitFilterChip.kt:97"
+        }
+      }
+    },
+    "OrbitFilterChip/Pressed": {
+      "bind": {
+        "background": {
+          "token": "colors.brand.subtleSolid",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitFilterChip.kt:96"
+        }
+      }
+    },
+    "OrbitFilterChip/Focused": {
+      "bind": {
+        "border-width": {
+          "literal": "2dp",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitFilterChip.kt:85"
+        },
+        "border-color": {
+          "token": "colors.border.primary",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitFilterChip.kt:58"
+        }
+      }
+    },
+    "OrbitFilterChip/Disabled": {
+      "bind": {
+        "background": {
+          "token": "colors.surface.sunken",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitFilterChip.kt:78"
+        },
+        "color": {
+          "token": "colors.text.disabled",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitFilterChip.kt:80"
+        },
+        "border-width": {
+          "literal": "1dp",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitFilterChip.kt:85"
+        },
+        "border-color": {
+          "token": "colors.border.disabled",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitFilterChip.kt:57"
+        }
+      }
+    },
+    "OrbitLinearProgressIndicator": {
+      "bind": {
+        "height": {
+          "token": "sizes.xxSmall",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitLinearProgressIndicator.kt:42"
+        },
+        "border-radius": {
+          "token": "shapes.pill",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitLinearProgressIndicator.kt:42"
+        },
+        "background": {
+          "token": "colors.surface.raised",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitLinearProgressIndicator.kt:47"
+        }
+      },
+      "css": {
+        "overflow": "hidden",
+        "width": "100%"
+      }
+    },
+    "OrbitLinearProgressIndicator/fill": {
+      "bind": {
+        "border-radius": {
+          "token": "shapes.pill",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitLinearProgressIndicator.kt:42"
+        }
+      },
+      "css": {
+        "height": "100%"
+      }
+    },
+    "OrbitLinearProgressIndicator/Primary": {
+      "bind": {
+        "background": {
+          "token": "colors.brand.primary",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitLinearProgressIndicator.kt:37"
+        }
+      }
+    },
+    "OrbitLinearProgressIndicator/Success": {
+      "bind": {
+        "background": {
+          "token": "colors.direction.gain",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitLinearProgressIndicator.kt:38"
+        }
+      }
+    },
+    "OrbitLinearProgressIndicator/Warning": {
+      "bind": {
+        "background": {
+          "token": "colors.direction.warn",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitLinearProgressIndicator.kt:39"
+        }
+      }
+    },
+    "OrbitLinearProgressIndicator/Error": {
+      "bind": {
+        "background": {
+          "token": "colors.direction.loss",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitLinearProgressIndicator.kt:40"
+        }
+      }
+    },
+    "OrbitLinearProgressIndicator/indeterminate": {
+      "bind": {
+        "width": {
+          "unmapped": "Material 3 indeterminate linear bar is animated; shown as a static segment",
+          "css": "40%"
+        },
+        "margin-left": {
+          "unmapped": "Static position of the indeterminate segment",
+          "css": "30%"
+        }
+      }
+    },
+    "OrbitLinearProgressIndicator/fill/p0": {
+      "bind": {
+        "width": {
+          "unmapped": "Progress fraction rounded to 5% steps",
+          "css": "0%"
+        }
+      }
+    },
+    "OrbitLinearProgressIndicator/fill/p5": {
+      "bind": {
+        "width": {
+          "unmapped": "Progress fraction rounded to 5% steps",
+          "css": "5%"
+        }
+      }
+    },
+    "OrbitLinearProgressIndicator/fill/p10": {
+      "bind": {
+        "width": {
+          "unmapped": "Progress fraction rounded to 5% steps",
+          "css": "10%"
+        }
+      }
+    },
+    "OrbitLinearProgressIndicator/fill/p15": {
+      "bind": {
+        "width": {
+          "unmapped": "Progress fraction rounded to 5% steps",
+          "css": "15%"
+        }
+      }
+    },
+    "OrbitLinearProgressIndicator/fill/p20": {
+      "bind": {
+        "width": {
+          "unmapped": "Progress fraction rounded to 5% steps",
+          "css": "20%"
+        }
+      }
+    },
+    "OrbitLinearProgressIndicator/fill/p25": {
+      "bind": {
+        "width": {
+          "unmapped": "Progress fraction rounded to 5% steps",
+          "css": "25%"
+        }
+      }
+    },
+    "OrbitLinearProgressIndicator/fill/p30": {
+      "bind": {
+        "width": {
+          "unmapped": "Progress fraction rounded to 5% steps",
+          "css": "30%"
+        }
+      }
+    },
+    "OrbitLinearProgressIndicator/fill/p35": {
+      "bind": {
+        "width": {
+          "unmapped": "Progress fraction rounded to 5% steps",
+          "css": "35%"
+        }
+      }
+    },
+    "OrbitLinearProgressIndicator/fill/p40": {
+      "bind": {
+        "width": {
+          "unmapped": "Progress fraction rounded to 5% steps",
+          "css": "40%"
+        }
+      }
+    },
+    "OrbitLinearProgressIndicator/fill/p45": {
+      "bind": {
+        "width": {
+          "unmapped": "Progress fraction rounded to 5% steps",
+          "css": "45%"
+        }
+      }
+    },
+    "OrbitLinearProgressIndicator/fill/p50": {
+      "bind": {
+        "width": {
+          "unmapped": "Progress fraction rounded to 5% steps",
+          "css": "50%"
+        }
+      }
+    },
+    "OrbitLinearProgressIndicator/fill/p55": {
+      "bind": {
+        "width": {
+          "unmapped": "Progress fraction rounded to 5% steps",
+          "css": "55%"
+        }
+      }
+    },
+    "OrbitLinearProgressIndicator/fill/p60": {
+      "bind": {
+        "width": {
+          "unmapped": "Progress fraction rounded to 5% steps",
+          "css": "60%"
+        }
+      }
+    },
+    "OrbitLinearProgressIndicator/fill/p65": {
+      "bind": {
+        "width": {
+          "unmapped": "Progress fraction rounded to 5% steps",
+          "css": "65%"
+        }
+      }
+    },
+    "OrbitLinearProgressIndicator/fill/p70": {
+      "bind": {
+        "width": {
+          "unmapped": "Progress fraction rounded to 5% steps",
+          "css": "70%"
+        }
+      }
+    },
+    "OrbitLinearProgressIndicator/fill/p75": {
+      "bind": {
+        "width": {
+          "unmapped": "Progress fraction rounded to 5% steps",
+          "css": "75%"
+        }
+      }
+    },
+    "OrbitLinearProgressIndicator/fill/p80": {
+      "bind": {
+        "width": {
+          "unmapped": "Progress fraction rounded to 5% steps",
+          "css": "80%"
+        }
+      }
+    },
+    "OrbitLinearProgressIndicator/fill/p85": {
+      "bind": {
+        "width": {
+          "unmapped": "Progress fraction rounded to 5% steps",
+          "css": "85%"
+        }
+      }
+    },
+    "OrbitLinearProgressIndicator/fill/p90": {
+      "bind": {
+        "width": {
+          "unmapped": "Progress fraction rounded to 5% steps",
+          "css": "90%"
+        }
+      }
+    },
+    "OrbitLinearProgressIndicator/fill/p95": {
+      "bind": {
+        "width": {
+          "unmapped": "Progress fraction rounded to 5% steps",
+          "css": "95%"
+        }
+      }
+    },
+    "OrbitLinearProgressIndicator/fill/p100": {
+      "bind": {
+        "width": {
+          "unmapped": "Progress fraction rounded to 5% steps",
+          "css": "100%"
+        }
+      }
+    },
+    "OrbitNavigationBar": {
+      "bind": {
+        "background": {
+          "token": "colors.surface.base",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitNavigationBar.kt:31"
+        },
+        "color": {
+          "token": "colors.text.secondary",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitNavigationBar.kt:32"
+        },
+        "box-shadow": {
+          "token": "elevation.flatTonal",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitNavigationBar.kt:33"
+        },
+        "height": {
+          "unmapped": "Material 3 NavigationBar container height",
+          "css": "80px"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "width": "100%"
+      }
+    },
+    "OrbitNavigationBar/item": {
+      "bind": {
+        "color": {
+          "token": "colors.text.secondary",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitNavigationBar.kt:64"
+        },
+        "gap": {
+          "unmapped": "Material 3 NavigationBarItem icon-label spacing",
+          "css": "4px"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "flex-direction": "column",
+        "flex": "1",
+        "align-items": "center",
+        "justify-content": "center",
+        "cursor": "pointer",
+        "user-select": "none"
+      }
+    },
+    "OrbitNavigationBar/item/Selected": {
+      "bind": {
+        "color": {
+          "token": "colors.brand.primary",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitNavigationBar.kt:60"
+        }
+      }
+    },
+    "OrbitNavigationBar/item/Disabled": {
+      "bind": {
+        "color": {
+          "token": "colors.text.disabled",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitNavigationBar.kt:65"
+        }
+      }
+    },
+    "OrbitNavigationBar/indicator": {
+      "bind": {
+        "width": {
+          "unmapped": "Material 3 NavigationBarItem active indicator width",
+          "css": "64px"
+        },
+        "height": {
+          "unmapped": "Material 3 NavigationBarItem active indicator height",
+          "css": "32px"
+        },
+        "border-radius": {
+          "unmapped": "Material 3 NavigationBarItem active indicator shape (full)",
+          "css": "16px"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "align-items": "center",
+        "justify-content": "center"
+      }
+    },
+    "OrbitNavigationBar/indicator/Selected": {
+      "bind": {
+        "background": {
+          "token": "colors.brand.subtleSolid",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitNavigationBar.kt:62"
+        }
+      }
+    },
+    "OrbitNavigationBar/indicator/SelectedDisabled": {
+      "bind": {
+        "background": {
+          "token": "colors.surface.sunken",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitNavigationBar.kt:62"
+        }
+      }
+    },
+    "OrbitNavigationBar/label": {
+      "bind": {
+        "font": {
+          "token": "typography.labelSmall",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitNavigationBar.kt:53"
+        }
+      }
+    },
+    "OrbitNavigationBar/glyph": {
+      "bind": {
+        "font": {
+          "token": "typography.headlineLarge",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitNavigationBar.kt:144"
+        }
+      }
+    },
+    "OrbitBottomSheet": {
+      "bind": {
+        "background": {
+          "token": "colors.surface.scrim",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitBottomSheet.kt:48"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "flex-direction": "column",
+        "position": "absolute",
+        "inset": "0",
+        "justify-content": "flex-end"
+      }
+    },
+    "OrbitBottomSheet/sheet": {
+      "bind": {
+        "border-radius": {
+          "token": "shapes.sheet",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitBottomSheet.kt:44"
+        },
+        "background": {
+          "token": "colors.surface.base",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitBottomSheet.kt:45"
+        },
+        "color": {
+          "token": "colors.text.primary",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitBottomSheet.kt:46"
+        },
+        "font": {
+          "token": "typography.bodyLarge",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitBottomSheet.kt:55"
+        },
+        "box-shadow": {
+          "token": "elevation.raisedTonal",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitBottomSheet.kt:47"
+        },
+        "max-width": {
+          "unmapped": "Material 3 ModalBottomSheet maximum width",
+          "css": "640px"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "flex-direction": "column",
+        "width": "100%",
+        "align-self": "center",
+        "overflow": "hidden"
+      }
+    },
+    "OrbitBottomSheet/handle": {
+      "bind": {
+        "width": {
+          "unmapped": "Material 3 BottomSheetDefaults.DragHandle width",
+          "css": "32px"
+        },
+        "height": {
+          "unmapped": "Material 3 BottomSheetDefaults.DragHandle height",
+          "css": "4px"
+        },
+        "border-radius": {
+          "token": "shapes.pill",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitBottomSheet.kt:50"
+        },
+        "background": {
+          "token": "colors.border.strong",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitBottomSheet.kt:50"
+        },
+        "margin": {
+          "unmapped": "Material 3 BottomSheetDefaults.DragHandle vertical padding",
+          "css": "22px auto"
+        }
+      },
+      "css": {
+        "flex-shrink": "0"
+      }
+    },
+    "OrbitSnackbar": {
+      "bind": {
+        "border-radius": {
+          "token": "shapes.hairline",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/snackbar/OrbitSnackbar.kt:57"
+        },
+        "background": {
+          "token": "colors.surface.base",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/snackbar/OrbitSnackbar.kt:78"
+        },
+        "color": {
+          "token": "colors.text.primary",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/snackbar/OrbitSnackbar.kt:58"
+        },
+        "border-width": {
+          "literal": "1dp",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/snackbar/OrbitSnackbar.kt:61"
+        },
+        "min-height": {
+          "unmapped": "Material 3 Snackbar single-line height",
+          "css": "48px"
+        },
+        "padding": {
+          "unmapped": "Material 3 Snackbar content padding",
+          "css": "0 8px 0 16px"
+        },
+        "box-shadow": {
+          "unmapped": "Material 3 Snackbar shadowElevation 6.dp",
+          "css": "0 3px 6px rgba(0, 0, 0, 0.2)"
+        },
+        "gap": {
+          "unmapped": "Material 3 Snackbar spacing between content, action and dismiss",
+          "css": "8px"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "border-style": "solid",
+        "align-items": "center",
+        "position": "relative",
+        "z-index": "0"
+      }
+    },
+    "OrbitSnackbar/overlay": {
+      "css": {
+        "position": "absolute",
+        "inset": "0",
+        "pointer-events": "none",
+        "z-index": "-1"
+      }
+    },
+    "OrbitSnackbar/content": {
+      "bind": {
+        "gap": {
+          "token": "spacing.xSmall",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/snackbar/OrbitSnackbar.kt:84"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "align-items": "center",
+        "flex-grow": "1"
+      }
+    },
+    "OrbitSnackbar/text": {
+      "bind": {
+        "padding": {
+          "unmapped": "Material 3 Snackbar text vertical padding",
+          "css": "10px 0"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "flex-direction": "column"
+      }
+    },
+    "OrbitSnackbar/title": {
+      "bind": {
+        "font": {
+          "token": "typography.bodyMedium",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/snackbar/OrbitSnackbar.kt:97"
+        },
+        "font-weight": {
+          "literal": "700",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/snackbar/OrbitSnackbar.kt:97"
+        },
+        "color": {
+          "token": "colors.text.primary",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/snackbar/OrbitSnackbar.kt:58"
+        }
+      }
+    },
+    "OrbitSnackbar/message": {
+      "bind": {
+        "font": {
+          "token": "typography.bodyMedium",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/snackbar/OrbitSnackbar.kt:101"
+        },
+        "color": {
+          "token": "colors.text.primary",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/snackbar/OrbitSnackbar.kt:58"
+        }
+      }
+    },
+    "OrbitSnackbar/action": {
+      "bind": {
+        "font": {
+          "token": "typography.labelLarge",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/snackbar/OrbitSnackbar.kt:68"
+        },
+        "padding": {
+          "unmapped": "Material 3 TextButton content padding",
+          "css": "0 12px"
+        },
+        "min-height": {
+          "unmapped": "Material 3 TextButton minimum height",
+          "css": "40px"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "align-items": "center",
+        "cursor": "pointer",
+        "user-select": "none"
+      }
+    },
+    "OrbitSnackbar/Success": {
+      "bind": {
+        "border-color": {
+          "token": "colors.direction.gainBorder",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/snackbar/OrbitSnackbar.kt:46"
+        }
+      }
+    },
+    "OrbitSnackbar/Success/overlay": {
+      "bind": {
+        "background": {
+          "token": "colors.direction.gainSubtle",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/snackbar/OrbitSnackbar.kt:46"
+        }
+      }
+    },
+    "OrbitSnackbar/Success/icon": {
+      "bind": {
+        "icon": {
+          "resource": "CoreUiRes.drawable.ic_snackbar_success"
+        },
+        "color": {
+          "token": "colors.direction.gain",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/snackbar/OrbitSnackbar.kt:46"
+        },
+        "width": {
+          "literal": "24dp",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/snackbar/OrbitSnackbar.kt:90"
+        },
+        "height": {
+          "literal": "24dp",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/snackbar/OrbitSnackbar.kt:90"
+        }
+      },
+      "css": {
+        "flex-shrink": "0"
+      }
+    },
+    "OrbitSnackbar/Success/action": {
+      "bind": {
+        "color": {
+          "token": "colors.direction.gain",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/snackbar/OrbitSnackbar.kt:66"
+        }
+      }
+    },
+    "OrbitSnackbar/Error": {
+      "bind": {
+        "border-color": {
+          "token": "colors.direction.lossBorder",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/snackbar/OrbitSnackbar.kt:47"
+        }
+      }
+    },
+    "OrbitSnackbar/Error/overlay": {
+      "bind": {
+        "background": {
+          "token": "colors.direction.lossSubtle",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/snackbar/OrbitSnackbar.kt:47"
+        }
+      }
+    },
+    "OrbitSnackbar/Error/icon": {
+      "bind": {
+        "icon": {
+          "resource": "CoreUiRes.drawable.ic_snackbar_error"
+        },
+        "color": {
+          "token": "colors.direction.loss",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/snackbar/OrbitSnackbar.kt:47"
+        },
+        "width": {
+          "literal": "24dp",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/snackbar/OrbitSnackbar.kt:90"
+        },
+        "height": {
+          "literal": "24dp",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/snackbar/OrbitSnackbar.kt:90"
+        }
+      },
+      "css": {
+        "flex-shrink": "0"
+      }
+    },
+    "OrbitSnackbar/Error/action": {
+      "bind": {
+        "color": {
+          "token": "colors.direction.loss",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/snackbar/OrbitSnackbar.kt:66"
+        }
+      }
+    },
+    "OrbitSnackbar/Info": {
+      "bind": {
+        "border-color": {
+          "token": "colors.direction.infoBorder",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/snackbar/OrbitSnackbar.kt:48"
+        }
+      }
+    },
+    "OrbitSnackbar/Info/overlay": {
+      "bind": {
+        "background": {
+          "token": "colors.direction.infoSubtle",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/snackbar/OrbitSnackbar.kt:48"
+        }
+      }
+    },
+    "OrbitSnackbar/Info/icon": {
+      "bind": {
+        "icon": {
+          "resource": "CoreUiRes.drawable.ic_snackbar_info"
+        },
+        "color": {
+          "token": "colors.direction.info",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/snackbar/OrbitSnackbar.kt:48"
+        },
+        "width": {
+          "literal": "24dp",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/snackbar/OrbitSnackbar.kt:90"
+        },
+        "height": {
+          "literal": "24dp",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/snackbar/OrbitSnackbar.kt:90"
+        }
+      },
+      "css": {
+        "flex-shrink": "0"
+      }
+    },
+    "OrbitSnackbar/Info/action": {
+      "bind": {
+        "color": {
+          "token": "colors.direction.info",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/snackbar/OrbitSnackbar.kt:66"
+        }
+      }
+    },
+    "OrbitSnackbar/Warning": {
+      "bind": {
+        "border-color": {
+          "token": "colors.direction.warnBorder",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/snackbar/OrbitSnackbar.kt:49"
+        }
+      }
+    },
+    "OrbitSnackbar/Warning/overlay": {
+      "bind": {
+        "background": {
+          "token": "colors.direction.warnSubtle",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/snackbar/OrbitSnackbar.kt:49"
+        }
+      }
+    },
+    "OrbitSnackbar/Warning/icon": {
+      "bind": {
+        "icon": {
+          "resource": "CoreUiRes.drawable.ic_snackbar_warning"
+        },
+        "color": {
+          "token": "colors.direction.warn",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/snackbar/OrbitSnackbar.kt:49"
+        },
+        "width": {
+          "literal": "24dp",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/snackbar/OrbitSnackbar.kt:90"
+        },
+        "height": {
+          "literal": "24dp",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/snackbar/OrbitSnackbar.kt:90"
+        }
+      },
+      "css": {
+        "flex-shrink": "0"
+      }
+    },
+    "OrbitSnackbar/Warning/action": {
+      "bind": {
+        "color": {
+          "token": "colors.direction.warn",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/snackbar/OrbitSnackbar.kt:66"
+        }
+      }
+    },
+    "AnimatedOrbitLogo": {
+      "bind": {
+        "icon": {
+          "resource": "CoreUiRes.drawable.ic_logo_{palette}",
+          "artwork": true
+        }
+      },
+      "css": {
+        "position": "relative",
+        "aspect-ratio": "1"
+      }
+    },
+    "AnimatedOrbitLogo/tilt": {
+      "bind": {
+        "transform": {
+          "literal": "rotate(-28deg)",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/AnimatedOrbitLogo.kt:63"
+        },
+        "transform-origin": {
+          "literal": "49.21875% 49.8046875%",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/AnimatedOrbitLogo.kt:65"
+        }
+      },
+      "css": {
+        "position": "absolute",
+        "inset": "0"
+      }
+    },
+    "AnimatedOrbitLogo/arm": {
+      "bind": {
+        "transform-origin": {
+          "literal": "49.21875% 49.8046875%",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/AnimatedOrbitLogo.kt:65"
+        },
+        "animation-duration": {
+          "literal": "7000ms",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/AnimatedOrbitLogo.kt:31"
+        },
+        "animation-direction": {
+          "literal": "reverse",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/AnimatedOrbitLogo.kt:60"
+        }
+      },
+      "css": {
+        "position": "absolute",
+        "inset": "0",
+        "animation-name": "orbit-rotate",
+        "animation-timing-function": "linear",
+        "animation-iteration-count": "infinite"
+      }
+    },
+    "AnimatedOrbitLogo/offset": {
+      "bind": {
+        "transform": {
+          "unmapped": "Horizontal radius (185 + 64) / 2 / 512 of the first of two counter-rotating circles that draw the ellipse",
+          "css": "translate(24.31640625%, 0)"
+        }
+      },
+      "css": {
+        "position": "absolute",
+        "inset": "0"
+      }
+    },
+    "AnimatedOrbitLogo/arm2": {
+      "bind": {
+        "transform-origin": {
+          "literal": "49.21875% 49.8046875%",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/AnimatedOrbitLogo.kt:65"
+        },
+        "animation-duration": {
+          "unmapped": "Half of the 7_000 ms orbit period (the second circle turns twice per orbit)",
+          "css": "3500ms"
+        }
+      },
+      "css": {
+        "position": "absolute",
+        "inset": "0",
+        "animation-name": "orbit-rotate",
+        "animation-timing-function": "linear",
+        "animation-iteration-count": "infinite"
+      }
+    },
+    "AnimatedOrbitLogo/satellite": {
+      "bind": {
+        "icon": {
+          "resource": "CoreUiRes.drawable.ic_satellite_{palette}",
+          "artwork": true
+        },
+        "width": {
+          "literal": "18.75%",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/AnimatedOrbitLogo.kt:47"
+        },
+        "height": {
+          "literal": "12.5%",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/AnimatedOrbitLogo.kt:47"
+        },
+        "left": {
+          "unmapped": "(252 + (185 - 64) / 2) / 512 minus half the satellite width",
+          "css": "51.66015625%"
+        },
+        "top": {
+          "unmapped": "255 / 512 minus half the satellite height",
+          "css": "43.5546875%"
+        },
+        "animation-duration": {
+          "unmapped": "Half of the 7_000 ms orbit period; cancels the arms so the satellite follows its orbit tangent",
+          "css": "3500ms"
+        },
+        "animation-direction": {
+          "literal": "reverse",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/AnimatedOrbitLogo.kt:60"
+        }
+      },
+      "css": {
+        "position": "absolute",
+        "animation-name": "orbit-rotate",
+        "animation-timing-function": "linear",
+        "animation-iteration-count": "infinite"
+      }
+    },
+    "Checkbox": {
+      "bind": {
+        "width": {
+          "unmapped": "Material 3 Checkbox box size",
+          "css": "20px"
+        },
+        "height": {
+          "unmapped": "Material 3 Checkbox box size",
+          "css": "20px"
+        },
+        "margin": {
+          "unmapped": "Material 3 Checkbox padding: 24dp footprint around the 20dp box",
+          "css": "2px"
+        },
+        "border-radius": {
+          "unmapped": "Material 3 Checkbox corner radius",
+          "css": "2px"
+        },
+        "border-width": {
+          "unmapped": "Material 3 Checkbox outline thickness",
+          "css": "2px"
+        },
+        "border-color": {
+          "token": "colors.text.secondary",
+          "source": "feature/auth/src/commonMain/kotlin/br/com/weslleycampos/orbit/feature/auth/signin/SignInScreen.kt:171"
+        },
+        "font": {
+          "unmapped": "Material 3 Checkbox checkmark glyph",
+          "css": "700 14px/1 system-ui, sans-serif"
+        },
+        "color": {
+          "token": "colors.surface.background",
+          "source": "feature/auth/src/commonMain/kotlin/br/com/weslleycampos/orbit/feature/auth/signin/SignInScreen.kt:172"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "border-style": "solid",
+        "align-items": "center",
+        "justify-content": "center",
+        "flex-shrink": "0",
+        "cursor": "pointer"
+      }
+    },
+    "Checkbox/Checked": {
+      "bind": {
+        "background": {
+          "token": "colors.brand.primary",
+          "source": "feature/auth/src/commonMain/kotlin/br/com/weslleycampos/orbit/feature/auth/signin/SignInScreen.kt:170"
+        },
+        "border-color": {
+          "token": "colors.brand.primary",
+          "source": "feature/auth/src/commonMain/kotlin/br/com/weslleycampos/orbit/feature/auth/signin/SignInScreen.kt:170"
+        }
+      }
+    },
+    "Checkbox/Disabled": {
+      "bind": {
+        "border-color": {
+          "token": "colors.border.disabled",
+          "source": "feature/auth/src/commonMain/kotlin/br/com/weslleycampos/orbit/feature/auth/signin/SignInScreen.kt:174"
+        }
+      }
+    },
+    "Checkbox/CheckedDisabled": {
+      "bind": {
+        "background": {
+          "token": "colors.border.disabled",
+          "source": "feature/auth/src/commonMain/kotlin/br/com/weslleycampos/orbit/feature/auth/signin/SignInScreen.kt:173"
+        }
+      },
+      "css": {
+        "border-style": "none"
+      }
+    },
+    "HorizontalDivider": {
+      "bind": {
+        "height": {
+          "unmapped": "Material 3 DividerDefaults.Thickness",
+          "css": "1px"
+        },
+        "background": {
+          "token": "colors.border.base",
+          "source": "feature/auth/src/commonMain/kotlin/br/com/weslleycampos/orbit/feature/auth/signin/SignInScreen.kt:217"
+        }
+      },
+      "css": {
+        "width": "100%"
+      }
+    },
+    "CodeField": {
+      "bind": {
+        "background": {
+          "token": "colors.brand.subtle"
+        },
+        "border": [
+          {
+            "literal": "1dp",
+            "proposal": "code field outline width"
+          },
+          {
+            "token": "colors.border.primary"
+          }
+        ],
+        "border-radius": {
+          "token": "shapes.card"
+        },
+        "padding": [
+          {
+            "token": "spacing.xLarge"
+          },
+          {
+            "token": "spacing.medium"
+          }
+        ],
+        "gap": {
+          "token": "spacing.xSmall"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "flex-direction": "column",
+        "align-items": "center",
+        "text-align": "center",
+        "border-style": "solid",
+        "flex-shrink": "0"
+      }
+    },
+    "CodeField/Focused": {
+      "bind": {
+        "border-width": {
+          "literal": "2dp",
+          "proposal": "focused outline thickness, as in OrbitOutlineTextField"
+        }
+      }
+    },
+    "CodeField/eyebrow": {
+      "bind": {
+        "font": {
+          "token": "typography.eyebrow"
+        },
+        "color": {
+          "token": "colors.text.tertiary"
+        }
+      }
+    },
+    "CodeField/input": {
+      "bind": {
+        "font": {
+          "token": "typography.code"
+        },
+        "font-size": {
+          "literal": "28sp",
+          "proposal": "hero code size of the prototype invite card; typography.code is too small"
+        },
+        "line-height": {
+          "literal": "32sp",
+          "proposal": "line height for the hero code"
+        },
+        "letter-spacing": {
+          "literal": "0.06em",
+          "proposal": "tighter tracking so the larger code stays on one line"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "align-items": "center",
+        "justify-content": "center"
+      }
+    },
+    "CodeField/input/Editable": {
+      "bind": {
+        "border-width": {
+          "literal": "0 0 1dp",
+          "proposal": "input line under the code, the cue that it can be typed"
+        },
+        "border-color": {
+          "token": "colors.border.primary"
+        },
+        "padding": [
+          {
+            "token": "spacing.xxxSmall"
+          },
+          {
+            "token": "spacing.xSmall"
+          },
+          {
+            "token": "spacing.xxSmall"
+          }
+        ]
+      },
+      "css": {
+        "border-style": "solid"
+      }
+    },
+    "CodeField/code": {
+      "bind": {
+        "font-weight": {
+          "literal": "600",
+          "proposal": "IBM Plex Mono SemiBold as in the prototype; only Regular and Medium are bundled, so it is synthesized until the font is added"
+        },
+        "color": {
+          "token": "colors.text.brand"
+        }
+      }
+    },
+    "CodeField/placeholder": {
+      "bind": {
+        "color": {
+          "token": "colors.text.disabled"
+        }
+      }
+    },
+    "CodeField/supporting": {
+      "bind": {
+        "font": {
+          "token": "typography.bodySmall"
+        },
+        "color": {
+          "token": "colors.text.secondary"
+        }
+      }
+    },
+    "Catalog/page": {
+      "bind": {
+        "padding": {
+          "token": "spacing.small",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitButton.kt:218"
+        },
+        "gap": {
+          "token": "spacing.large"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "flex-direction": "column",
+        "flex-shrink": "0"
+      }
+    },
+    "Catalog/section": {
+      "bind": {
+        "gap": {
+          "token": "spacing.xxSmall"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "flex-direction": "column"
+      }
+    },
+    "Catalog/title": {
+      "bind": {
+        "font": {
+          "token": "typography.titleLarge",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitCard.kt:179"
+        },
+        "color": {
+          "token": "colors.text.primary",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitButton.kt:216"
+        }
+      }
+    },
+    "Catalog/row": {
+      "bind": {
+        "gap": {
+          "token": "spacing.small",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitButton.kt:219"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "flex-wrap": "wrap",
+        "align-items": "flex-start"
+      }
+    },
+    "Catalog/cell": {
+      "bind": {
+        "gap": {
+          "token": "spacing.xxSmall"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "flex-direction": "column",
+        "align-items": "flex-start"
+      }
+    },
+    "Catalog/wide": {
+      "bind": {
+        "width": {
+          "literal": "340dp",
+          "proposal": "Catalog frames lay wide components out in fixed columns"
+        }
+      },
+      "css": {
+        "align-items": "stretch"
+      }
+    },
+    "Catalog/screen": {
+      "bind": {
+        "width": {
+          "literal": "360dp",
+          "proposal": "Catalog frames lay full-width bars out in fixed columns"
+        }
+      },
+      "css": {
+        "align-items": "stretch"
+      }
+    },
+    "Catalog/caption": {
+      "bind": {
+        "font": {
+          "token": "typography.eyebrow",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitButton.kt:221"
+        },
+        "color": {
+          "token": "colors.text.secondary",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitButton.kt:221"
+        }
+      }
+    },
+    "Catalog/body": {
+      "bind": {
+        "font": {
+          "token": "typography.bodyLarge",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitBottomSheet.kt:55"
+        },
+        "color": {
+          "token": "colors.text.primary",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitBottomSheet.kt:46"
+        }
+      }
+    },
+    "Catalog/headline": {
+      "bind": {
+        "font": {
+          "token": "typography.headlineLarge",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitBottomSheet.kt:113"
+        },
+        "color": {
+          "token": "colors.text.primary",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitBottomSheet.kt:46"
+        }
+      }
+    },
+    "Catalog/padded": {
+      "bind": {
+        "padding": {
+          "token": "spacing.small",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitBottomSheet.kt:110"
+        },
+        "gap": {
+          "token": "spacing.small",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitBottomSheet.kt:111"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "flex-direction": "column"
+      }
+    },
+    "Catalog/logo/large": {
+      "bind": {
+        "width": {
+          "literal": "256dp",
+          "proposal": "Catalog logo sample size"
+        }
+      }
+    },
+    "Catalog/logo/medium": {
+      "bind": {
+        "width": {
+          "literal": "128dp",
+          "proposal": "Catalog logo sample size"
+        }
+      }
+    },
+    "Catalog/logo/small": {
+      "bind": {
+        "width": {
+          "literal": "64dp",
+          "proposal": "Catalog logo sample size"
+        }
+      }
+    },
+    "Catalog/inline": {
+      "bind": {
+        "gap": {
+          "token": "spacing.xxSmall",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitButton.kt:128"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "align-items": "center"
+      }
+    },
+    "Catalog/dividerRow": {
+      "css": {
+        "display": "flex",
+        "align-items": "center",
+        "width": "100%"
+      }
+    },
+    "Catalog/glyph": {
+      "bind": {
+        "font": {
+          "token": "typography.headlineLarge",
+          "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitNavigationBar.kt:144"
+        }
+      }
+    },
+    "DesignSystem/page": {
+      "bind": {
+        "padding": {
+          "token": "spacing.medium"
+        },
+        "gap": {
+          "token": "spacing.large"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "flex-direction": "column",
+        "flex-shrink": "0"
+      }
+    },
+    "DesignSystem/heading": {
+      "bind": {
+        "font": {
+          "token": "typography.headlineLarge"
+        },
+        "color": {
+          "token": "colors.text.primary"
+        }
+      }
+    },
+    "DesignSystem/group": {
+      "bind": {
+        "gap": {
+          "token": "spacing.xSmall"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "flex-direction": "column"
+      }
+    },
+    "DesignSystem/groupTitle": {
+      "bind": {
+        "font": {
+          "token": "typography.titleMedium"
+        },
+        "color": {
+          "token": "colors.text.primary"
+        }
+      }
+    },
+    "DesignSystem/row": {
+      "bind": {
+        "gap": {
+          "token": "spacing.xSmall"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "flex-wrap": "wrap",
+        "align-items": "flex-start"
+      }
+    },
+    "DesignSystem/swatch": {
+      "bind": {
+        "width": {
+          "literal": "152dp",
+          "proposal": "Design-system gallery column width"
+        },
+        "gap": {
+          "token": "spacing.xxxSmall"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "flex-direction": "column"
+      }
+    },
+    "DesignSystem/swatchChip": {
+      "bind": {
+        "height": {
+          "literal": "56dp",
+          "proposal": "Design-system gallery swatch height"
+        },
+        "border-radius": {
+          "token": "shapes.control"
+        },
+        "border": [
+          {
+            "literal": "1dp",
+            "proposal": "Design-system gallery swatch outline"
+          },
+          {
+            "token": "colors.border.base"
+          }
+        ]
+      },
+      "css": {
+        "border-style": "solid"
+      }
+    },
+    "DesignSystem/caption": {
+      "bind": {
+        "font": {
+          "token": "typography.labelSmall"
+        },
+        "color": {
+          "token": "colors.text.primary"
+        }
+      },
+      "css": {
+        "word-break": "break-all"
+      }
+    },
+    "DesignSystem/value": {
+      "bind": {
+        "font": {
+          "token": "typography.eyebrow"
+        },
+        "color": {
+          "token": "colors.text.secondary"
+        }
+      },
+      "css": {
+        "word-break": "break-all"
+      }
+    },
+    "DesignSystem/typeRow": {
+      "bind": {
+        "gap": {
+          "token": "spacing.xxxSmall"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "flex-direction": "column"
+      }
+    },
+    "DesignSystem/typeSample": {
+      "bind": {
+        "color": {
+          "token": "colors.text.primary"
+        }
+      },
+      "css": {
+        "white-space": "nowrap",
+        "overflow": "hidden",
+        "text-overflow": "ellipsis"
+      }
+    },
+    "DesignSystem/bar": {
+      "bind": {
+        "height": {
+          "literal": "12dp",
+          "proposal": "Design-system gallery bar height"
+        },
+        "background": {
+          "token": "colors.brand.primary"
+        },
+        "border-radius": {
+          "token": "shapes.pill"
+        }
+      }
+    },
+    "DesignSystem/barRow": {
+      "bind": {
+        "gap": {
+          "token": "spacing.xxxSmall"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "flex-direction": "column"
+      }
+    },
+    "DesignSystem/square": {
+      "bind": {
+        "background": {
+          "token": "colors.brand.primary"
+        },
+        "border-radius": {
+          "token": "shapes.hairline"
+        }
+      },
+      "css": {
+        "flex-shrink": "0"
+      }
+    },
+    "DesignSystem/shapeBox": {
+      "bind": {
+        "width": {
+          "literal": "96dp",
+          "proposal": "Design-system gallery shape sample size"
+        },
+        "height": {
+          "literal": "64dp",
+          "proposal": "Design-system gallery shape sample size"
+        },
+        "background": {
+          "token": "colors.surface.raised"
+        },
+        "border": [
+          {
+            "literal": "1dp",
+            "proposal": "Design-system gallery shape outline"
+          },
+          {
+            "token": "colors.border.strong"
+          }
+        ]
+      },
+      "css": {
+        "border-style": "solid"
+      }
+    },
+    "DesignSystem/elevationBox": {
+      "bind": {
+        "width": {
+          "literal": "120dp",
+          "proposal": "Design-system gallery elevation sample size"
+        },
+        "height": {
+          "literal": "72dp",
+          "proposal": "Design-system gallery elevation sample size"
+        },
+        "background": {
+          "token": "colors.surface.base"
+        },
+        "border-radius": {
+          "token": "shapes.card"
+        }
+      }
+    },
+    "DesignSystem/gradientBox": {
+      "bind": {
+        "width": {
+          "literal": "240dp",
+          "proposal": "Design-system gallery gradient sample size"
+        },
+        "height": {
+          "literal": "96dp",
+          "proposal": "Design-system gallery gradient sample size"
+        },
+        "border-radius": {
+          "token": "shapes.hero"
+        }
+      }
+    },
+    "DesignSystem/sample": {
+      "bind": {
+        "gap": {
+          "token": "spacing.xxxSmall"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "flex-direction": "column"
+      }
+    }
+  }
+}
