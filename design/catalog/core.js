@@ -269,7 +269,7 @@ function collectResources(value, found = new Set()) {
 // `assets` lists extra text files (paths relative to design/) that frames read synchronously with ctx.asset().
 export async function loadCatalog({ assets = [], base = new URL('../', import.meta.url) } = {}) {
   const text = async (path) => {
-    const response = await fetch(new URL(path, base));
+    const response = await fetch(new URL(path, base), { cache: 'no-cache' });
     if (!response.ok) throw new Error(`${path}: HTTP ${response.status}`);
     return response.text();
   };
