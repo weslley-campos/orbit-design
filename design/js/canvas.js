@@ -26,7 +26,10 @@ export function createCanvas(app) {
   let link = null;
 
   const els = new Map();
-  const view = () => app.page()?.view;
+  // Shelf frames carry their own platform, since one shelf view mixes screens from several pages.
+  const host = (frame, page) => ('platform' in frame ? frame : page);
+  const readOnly = () => Boolean(app.canvasPage()?.shelf);
+  const view = () => app.canvasPage()?.view;
   const zoom = () => view()?.zoom ?? 1;
 
   function applyView() {
@@ -48,7 +51,8 @@ export function createCanvas(app) {
   }
 
   function fill(frame, vp, page) {
-    const { settings, overrides } = app.ws;
+    const { settings } = app.ws;
+    const overrides = page.overrides ?? app.ws.overrides;
     vp.dataset.palette = settings.palette;
     vp.dataset.mode = settings.mode;
     vp.lang = settings.language;
@@ -58,7 +62,7 @@ export function createCanvas(app) {
     const scrolls = [...vp.querySelectorAll('*')].map((node) => node.scrollTop);
     const entry = app.entries.get(frame.catalogId);
     vp.replaceChildren(entry
-      ? renderFrame(entry, { catalog: app.catalog, settings, overrides, frameId: frame.id, platform: page.platform })
+      ? renderFrame(entry, { catalog: app.catalog, settings, overrides, frameId: frame.id, platform: host(frame, page).platform })
       : h('div', { class: 'ws-missing' }, `Missing catalog entry: ${frame.catalogId}`));
     [...vp.querySelectorAll('*')].forEach((node, i) => { if (scrolls[i]) node.scrollTop = scrolls[i]; });
   }
@@ -73,7 +77,7 @@ export function createCanvas(app) {
       'aria-label': `${name}: select frame. Arrow keys move it, Shift for 10 at a time.`,
     }, h('span', { class: 'ws-frame-name' }, name), entry?.status === 'proposed' && h('span', { class: 'ws-badge' }, 'proposed'));
     const vp = h('div', { class: 'orbit-frame' });
-    const kind = deviceOf(page, app.ws.settings);
+    const kind = deviceOf(host(frame, page), app.ws.settings);
     const { device, screen } = kind ? deviceFrame(vp, app.ws.settings, kind) : { device: vp };
     const wrap = h('div', { class: kind ? `ws-frame is-device is-${kind}` : 'ws-frame', 'data-frame-id': frame.id }, title, device);
     els.set(frame.id, { wrap, vp, title, screen });
@@ -118,12 +122,13 @@ export function createCanvas(app) {
     title.addEventListener('pointerdown', (e) => {
       if (e.button !== 0 || link) return;
       title.focus();
+      if (readOnly()) { app.select({ frameId: frame.id, key: null }); return; }
       drag(e, frame, title);
     });
     title.addEventListener('keydown', (e) => {
       const step = e.shiftKey ? 10 : 1;
       const delta = { ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, -step], ArrowDown: [0, step] }[e.key];
-      if (delta) {
+      if (delta && !readOnly()) {
         e.preventDefault();
         frame.x += delta[0];
         frame.y += delta[1];
@@ -157,7 +162,7 @@ export function createCanvas(app) {
   function updateSelection() {
     const sel = app.selection;
     for (const [id, e] of els) e.wrap.classList.toggle('is-selected', sel?.frameId === id && (!sel.key || app.mode === 'move'));
-    box(selected, app.mode === 'move' ? null : nodeOf(sel));
+    box(selected, app.mode === 'move' || readOnly() ? null : nodeOf(sel));
     renderBar();
     schedulePaint();
   }
@@ -166,7 +171,13 @@ export function createCanvas(app) {
   function renderBar() {
     const id = app.selection?.frameId;
     if (!id || !els.has(id) || link) { bar.hidden = true; return; }
-    bar.replaceChildren(...kids([
+    const shelf = app.canvasPage()?.shelf;
+    bar.replaceChildren(...kids(shelf ? [
+      barButton('restore', 'Restore screen', () => app.restore(shelf, id)),
+      shelf === 'trash'
+        ? barButton('archive', 'Move to Archived', () => app.moveShelf(id, 'trash', 'archived'))
+        : barButton('trash', 'Move to Trash', () => app.moveShelf(id, 'archived', 'trash')),
+    ] : [
       app.mode === 'prototype' ? barButton('link', 'Connect the whole screen', (e) => startLink(id, null, e)) : null,
       barButton('archive', 'Archive screen', () => app.shelve(id, 'archived')),
       barButton('trash', 'Move screen to Trash', () => app.shelve(id, 'trash')),
@@ -181,7 +192,7 @@ export function createCanvas(app) {
     const r = wrap.getBoundingClientRect();
     const o = root.getBoundingClientRect();
     const top = r.top - o.top - (TITLE_HEIGHT + 4) * zoom() - 6;
-    const below = top < 46;
+    const below = top < (readOnly() ? 100 : 46);
     bar.classList.toggle('is-below', below);
     bar.style.left = `${clamp(r.left - o.left + r.width / 2, 60, o.width - 60)}px`;
     bar.style.top = `${below ? Math.min(r.bottom - o.top + 8, o.height - 120) : top}px`;
@@ -251,11 +262,11 @@ export function createCanvas(app) {
   // ponytail: arrows are redrawn from scratch on every change and show one page at a time; diff the SVG or draw all pages if the frame count grows.
   function paint() {
     svg.replaceChildren();
-    const page = app.page();
+    const page = app.canvasPage();
     if (!page || app.inspector.tab() !== 'prototype') return;
     const sel = app.selection?.frameId;
     const local = new Map(page.frames.map((frame) => [frame.id, frame]));
-    const size = (frame) => outerSize(frame, page, app.ws.settings);
+    const size = (frame) => outerSize(frame, host(frame, page), app.ws.settings);
     const edge = (frame, side) => ({ x: side > 0 ? frame.x + size(frame).width : frame.x, y: frame.y + size(frame).height / 2 });
     for (const c of app.ws.connections) {
       const src = local.get(c.from.frameId);
@@ -310,7 +321,7 @@ export function createCanvas(app) {
   }
 
   function fit() {
-    const page = app.page();
+    const page = app.canvasPage();
     const v = view();
     if (!v) return;
     const r = root.getBoundingClientRect();
@@ -319,8 +330,8 @@ export function createCanvas(app) {
     } else {
       const left = Math.min(...page.frames.map((f) => f.x));
       const top = Math.min(...page.frames.map((f) => f.y)) - TITLE_HEIGHT - 4;
-      const w = Math.max(...page.frames.map((f) => f.x + outerSize(f, page, app.ws.settings).width)) - left;
-      const hgt = Math.max(...page.frames.map((f) => f.y + outerSize(f, page, app.ws.settings).height)) - top;
+      const w = Math.max(...page.frames.map((f) => f.x + outerSize(f, host(f, page), app.ws.settings).width)) - left;
+      const hgt = Math.max(...page.frames.map((f) => f.y + outerSize(f, host(f, page), app.ws.settings).height)) - top;
       const z = clamp(Math.min((r.width - 96) / w, (r.height - 96) / hgt, 1), MIN_ZOOM, MAX_ZOOM);
       Object.assign(v, { zoom: z, x: (r.width - w * z) / 2 - left * z, y: (r.height - hgt * z) / 2 - top * z });
     }
@@ -388,9 +399,9 @@ export function createCanvas(app) {
   // Move mode: dragging anywhere on a screen moves it, and nothing inside is inspected.
   stage.addEventListener('pointerdown', (e) => {
     const wrap = e.target.closest?.('.ws-frame');
-    if (e.button !== 0 || !wrap || link || app.mode !== 'move') return;
+    if (e.button !== 0 || !wrap || link || app.mode !== 'move' || readOnly()) return;
     e.stopPropagation();
-    const frame = app.page()?.frames.find((f) => f.id === wrap.dataset.frameId);
+    const frame = app.canvasPage()?.frames.find((f) => f.id === wrap.dataset.frameId);
     if (frame) drag(e, frame, wrap);
   }, true);
 
@@ -408,6 +419,7 @@ export function createCanvas(app) {
     if (!vp) return;
     e.preventDefault();
     e.stopPropagation();
+    if (readOnly()) { app.select({ frameId, key: null }); return; }
     if (app.mode === 'move') return;
     app.select({ frameId, key: inspectInfo(e.target)?.key ?? null });
     const spot = app.mode === 'prototype' ? e.target.closest('[data-hotspot]') : null;
@@ -416,7 +428,7 @@ export function createCanvas(app) {
 
   stage.addEventListener('pointermove', (e) => {
     const inside = e.target.closest?.('.orbit-frame');
-    if (link || app.mode === 'move' || !inside) box(hover, null);
+    if (link || app.mode === 'move' || !inside || readOnly()) box(hover, null);
     else if (app.mode === 'prototype') box(hover, e.target.closest('[data-hotspot]'));
     else box(hover, inspectInfo(e.target)?.el);
   });
@@ -458,13 +470,15 @@ export function createCanvas(app) {
     updateSelection,
     viewport: (frameId) => els.get(frameId)?.vp,
     render() {
-      const page = app.page();
+      const page = app.canvasPage();
       if (link && !page?.frames.some((f) => f.id === link.frameId)) endLink();
       els.clear();
       stage.replaceChildren(...(page?.frames ?? []).map((frame) => frameEl(frame, page)), svg, hover, selected);
       empty.hidden = Boolean(page?.frames.length);
-      emptyText.textContent = page ? 'This page is empty.' : 'There are no pages.';
+      emptyText.textContent = page?.shelf ? `${page.name} is empty.` : page ? 'This page is empty.' : 'There are no pages.';
       emptyAction.textContent = page ? 'Add frame' : 'New page';
+      emptyAction.hidden = Boolean(page?.shelf);
+      root.classList.toggle('is-shelf', Boolean(page?.shelf));
       if (page) emptyAction.setAttribute('aria-haspopup', 'menu');
       else emptyAction.removeAttribute('aria-haspopup');
       applyView();
@@ -472,7 +486,7 @@ export function createCanvas(app) {
       paint();
     },
     refreshContent() {
-      const page = app.page();
+      const page = app.canvasPage();
       for (const frame of page?.frames ?? []) {
         const e = els.get(frame.id);
         if (e) fill(frame, e.vp, page);
