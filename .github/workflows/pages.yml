@@ -30,6 +30,18 @@ jobs:
         run: |
           cp -R design _site
           node .github/scripts/stamp-version.mjs _site "${GITHUB_SHA::12}"
+      - name: Configure sign-in from repository settings
+        env:
+          SUPABASE_URL: ${{ vars.SUPABASE_URL || secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ vars.SUPABASE_ANON_KEY || secrets.SUPABASE_ANON_KEY }}
+        run: |
+          if [ -n "$SUPABASE_URL" ] && [ -n "$SUPABASE_ANON_KEY" ]; then
+            node -e 'const { SUPABASE_URL: url, SUPABASE_ANON_KEY: anonKey } = process.env;
+              require("fs").writeFileSync("_site/cloud.config.js", `export default ${JSON.stringify({ url, anonKey })};\n`)'
+            echo "Sign-in enabled for $SUPABASE_URL"
+          else
+            echo "SUPABASE_URL / SUPABASE_ANON_KEY not set: the site stays browser-only"
+          fi
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
