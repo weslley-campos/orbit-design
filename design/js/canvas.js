@@ -1,4 +1,6 @@
-import { deviceFrame, deviceOf, h, outerSize, tintDevice } from './dom.js';
+import { deviceFrame, deviceOf, h, kids, outerSize, tintDevice } from './dom.js';
+import { icon } from './icons.js';
+import { setConnection } from './store.js';
 import { renderFrame, inspectInfo } from '../catalog/core.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
@@ -18,7 +20,10 @@ export function createCanvas(app) {
   const emptyText = h('p');
   const emptyAction = h('button', { onclick: (e) => (app.page() ? app.addFrameMenu(e.currentTarget) : app.newPage()) });
   const empty = h('div', { class: 'ws-empty' }, emptyText, emptyAction);
-  root.append(stage, empty);
+  const bar = h('div', { class: 'ws-frame-bar', role: 'toolbar', 'aria-label': 'Screen actions', hidden: true });
+  root.append(stage, empty, bar);
+  // A pending prototype connection: source frame and hotspot (null for the whole frame) and the last pointer position.
+  let link = null;
 
   const els = new Map();
   const view = () => app.page()?.view;
@@ -29,6 +34,7 @@ export function createCanvas(app) {
     stage.style.transform = `translate(${v.x}px, ${v.y}px) scale(${v.zoom})`;
     stage.style.setProperty('--ws-zoom', v.zoom);
     app.onZoom?.(v.zoom);
+    placeBar();
   }
 
   function place(frame) {
@@ -84,31 +90,35 @@ export function createCanvas(app) {
     app.save();
   }
 
+  function drag(e, frame, handle) {
+    e.preventDefault();
+    app.select({ frameId: frame.id, key: null });
+    handle.setPointerCapture(e.pointerId);
+    const start = { x: e.clientX, y: e.clientY, fx: frame.x, fy: frame.y };
+    const move = (ev) => {
+      frame.x = Math.round(start.fx + (ev.clientX - start.x) / zoom());
+      frame.y = Math.round(start.fy + (ev.clientY - start.y) / zoom());
+      place(frame);
+      updateSelection();
+      schedulePaint();
+    };
+    const up = () => {
+      handle.removeEventListener('pointermove', move);
+      handle.removeEventListener('pointerup', up);
+      handle.removeEventListener('pointercancel', up);
+      if (frame.x !== start.fx || frame.y !== start.fy) moved(frame);
+      app.inspector.render();
+    };
+    handle.addEventListener('pointermove', move);
+    handle.addEventListener('pointerup', up);
+    handle.addEventListener('pointercancel', up);
+  }
+
   function bindTitle(title, frame) {
     title.addEventListener('pointerdown', (e) => {
-      if (e.button !== 0) return;
-      e.preventDefault();
+      if (e.button !== 0 || link) return;
       title.focus();
-      app.select({ frameId: frame.id, key: null });
-      title.setPointerCapture(e.pointerId);
-      const start = { x: e.clientX, y: e.clientY, fx: frame.x, fy: frame.y };
-      const move = (ev) => {
-        frame.x = Math.round(start.fx + (ev.clientX - start.x) / zoom());
-        frame.y = Math.round(start.fy + (ev.clientY - start.y) / zoom());
-        place(frame);
-        updateSelection();
-        schedulePaint();
-      };
-      const up = () => {
-        title.removeEventListener('pointermove', move);
-        title.removeEventListener('pointerup', up);
-        title.removeEventListener('pointercancel', up);
-        moved(frame);
-        app.inspector.render();
-      };
-      title.addEventListener('pointermove', move);
-      title.addEventListener('pointerup', up);
-      title.addEventListener('pointercancel', up);
+      drag(e, frame, title);
     });
     title.addEventListener('keydown', (e) => {
       const step = e.shiftKey ? 10 : 1;
@@ -146,9 +156,61 @@ export function createCanvas(app) {
 
   function updateSelection() {
     const sel = app.selection;
-    for (const [id, e] of els) e.wrap.classList.toggle('is-selected', sel?.frameId === id && !sel.key);
-    box(selected, nodeOf(sel));
+    for (const [id, e] of els) e.wrap.classList.toggle('is-selected', sel?.frameId === id && (!sel.key || app.mode === 'move'));
+    box(selected, app.mode === 'move' ? null : nodeOf(sel));
+    renderBar();
     schedulePaint();
+  }
+
+  const barButton = (name, label, onclick) => h('button', { class: 'ws-icon', 'aria-label': label, title: label, 'data-f': `bar-${name}`, onclick }, icon(name));
+  function renderBar() {
+    const id = app.selection?.frameId;
+    if (!id || !els.has(id) || link) { bar.hidden = true; return; }
+    bar.replaceChildren(...kids([
+      app.mode === 'prototype' ? barButton('link', 'Connect the whole screen', (e) => startLink(id, null, e)) : null,
+      barButton('archive', 'Archive screen', () => app.shelve(id, 'archived')),
+      barButton('trash', 'Move screen to Trash', () => app.shelve(id, 'trash')),
+    ]));
+    bar.hidden = false;
+    placeBar();
+  }
+
+  function placeBar() {
+    const wrap = els.get(app.selection?.frameId)?.wrap;
+    if (!wrap || bar.hidden) return;
+    const r = wrap.getBoundingClientRect();
+    const o = root.getBoundingClientRect();
+    const top = r.top - o.top - (TITLE_HEIGHT + 4) * zoom() - 6;
+    const below = top < 46;
+    bar.classList.toggle('is-below', below);
+    bar.style.left = `${clamp(r.left - o.left + r.width / 2, 60, o.width - 60)}px`;
+    bar.style.top = `${below ? Math.min(r.bottom - o.top + 8, o.height - 120) : top}px`;
+    bar.style.visibility = r.right < o.left || r.left > o.right || r.bottom < o.top || r.top > o.bottom ? 'hidden' : '';
+  }
+
+  function startLink(frameId, hotspotId, e) {
+    link = { frameId, hotspotId, x: e.clientX, y: e.clientY };
+    root.classList.add('is-linking');
+    renderBar();
+    schedulePaint();
+  }
+
+  function endLink() {
+    if (!link) return false;
+    link = null;
+    root.classList.remove('is-linking');
+    for (const e of els.values()) e.wrap.classList.remove('is-link-target');
+    renderBar();
+    schedulePaint();
+    return true;
+  }
+
+  function finishLink(frameId) {
+    if (frameId === link.frameId) return;
+    setConnection(app.ws, link.frameId, link.hotspotId, frameId);
+    endLink();
+    app.change();
+    app.inspector.render();
   }
 
   function svgEl(tag, attrs, text) {
@@ -211,6 +273,14 @@ export function createCanvas(app) {
         const to = edge(dst, -1);
         arrow({ x: to.x - STUB, y: to.y }, to, `← ${other.page.name} / ${app.frameName(other.frame)}`, dim);
       }
+    }
+    const src = link && local.get(link.frameId);
+    if (src) {
+      const o = stage.getBoundingClientRect();
+      const to = { x: (link.x - o.left) / zoom(), y: (link.y - o.top) / zoom() };
+      const rect = sourceRect({ from: { hotspotId: link.hotspotId } }, src, size(src));
+      arrow({ x: to.x >= (rect.l + rect.r) / 2 ? rect.r : rect.l, y: rect.cy }, to, null, false);
+      svg.lastChild.classList.add('is-pending');
     }
   }
 
@@ -291,7 +361,7 @@ export function createCanvas(app) {
 
   root.addEventListener('pointerdown', (e) => {
     const v = view();
-    if (e.button !== 0 || !v || e.target.closest('.ws-frame, .ws-empty')) return;
+    if (e.button !== 0 || !v || e.target.closest('.ws-frame, .ws-empty, .ws-frame-bar')) return;
     const start = { x: e.clientX, y: e.clientY, vx: v.x, vy: v.y, moved: false };
     root.setPointerCapture(e.pointerId);
     root.classList.add('is-panning');
@@ -308,23 +378,61 @@ export function createCanvas(app) {
       root.removeEventListener('pointercancel', up);
       root.classList.remove('is-panning');
       if (start.moved) app.save();
-      else app.select(null);
+      else if (!link) app.select(null);
     };
     root.addEventListener('pointermove', move);
     root.addEventListener('pointerup', up);
     root.addEventListener('pointercancel', up);
   });
 
+  // Move mode: dragging anywhere on a screen moves it, and nothing inside is inspected.
+  stage.addEventListener('pointerdown', (e) => {
+    const wrap = e.target.closest?.('.ws-frame');
+    if (e.button !== 0 || !wrap || link || app.mode !== 'move') return;
+    e.stopPropagation();
+    const frame = app.page()?.frames.find((f) => f.id === wrap.dataset.frameId);
+    if (frame) drag(e, frame, wrap);
+  }, true);
+
   stage.addEventListener('click', (e) => {
-    const vp = e.target.closest?.('.orbit-frame');
+    const wrap = e.target.closest?.('.ws-frame');
+    if (!wrap) return;
+    const frameId = wrap.dataset.frameId;
+    if (link) {
+      e.preventDefault();
+      e.stopPropagation();
+      finishLink(frameId);
+      return;
+    }
+    const vp = e.target.closest('.orbit-frame');
     if (!vp) return;
     e.preventDefault();
     e.stopPropagation();
-    app.select({ frameId: vp.closest('.ws-frame').dataset.frameId, key: inspectInfo(e.target)?.key ?? null });
+    if (app.mode === 'move') return;
+    app.select({ frameId, key: inspectInfo(e.target)?.key ?? null });
+    const spot = app.mode === 'prototype' ? e.target.closest('[data-hotspot]') : null;
+    if (spot && vp.contains(spot)) startLink(frameId, spot.dataset.hotspot, e);
   }, true);
 
   stage.addEventListener('pointermove', (e) => {
-    box(hover, e.target.closest?.('.orbit-frame') ? inspectInfo(e.target)?.el : null);
+    const inside = e.target.closest?.('.orbit-frame');
+    if (link || app.mode === 'move' || !inside) box(hover, null);
+    else if (app.mode === 'prototype') box(hover, e.target.closest('[data-hotspot]'));
+    else box(hover, inspectInfo(e.target)?.el);
+  });
+
+  root.addEventListener('pointermove', (e) => {
+    if (!link) return;
+    link.x = e.clientX;
+    link.y = e.clientY;
+    const target = e.target.closest?.('.ws-frame')?.dataset.frameId;
+    for (const [id, el] of els) el.wrap.classList.toggle('is-link-target', id === target && id !== link.frameId);
+    schedulePaint();
+  });
+  root.addEventListener('contextmenu', (e) => {
+    if (!link) return;
+    e.preventDefault();
+    endLink();
   });
   stage.addEventListener('pointerleave', () => { hover.hidden = true; });
 
@@ -332,6 +440,14 @@ export function createCanvas(app) {
 
   return {
     zoom,
+    endLink,
+    linking: () => Boolean(link),
+    setMode(mode) {
+      if (mode !== 'prototype') endLink();
+      root.dataset.mode = mode;
+      hover.hidden = true;
+      updateSelection();
+    },
     zoomIn: () => zoomFromCenter(1.25),
     zoomOut: () => zoomFromCenter(0.8),
     zoomReset: () => zoomFromCenter(1 / zoom()),
@@ -343,6 +459,7 @@ export function createCanvas(app) {
     viewport: (frameId) => els.get(frameId)?.vp,
     render() {
       const page = app.page();
+      if (link && !page?.frames.some((f) => f.id === link.frameId)) endLink();
       els.clear();
       stage.replaceChildren(...(page?.frames ?? []).map((frame) => frameEl(frame, page)), svg, hover, selected);
       empty.hidden = Boolean(page?.frames.length);
