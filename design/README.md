@@ -12,7 +12,7 @@ Open <http://localhost:4173> in Chrome or Safari. The server sends `Cache-Contro
 
 ## Published preview
 
-`.github/workflows/pages.yml` runs `node design/check.mjs` and publishes `design/` to GitHub Pages on every push to `main` (or manually from the Actions tab): <https://weslley-campos.github.io/orbit-design/>. Drafts are kept per origin, so the published site and localhost keep separate drafts.
+`.github/workflows/pages.yml` runs `node design/check.mjs` and publishes `design/` to GitHub Pages on every push to `main` (or manually from the Actions tab): <https://weslley-campos.github.io/orbit-design/>. The deploy stamps script and stylesheet URLs with the commit, so browsers never mix cached modules from an older deploy. Drafts are kept per origin, so the published site and localhost keep separate drafts.
 
 ## Basics
 
