@@ -10,6 +10,10 @@ python3 design/serve.py
 
 Open <http://localhost:4173> in Chrome or Safari. The server sends `Cache-Control: no-store`, so a normal reload picks up file changes. Pass another port if 4173 is taken: `python3 design/serve.py 4174`. Use this origin: `file://` has no reliable storage.
 
+## Published preview
+
+`.github/workflows/pages.yml` runs `node design/check.mjs` and publishes `design/` to GitHub Pages on every push to `main` (or manually from the Actions tab): <https://weslley-campos.github.io/orbit-design/>. Drafts are kept per origin, so the published site and localhost keep separate drafts.
+
 ## Basics
 
 - **Pages (left):** two plain lists. Pages: click a row to select it, "+" creates a page and starts renaming it; the "⋯" on a row (shown on hover, focus or selection) offers Rename, Move up/down and Delete page, and double-clicking a row renames it inline (Enter or blur saves, Esc cancels). Frames: the selected page's frames, with "+" to add a catalog entry (grouped Design system / Components / Screens / Emails; entries not in the app yet are tagged "proposed") and a "⋯" menu to move a frame to another page or remove it. Selecting a row selects the frame on the canvas, and the reverse.
