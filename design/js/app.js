@@ -1,5 +1,5 @@
 import { BASE_CSS, LANGUAGES, hotspotsOf, loadCatalog, overridesCss } from '../catalog/core.js';
-import { MOBILE_SCREEN, deviceOf, h, kids, openMenu, preserveFocus } from './dom.js';
+import { MOBILE_SCREEN, deviceOf, h, kids, openMenu, outerSize, preserveFocus } from './dom.js';
 import { icon } from './icons.js';
 import {
   STORAGE_KEY, loadWorkspace, locate, moveFrameToPage, moveShelfItem, nextFreeX, normalize, parseWorkspace, removePage, restoreFrame, saveDraft, shelveFrame, uniqueId,
@@ -74,7 +74,11 @@ async function boot() {
     rawDraft: null,
     selection: null,
     mode: 'inspect',
+    // Read-only canvas over Archived or Trash: { shelf, frameId } for one screen, frameId null for all of them.
+    shelfView: null,
+    shelfPage: null,
     page: () => app.ws.pages.find((page) => page.id === app.ws.selectedPageId) ?? null,
+    canvasPage: () => app.shelfPage ?? app.page(),
     locate: (frameId) => locate(app.ws, frameId),
     frameName: (frame) => entryMap.get(frame.catalogId)?.name ?? frame.catalogId,
   };
@@ -113,8 +117,10 @@ async function boot() {
     app.canvas.refreshContent();
   };
   app.refresh = () => {
+    app.shelfPage = buildShelfPage();
     refreshOverrides();
     syncToolbar();
+    renderBanner();
     renderSidebar();
     app.canvas.render();
     app.inspector.render();
@@ -161,8 +167,104 @@ async function boot() {
     if (!page) return;
     app.ws.selectedPageId = page.id;
     app.selection = { frameId, key: null };
+    app.shelfView = null;
     app.commit();
+    showToast(`${app.frameName(app.locate(frameId).frame)} restored to ${page.name}.`);
   }
+  app.restore = restore;
+  app.moveShelf = (frameId, from, to) => {
+    moveShelfItem(app.ws, frameId, from, to);
+    shelvesOpen.add(to);
+    // A view of that one screen follows it to the other shelf.
+    if (app.shelfView?.frameId === frameId) app.shelfView = { shelf: to, frameId };
+    app.commit();
+  };
+
+  const shelfViews = {};
+  const platformOf = (item) => (item.platform !== undefined ? item.platform : app.ws.pages.find((p) => p.id === item.pageId)?.platform ?? null);
+  function buildShelfPage() {
+    const v = app.shelfView;
+    if (!v) return null;
+    const items = (app.ws[v.shelf] ?? []).filter((item) => !v.frameId || item.frame.id === v.frameId);
+    if (v.frameId && !items.length) { app.shelfView = { shelf: v.shelf, frameId: null }; return buildShelfPage(); }
+    let x = 0;
+    const frames = items.map((item) => {
+      const frame = { ...item.frame, x, y: 0, platform: platformOf(item) };
+      x += outerSize(frame, frame, app.ws.settings).width + 96;
+      return frame;
+    });
+    const key = `${v.shelf}:${v.frameId ?? '*'}`;
+    return {
+      id: `shelf-${key}`,
+      shelf: v.shelf,
+      name: SHELF_NAMES[v.shelf],
+      view: (shelfViews[key] ??= { x: 80, y: 80, zoom: 1, fresh: true }),
+      frames,
+      overrides: { ...app.ws.overrides, frames: Object.fromEntries(items.map((item) => [item.frame.id, item.overrides ?? {}])) },
+    };
+  }
+  app.openShelf = (shelf, frameId = null) => {
+    app.canvas.endLink();
+    app.shelfView = { shelf, frameId };
+    app.selection = frameId ? { frameId, key: null } : null;
+    shelvesOpen.add(shelf);
+    app.refresh();
+    if (app.shelfPage.view.fresh) { delete app.shelfPage.view.fresh; app.canvas.fit(); }
+  };
+  app.closeShelf = () => {
+    if (!app.shelfView) return false;
+    app.shelfView = null;
+    app.selection = null;
+    app.refresh();
+    return true;
+  };
+
+  const banner = h('div', { class: 'ws-shelf-banner', role: 'region', 'aria-label': 'Shelf view', hidden: true });
+  $('stage-wrap').append(banner);
+  function renderBanner() {
+    const page = app.shelfPage;
+    banner.hidden = !page;
+    if (!page) return;
+    const total = (app.ws[page.shelf] ?? []).length;
+    const one = app.shelfView.frameId;
+    banner.replaceChildren(...kids([
+      icon(page.shelf === 'archived' ? 'archive' : 'trash', 16),
+      h('strong', {}, page.name),
+      h('span', { class: 'ws-banner-note' }, one ? `${app.frameName(page.frames[0])} · read-only` : `${total} ${total === 1 ? 'screen' : 'screens'} · read-only`),
+      one && total > 1 ? h('button', { onclick: () => app.openShelf(page.shelf) }, 'View all') : null,
+      h('button', { class: 'ws-primary', onclick: () => app.closeShelf() }, `Back to ${app.page()?.name ?? 'pages'}`),
+    ]));
+  }
+
+  app.shelfInfo = () => {
+    const page = app.shelfPage;
+    const shelf = page.shelf;
+    const item = (app.ws[shelf] ?? []).find((candidate) => candidate.frame.id === app.selection?.frameId);
+    if (!item) {
+      return [h('h3', {}, page.name), h('p', { class: 'ws-hint' }, page.frames.length
+        ? 'Read-only view. Select a screen to see where it came from and to restore it.'
+        : `${page.name} is empty.`)];
+    }
+    const other = shelf === 'archived' ? 'trash' : 'archived';
+    const entry = entryMap.get(item.frame.catalogId);
+    const when = item.at ? new Date(item.at).toLocaleString() : 'unknown';
+    const pageLive = app.ws.pages.some((p) => p.id === item.pageId);
+    return kids([
+      h('h3', {}, app.frameName(item.frame)),
+      h('dl', { class: 'ws-pairs' },
+        h('dt', {}, 'Status'), h('dd', {}, `${shelf === 'archived' ? 'Archived' : 'In Trash'} since ${when}`),
+        h('dt', {}, 'From page'), h('dd', {}, `${item.pageName ?? 'unknown'}${pageLive ? '' : ' (deleted)'}`),
+        h('dt', {}, 'Catalog id'), h('dd', {}, item.frame.catalogId),
+        entry?.source ? h('dt', {}, 'Source') : null, entry?.source ? h('dd', {}, entry.source) : null,
+        h('dt', {}, 'Connections'), h('dd', {}, String(item.connections.length)),
+        h('dt', {}, 'Size'), h('dd', {}, `${item.frame.width} × ${item.frame.height}`)),
+      h('div', { class: 'ws-inline ws-actions' },
+        h('button', { class: 'ws-primary', 'data-f': 'shelf-restore', onclick: () => restore(shelf, item.frame.id) }, `Restore to ${pageLive ? item.pageName : app.page()?.name ?? 'a page'}`),
+        h('button', { 'data-f': 'shelf-move', onclick: () => app.moveShelf(item.frame.id, shelf, other) }, `Move to ${SHELF_NAMES[other]}`)),
+      app.shelfView.frameId ? null : h('button', { class: 'ws-link', onclick: () => app.openShelf(shelf, item.frame.id) }, 'View this screen alone'),
+      h('p', { class: 'ws-hint' }, 'Shelved screens are read-only. Restore one to inspect, edit or connect it.'),
+    ]);
+  };
 
   app.newPage = () => {
     const id = uniqueId(app.ws, 'page');
@@ -305,17 +407,28 @@ async function boot() {
     const items = app.ws[shelf] ?? [];
     const other = shelf === 'archived' ? 'trash' : 'archived';
     const section = h('details', { class: 'ws-shelf', open: shelvesOpen.has(shelf) },
-      h('summary', {}, h('span', { class: 'ws-shelf-title' }, icon(shelf === 'archived' ? 'archive' : 'trash', 16), SHELF_NAMES[shelf]), h('span', { class: 'ws-count' }, String(items.length))),
+      h('summary', {}, h('span', { class: 'ws-shelf-title' }, icon(shelf === 'archived' ? 'archive' : 'trash', 16), SHELF_NAMES[shelf]),
+        h('span', { class: 'ws-shelf-tools' },
+          items.length ? h('button', {
+            class: 'ws-view-all', 'data-f': `view-${shelf}`, 'aria-pressed': String(app.shelfView?.shelf === shelf && !app.shelfView.frameId),
+            onclick: (e) => { e.preventDefault(); app.openShelf(shelf); },
+          }, 'View all') : null,
+          h('span', { class: 'ws-count' }, String(items.length)))),
       items.length ? null : h('p', { class: 'ws-hint' }, shelf === 'archived' ? 'Archived screens are kept here for reference.' : 'Deleted screens wait here until you restore them.'),
       h('ul', { class: 'ws-rows' }, ...items.map((item) => {
         const name = app.frameName(item.frame);
-        return h('li', { class: 'ws-row' },
-          h('span', { class: 'ws-row-main ws-shelf-row' }, h('span', { class: 'ws-glyph', 'aria-hidden': 'true' }),
-            h('span', { class: 'ws-row-name' }, name), h('span', { class: 'ws-tag' }, item.pageName ?? '')),
+        const viewing = app.shelfView?.shelf === shelf && (app.shelfView.frameId ?? app.selection?.frameId) === item.frame.id;
+        return h('li', { class: viewing ? 'ws-row is-selected' : 'ws-row' },
+          h('button', {
+            class: 'ws-row-main ws-shelf-row', 'data-f': `shelf-${item.frame.id}`, 'aria-current': viewing ? 'true' : null, title: `View ${name} on the canvas`,
+            onclick: () => app.openShelf(shelf, item.frame.id),
+          }, h('span', { class: 'ws-glyph', 'aria-hidden': 'true' }),
+          h('span', { class: 'ws-row-name' }, name), h('span', { class: 'ws-tag' }, item.pageName ?? '')),
           h('button', { class: 'ws-icon', 'aria-label': `Restore ${name}`, title: 'Restore', 'data-f': `restore-${item.frame.id}`, onclick: () => restore(shelf, item.frame.id) }, icon('restore', 16)),
           moreButton(`Actions for ${name} in ${SHELF_NAMES[shelf]}`, `shelf-more-${item.frame.id}`, [
             { label: `Restore to ${app.ws.pages.some((p) => p.id === item.pageId) ? item.pageName : 'the current page'}`, run: () => restore(shelf, item.frame.id) },
-            { label: `Move to ${SHELF_NAMES[other]}`, run: () => { moveShelfItem(app.ws, item.frame.id, shelf, other); shelvesOpen.add(other); app.commit(); } },
+            { label: 'View on canvas', run: () => app.openShelf(shelf, item.frame.id) },
+            { label: `Move to ${SHELF_NAMES[other]}`, run: () => app.moveShelf(item.frame.id, shelf, other) },
           ]));
       })));
     section.addEventListener('toggle', () => { if (section.open) shelvesOpen.add(shelf); else shelvesOpen.delete(shelf); });
@@ -332,10 +445,10 @@ async function boot() {
       };
       left.replaceChildren(...kids([
         sectionHead('Pages', 'New page', () => app.newPage()),
-        h('ul', { class: 'ws-rows' }, ...ws.pages.map((p, index) => h('li', { class: p.id === ws.selectedPageId ? 'ws-row is-selected' : 'ws-row' },
+        h('ul', { class: 'ws-rows' }, ...ws.pages.map((p, index) => h('li', { class: p.id === ws.selectedPageId && !app.shelfView ? 'ws-row is-selected' : 'ws-row' },
           renaming === p.id ? renameInput(p) : h('button', {
-            class: 'ws-row-main', 'data-f': `page-${p.id}`, 'aria-current': p.id === ws.selectedPageId ? 'page' : null,
-            onclick: () => { if (p.id === ws.selectedPageId) return; ws.selectedPageId = p.id; app.selection = null; app.commit(); },
+            class: 'ws-row-main', 'data-f': `page-${p.id}`, 'aria-current': p.id === ws.selectedPageId && !app.shelfView ? 'page' : null,
+            onclick: () => { if (p.id === ws.selectedPageId && !app.shelfView) return; ws.selectedPageId = p.id; app.shelfView = null; app.selection = null; app.commit(); },
             ondblclick: () => startRename(p.id),
           }, p.name),
           moreButton(`Actions for page ${p.name}`, `page-more-${p.id}`, [
@@ -360,7 +473,7 @@ async function boot() {
           return h('li', { class: selected ? 'ws-row is-selected' : 'ws-row' },
             h('button', {
               class: 'ws-row-main', 'data-f': `frame-${frame.id}`, 'aria-current': selected ? 'true' : null,
-              onclick: () => app.select({ frameId: frame.id, key: null }),
+              onclick: () => { if (app.shelfView) { app.shelfView = null; app.selection = { frameId: frame.id, key: null }; app.refresh(); } else app.select({ frameId: frame.id, key: null }); },
             }, h('span', { class: 'ws-glyph', 'aria-hidden': 'true' }), h('span', { class: 'ws-row-name' }, name),
             entryMap.get(frame.catalogId)?.status === 'proposed' ? h('span', { class: 'ws-tag' }, 'proposed') : null),
             moreButton(`Actions for frame ${name}`, `frame-more-${frame.id}`, [
@@ -420,7 +533,7 @@ async function boot() {
 
   document.addEventListener('keydown', (e) => {
     if (e.defaultPrevented || e.ctrlKey || e.metaKey || e.altKey || e.target.closest?.('input, textarea, select, [contenteditable], dialog')) return;
-    if (e.key === 'Escape' && app.canvas.endLink()) { e.preventDefault(); return; }
+    if (e.key === 'Escape' && (app.canvas.endLink() || app.closeShelf())) { e.preventDefault(); return; }
     const mode = !e.shiftKey && { v: 'inspect', h: 'move', p: 'prototype' }[e.key.toLowerCase()];
     if (mode) { e.preventDefault(); app.setMode(mode); return; }
     const frameId = app.selection?.frameId;

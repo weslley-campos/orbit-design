@@ -196,6 +196,7 @@ export function shelveFrame(ws, frameId, shelf) {
     pageId: loc.page.id,
     pageName: loc.page.name,
     index: loc.page.frames.indexOf(loc.frame),
+    platform: loc.page.platform ?? null,
     connections: ws.connections.filter((c) => c.from.frameId === frameId || c.to.frameId === frameId),
     overrides: ws.overrides.frames?.[frameId] ?? {},
     start: ws.startFrameId === frameId,

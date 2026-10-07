@@ -273,7 +273,7 @@ export function createInspector(app) {
   }
 
   function render() {
-    preserveFocus(panel, () => panel.replaceChildren(...(tab === 'inspect' ? inspectView() : prototypeView())));
+    preserveFocus(panel, () => panel.replaceChildren(...(app.canvasPage()?.shelf ? app.shelfInfo() : tab === 'inspect' ? inspectView() : prototypeView())));
   }
 
   return { render, showTab, tab: () => tab };
