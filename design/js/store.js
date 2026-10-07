@@ -7,6 +7,9 @@ const isObject = (value) => value !== null && typeof value === 'object' && !Arra
 const isNumber = (value) => typeof value === 'number' && Number.isFinite(value);
 const isString = (value) => typeof value === 'string' && value !== '';
 
+// Archived and Trash keep removed frames with their connections and overrides so they can be restored.
+export const SHELVES = ['archived', 'trash'];
+
 export function validateWorkspace(data, { catalogIds, hotspotIds = () => null, tokens }) {
   const errors = [];
   if (!isObject(data)) return ['The workspace must be a JSON object'];
@@ -41,6 +44,7 @@ export function validateWorkspace(data, { catalogIds, hotspotIds = () => null, t
   if (data.selectedPageId != null && !pageIds.has(data.selectedPageId)) errors.push(`selectedPageId ${data.selectedPageId} is not a page`);
   if (data.startFrameId != null && !frames.has(data.startFrameId)) errors.push(`startFrameId ${data.startFrameId} is not a frame`);
 
+  const live = new Map(frames);
   const connectionIds = new Set();
   if (!Array.isArray(data.connections)) errors.push('connections must be an array');
   for (const connection of Array.isArray(data.connections) ? data.connections : []) {
@@ -48,14 +52,28 @@ export function validateWorkspace(data, { catalogIds, hotspotIds = () => null, t
     if (connectionIds.has(connection.id)) errors.push(`Duplicate connection id ${connection.id}`);
     connectionIds.add(connection.id);
     const { from, to } = connection;
-    const source = frames.get(from?.frameId);
+    const source = live.get(from?.frameId);
     if (!source) errors.push(`Connection ${connection.id} starts at missing frame ${from?.frameId}`);
-    if (!frames.has(to?.frameId)) errors.push(`Connection ${connection.id} points at missing frame ${to?.frameId}`);
+    if (!live.has(to?.frameId)) errors.push(`Connection ${connection.id} points at missing frame ${to?.frameId}`);
     if (from?.hotspotId != null) {
       const known = source && hotspotIds(source.catalogId);
       if (known && !known.has(from.hotspotId)) errors.push(`Connection ${connection.id} uses missing hotspot ${from.hotspotId} of ${source.catalogId}`);
     }
     if (connection.trigger !== 'click') errors.push(`Connection ${connection.id} has unsupported trigger ${connection.trigger}`);
+  }
+
+  for (const shelf of SHELVES) {
+    if (data[shelf] == null) continue;
+    if (!Array.isArray(data[shelf])) { errors.push(`${shelf} must be an array`); continue; }
+    for (const item of data[shelf]) {
+      const frame = item?.frame;
+      if (!isObject(item) || !isObject(frame) || !isString(frame.id)) { errors.push(`An item in ${shelf} has no frame`); continue; }
+      if (frames.has(frame.id)) errors.push(`Duplicate frame id ${frame.id} in ${shelf}`);
+      frames.set(frame.id, frame);
+      if (!catalogIds.has(frame.catalogId)) errors.push(`Frame ${frame.id} in ${shelf} uses unknown catalog id ${frame.catalogId}`);
+      if (![frame.x, frame.y].every(isNumber) || !(frame.width > 0) || !(frame.height > 0)) errors.push(`Frame ${frame.id} in ${shelf} has an invalid position or size`);
+      if (!Array.isArray(item.connections ?? []) || !isObject(item.overrides ?? {})) errors.push(`Frame ${frame.id} in ${shelf} has invalid connections or overrides`);
+    }
   }
 
   validateOverrides(data.overrides ?? {}, frames, tokens, errors);
@@ -97,6 +115,7 @@ export function normalize(data) {
   data.overrides ??= {};
   data.overrides.tokens ??= {};
   data.overrides.frames ??= {};
+  for (const shelf of SHELVES) data[shelf] ??= [];
   return data;
 }
 
@@ -148,8 +167,13 @@ export function locate(ws, frameId) {
   return null;
 }
 
+const shelved = (ws) => SHELVES.flatMap((shelf) => ws[shelf] ?? []);
+
 export function uniqueId(ws, base) {
-  const used = new Set([...ws.pages.map((page) => page.id), ...allFrames(ws).map((frame) => frame.id), ...ws.connections.map((c) => c.id)]);
+  const used = new Set([
+    ...ws.pages.map((page) => page.id), ...allFrames(ws).map((frame) => frame.id), ...ws.connections.map((c) => c.id),
+    ...shelved(ws).flatMap((item) => [item.frame.id, ...item.connections.map((c) => c.id)]),
+  ]);
   let id = base;
   for (let n = 2; used.has(id); n++) id = `${base}-${n}`;
   return id;
@@ -162,10 +186,61 @@ export function removeFrame(ws, frameId) {
   delete ws.overrides.frames?.[frameId];
 }
 
+// Moves a live frame to Archived or Trash, keeping what removeFrame would drop.
+export function shelveFrame(ws, frameId, shelf) {
+  const loc = locate(ws, frameId);
+  if (!loc || !SHELVES.includes(shelf)) return;
+  ws[shelf] ??= [];
+  ws[shelf].unshift({
+    frame: loc.frame,
+    pageId: loc.page.id,
+    pageName: loc.page.name,
+    index: loc.page.frames.indexOf(loc.frame),
+    connections: ws.connections.filter((c) => c.from.frameId === frameId || c.to.frameId === frameId),
+    overrides: ws.overrides.frames?.[frameId] ?? {},
+    start: ws.startFrameId === frameId,
+    at: new Date().toISOString(),
+  });
+  removeFrame(ws, frameId);
+}
+
+export const shelfItem = (ws, shelf, frameId) => (ws[shelf] ?? []).find((item) => item.frame.id === frameId);
+
+export function moveShelfItem(ws, frameId, from, to) {
+  const item = shelfItem(ws, from, frameId);
+  if (!item || from === to) return;
+  ws[from].splice(ws[from].indexOf(item), 1);
+  (ws[to] ??= []).unshift({ ...item, at: new Date().toISOString() });
+}
+
+// Puts a shelved frame back on its page (or fallbackPageId), with the connections whose other end is live.
+// A connection to a frame that is still shelved moves to that frame's item, so it returns with it.
+export function restoreFrame(ws, shelf, frameId, fallbackPageId) {
+  const item = shelfItem(ws, shelf, frameId);
+  const page = ws.pages.find((p) => p.id === item?.pageId) ?? ws.pages.find((p) => p.id === fallbackPageId) ?? ws.pages[0];
+  if (!item || !page) return null;
+  ws[shelf].splice(ws[shelf].indexOf(item), 1);
+  const { frame } = item;
+  if (page.id !== item.pageId) Object.assign(frame, { x: nextFreeX(page), y: 0 });
+  page.frames.splice(page.id === item.pageId ? Math.min(item.index ?? Infinity, page.frames.length) : page.frames.length, 0, frame);
+  for (const c of item.connections) {
+    const other = c.from.frameId === frameId ? c.to.frameId : c.from.frameId;
+    if (other !== frameId && !locate(ws, other)) {
+      shelved(ws).find((candidate) => candidate.frame.id === other)?.connections.push(c);
+    } else if (!connectionOf(ws, c.from.frameId, c.from.hotspotId)) {
+      ws.connections.push({ ...c, id: uniqueId(ws, c.id) });
+    }
+  }
+  if (Object.keys(item.overrides).length) ws.overrides.frames[frameId] = item.overrides;
+  if (item.start && !ws.startFrameId) ws.startFrameId = frameId;
+  return page;
+}
+
+// Deleting a page moves its frames to Trash.
 export function removePage(ws, pageId) {
   const index = ws.pages.findIndex((page) => page.id === pageId);
   if (index < 0) return;
-  for (const frame of [...ws.pages[index].frames]) removeFrame(ws, frame.id);
+  for (const frame of [...ws.pages[index].frames]) shelveFrame(ws, frame.id, 'trash');
   ws.pages.splice(index, 1);
   if (ws.selectedPageId === pageId) ws.selectedPageId = ws.pages[Math.min(index, ws.pages.length - 1)]?.id ?? null;
 }
