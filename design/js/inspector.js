@@ -30,6 +30,7 @@ export function createInspector(app) {
     panel.setAttribute('aria-labelledby', `tab-${name}`);
     render();
     app.canvas.paint();
+    app.onTab?.(name);
   }
   for (const [id, button] of Object.entries(tabs)) button.onclick = () => showTab(id);
 

@@ -28,7 +28,7 @@ export function createCanvas(app) {
     const v = view() ?? { x: 0, y: 0, zoom: 1 };
     stage.style.transform = `translate(${v.x}px, ${v.y}px) scale(${v.zoom})`;
     stage.style.setProperty('--ws-zoom', v.zoom);
-    document.getElementById('zoom-pct').textContent = `${Math.round(v.zoom * 100)}%`;
+    app.onZoom?.(v.zoom);
   }
 
   function place(frame) {
@@ -330,12 +330,12 @@ export function createCanvas(app) {
 
   root.addEventListener('scroll', () => { updateSelection(); schedulePaint(); }, true);
 
-  document.getElementById('zoom-in').onclick = () => zoomFromCenter(1.25);
-  document.getElementById('zoom-out').onclick = () => zoomFromCenter(0.8);
-  document.getElementById('zoom-pct').onclick = () => zoomFromCenter(1 / zoom());
-  document.getElementById('fit').onclick = fit;
-
   return {
+    zoom,
+    zoomIn: () => zoomFromCenter(1.25),
+    zoomOut: () => zoomFromCenter(0.8),
+    zoomReset: () => zoomFromCenter(1 / zoom()),
+    fit,
     nodeOf,
     place,
     paint,

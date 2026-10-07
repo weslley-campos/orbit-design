@@ -1,5 +1,6 @@
 import { BASE_CSS, LANGUAGES, hotspotsOf, loadCatalog, overridesCss } from '../catalog/core.js';
 import { MOBILE_SCREEN, deviceOf, h, kids, openMenu, preserveFocus } from './dom.js';
+import { icon } from './icons.js';
 import {
   STORAGE_KEY, loadWorkspace, locate, moveFrameToPage, nextFreeX, normalize, parseWorkspace, removeFrame, removePage, saveDraft, uniqueId, validateWorkspace,
 } from './store.js';
@@ -30,6 +31,17 @@ function download(name, text) {
   link.click();
   link.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+for (const el of document.querySelectorAll('[data-icon]')) el.prepend(icon(el.dataset.icon));
+
+const THEME_KEY = 'orbit.design.theme';
+function applyTheme(theme) {
+  if (theme === 'light' || theme === 'dark') document.documentElement.dataset.theme = theme;
+  else delete document.documentElement.dataset.theme;
+}
+function currentTheme() {
+  return document.documentElement.dataset.theme ?? 'system';
 }
 
 async function boot() {
@@ -124,20 +136,68 @@ async function boot() {
     startRename(id);
   };
 
-  const fillSelect = (id, values, label = (value) => value[0].toUpperCase() + value.slice(1)) => {
-    $(id).replaceChildren(...values.map((value) => h('option', { value }, label(value))));
-    $(id).onchange = (e) => { app.ws.settings[id] = e.target.value; app.commit(); };
+  const capital = (value) => value[0].toUpperCase() + value.slice(1);
+  const LANGUAGE_NAMES = { en: 'English', pt: 'Português' };
+  const DEVICE_NAMES = { ios: 'iOS', android: 'Android' };
+  const logoOf = (palette) => `assets/core-ui/drawable/ic_logo_${palette}.svg`;
+  const setting = (key, value) => { app.ws.settings[key] = value; app.commit(); };
+  const choices = (key, values, label, iconOf) => values.map((value) => ({
+    label: label(value), icon: iconOf?.(value), checked: (app.ws.settings[key] ?? values[0]) === value, run: () => setting(key, value),
+  }));
+  const swatch = (palette) => h('img', { class: 'ws-swatch', src: logoOf(palette), alt: '', width: 18, height: 18 });
+
+  const tool = (id, label, onclick, ...content) => h('button', {
+    class: 'ws-tool', 'data-f': `tool-${id}`, 'aria-label': label, title: label, 'aria-haspopup': 'menu', 'aria-expanded': 'false', onclick,
+  }, ...content);
+  const balloon = (items) => (e) => openMenu(e.currentTarget, items(), { above: true });
+  const modeButton = (name, label) => h('button', {
+    class: 'ws-seg', 'data-f': `tool-${name}`, 'aria-pressed': 'false', 'aria-label': label, title: label,
+    onclick: () => app.inspector.showTab(name),
+  }, icon(name));
+  const zoomText = h('span', { class: 'ws-zoom-pct' }, '100%');
+  const tools = {
+    inspect: modeButton('inspect', 'Inspect mode'),
+    prototype: modeButton('prototype', 'Prototype mode'),
+    palette: tool('palette', 'Palette', balloon(() => [{ heading: 'Palette' }, ...choices('palette', catalog.tokens.palettes, capital, swatch)]), h('img', { class: 'ws-swatch', alt: '', width: 20, height: 20 })),
+    mode: tool('mode', 'Mode', balloon(() => [{ heading: 'Mode' }, ...choices('mode', catalog.tokens.modes, capital, (value) => icon(value))]), icon('light')),
+    language: tool('language', 'Language', balloon(() => [{ heading: 'Language' }, ...choices('language', LANGUAGES, (value) => LANGUAGE_NAMES[value] ?? value.toUpperCase())]),
+      icon('language'), h('span', { class: 'ws-tool-text' })),
+    device: tool('device', 'Device', balloon(() => [{ heading: 'Device' }, ...choices('device', ['ios', 'android'], (value) => DEVICE_NAMES[value], (value) => icon(value))]), icon('ios')),
+    zoom: tool('zoom', 'Zoom', balloon(() => [
+      { heading: 'Zoom' },
+      { label: 'Zoom in', tag: '+', run: () => app.canvas.zoomIn() },
+      { label: 'Zoom out', tag: '−', run: () => app.canvas.zoomOut() },
+      { label: 'Zoom to 100%', tag: 'Shift 0', run: () => app.canvas.zoomReset() },
+      { label: 'Zoom to fit', tag: 'Shift 1', run: () => app.canvas.fit() },
+    ]), zoomText, icon('chevron', 14)),
   };
-  fillSelect('palette', catalog.tokens.palettes);
-  fillSelect('mode', catalog.tokens.modes);
-  fillSelect('language', LANGUAGES, (value) => value.toUpperCase());
-  fillSelect('device', ['ios', 'android'], (value) => (value === 'ios' ? 'iOS' : 'Android'));
+  $('tools').replaceChildren(
+    h('div', { class: 'ws-segment', role: 'group', 'aria-label': 'Panel mode' }, tools.inspect, tools.prototype),
+    h('span', { class: 'ws-tools-sep', 'aria-hidden': 'true' }),
+    tools.palette, tools.mode, tools.language, tools.device,
+    h('span', { class: 'ws-tools-sep', 'aria-hidden': 'true' }),
+    tools.zoom,
+  );
+  app.onZoom = (zoom) => { zoomText.textContent = `${Math.round(zoom * 100)}%`; };
+  app.onTab = (name) => {
+    for (const key of ['inspect', 'prototype']) tools[key].setAttribute('aria-pressed', String(key === name));
+  };
   function syncToolbar() {
-    for (const key of ['palette', 'mode', 'language']) $(key).value = app.ws.settings[key];
-    $('device').value = app.ws.settings.device ?? 'ios';
+    const { palette, mode, language, device = 'ios' } = app.ws.settings;
+    const label = (key, text) => { tools[key].title = text; tools[key].setAttribute('aria-label', text); };
+    tools.palette.querySelector('img').src = logoOf(palette);
+    for (const img of document.querySelectorAll('.ws-logo')) img.src = logoOf(palette);
+    tools.mode.replaceChildren(icon(mode === 'dark' ? 'dark' : 'light'));
+    tools.language.querySelector('.ws-tool-text').textContent = language.toUpperCase();
+    tools.device.replaceChildren(icon(device));
+    label('palette', `Palette: ${capital(palette)}`);
+    label('mode', `Mode: ${capital(mode)}`);
+    label('language', `Language: ${LANGUAGE_NAMES[language] ?? language}`);
+    label('device', `Device: ${DEVICE_NAMES[device]}`);
+    app.onTab(app.inspector.tab());
   }
 
-  const left = $('left');
+  const left = $('left-body');
   let renaming = null;
 
   function addFrame(catalogId) {
@@ -260,9 +320,7 @@ async function boot() {
   app.canvas = createCanvas(app);
   app.inspector = createInspector(app);
 
-  $('play').onclick = () => openPlay(app, $('play'));
-  $('export').onclick = () => download('workspace.json', `${JSON.stringify(app.ws, null, 2)}\n`);
-  $('import').onclick = () => $('import-file').click();
+  for (const id of ['play', 'play-mini']) $(id).onclick = () => openPlay(app, $(id));
   $('import-file').onchange = async (e) => {
     const file = e.target.files[0];
     e.target.value = '';
@@ -277,7 +335,7 @@ async function boot() {
     clearNotice();
     app.commit();
   };
-  $('reset').onclick = () => {
+  function reset() {
     if (!confirm('Discard the local draft and reload the committed workspace.json?')) return;
     try { storage.removeItem(STORAGE_KEY); } catch { /* the draft stays but is replaced on the next save */ }
     app.ws = normalize(structuredClone(seed));
@@ -286,7 +344,31 @@ async function boot() {
     clearNotice();
     setStatus(true);
     app.refresh();
-  };
+  }
+  const themeNames = { system: 'System', light: 'Light', dark: 'Dark' };
+  $('main-menu').onclick = (e) => openMenu(e.currentTarget, [
+    { heading: 'Workspace' },
+    { label: 'Export workspace.json', run: () => download('workspace.json', `${JSON.stringify(app.ws, null, 2)}\n`) },
+    { label: 'Import workspace.json…', run: () => $('import-file').click() },
+    { label: 'Reset to committed workspace…', run: reset },
+    { heading: 'Theme' },
+    ...Object.entries(themeNames).map(([theme, label]) => ({
+      label, icon: icon(theme), checked: currentTheme() === theme,
+      run: () => {
+        applyTheme(theme);
+        try { if (theme === 'system') localStorage.removeItem(THEME_KEY); else localStorage.setItem(THEME_KEY, theme); } catch { /* the theme still applies for this session */ }
+      },
+    })),
+  ]);
+
+  document.addEventListener('keydown', (e) => {
+    if (e.defaultPrevented || e.ctrlKey || e.metaKey || e.altKey || e.target.closest?.('input, textarea, select, [contenteditable], dialog')) return;
+    const run = { '+': app.canvas.zoomIn, '=': app.canvas.zoomIn, '-': app.canvas.zoomOut, ')': app.canvas.zoomReset, '!': app.canvas.fit }[e.key]
+      ?? (e.shiftKey ? { Digit0: app.canvas.zoomReset, Digit1: app.canvas.fit }[e.code] : null);
+    if (!run) return;
+    e.preventDefault();
+    run();
+  });
 
   const PANELS_KEY = 'orbit.design.panels';
   let panels = { left: true, right: true };
@@ -295,17 +377,21 @@ async function boot() {
     for (const [side, name] of [['left', 'pages'], ['right', 'inspector']]) {
       const open = panels[side] !== false;
       $(side).hidden = !open;
+      $(`${side}-mini`).hidden = open;
       document.body.classList.toggle(`no-${side}`, !open);
       $(`toggle-${side}`).setAttribute('aria-expanded', String(open));
-      $(`toggle-${side}`).setAttribute('aria-label', `${open ? 'Hide' : 'Show'} ${name} panel`);
+      $(`toggle-${side}`).setAttribute('aria-label', `Hide ${name} panel`);
     }
   }
   for (const side of ['left', 'right']) {
-    $(`toggle-${side}`).onclick = () => {
-      panels[side] = panels[side] === false;
+    const toggle = (show) => {
+      panels[side] = show;
       try { localStorage.setItem(PANELS_KEY, JSON.stringify(panels)); } catch { /* the toggle still works for this session */ }
       applyPanels();
+      $(show ? `toggle-${side}` : `show-${side}`).focus();
     };
+    $(`toggle-${side}`).onclick = () => toggle(false);
+    $(`show-${side}`).onclick = () => toggle(true);
   }
   applyPanels();
 
