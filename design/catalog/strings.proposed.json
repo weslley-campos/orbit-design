@@ -199,7 +199,8 @@
     "workspace_reason_screen_unavailable": "screen unavailable",
     "workspace_reason_invalid_body": "use 1 to 2,000 characters",
     "workspace_reason_frame_not_live": "save the screen to the cloud first",
-    "workspace_reason_error": "unexpected error"
+    "workspace_reason_error": "unexpected error",
+    "workspace_sign_in_short": "Sign in"
   },
   "pt": {
     "forgot_password_title": "Recuperar senha",
@@ -401,6 +402,7 @@
     "workspace_reason_screen_unavailable": "tela indisponível",
     "workspace_reason_invalid_body": "use de 1 a 2.000 caracteres",
     "workspace_reason_frame_not_live": "salve a tela na nuvem primeiro",
-    "workspace_reason_error": "erro inesperado"
+    "workspace_reason_error": "erro inesperado",
+    "workspace_sign_in_short": "Entrar"
   }
 }
