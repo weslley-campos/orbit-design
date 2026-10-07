@@ -2,6 +2,8 @@
 
 Status: Draft
 
+Follow-up: [Workspace authentication, saving and screen review](workspace-auth-sharing.md) extends this local-only baseline.
+
 ## 1. Outcome
 - User: Weslley, designing and reviewing Orbit, a personal expense manager with optional family sharing.
 - Problem: the reference contact sheet lacks platform organization, editable flows and a sidebar inspector.
