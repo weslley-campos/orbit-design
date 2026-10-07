@@ -68,5 +68,5 @@ Interaction mode, selection, unfinished connectors, toast/Undo state, expanded s
 
 ## 8. Open questions
 
-- Authentication and persistence/comment providers — Weslley selects before integration; intentionally open as requested.
+- Decided: Supabase (PostgreSQL functions with row-level security) for persistence, shares and comments, with GitHub sign-in. Setup is in [design/README.md](../../design/README.md#accounts-cloud-saving-and-review).
 - Assumptions: one workspace/account; links show one live screen's latest saved state; link holders view, authenticated users comment; comments target whole screens. Shelving temporarily suspends sharing. Orbit family membership grants no workspace access.
