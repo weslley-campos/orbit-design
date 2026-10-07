@@ -282,3 +282,36 @@ body.no-right { --ws-right: 0px; }
 }
 .ws-device.is-android .ws-device-status { padding: 0 24px; font-size: 15px; font-weight: 500; }
 .ws-device.is-android .ws-device-icons { gap: 8px; }
+
+#canvas[data-mode="move"] .ws-frame, #canvas[data-mode="move"] .ws-frame * { cursor: move; }
+#canvas[data-mode="prototype"] [data-hotspot] { cursor: pointer; }
+#canvas.is-linking, #canvas.is-linking * { cursor: crosshair !important; }
+.ws-frame.is-link-target::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  outline: calc(3px / var(--ws-zoom, 1)) solid var(--ws-accent); background: rgb(47 111 237 / 0.12);
+}
+.ws-arrows .is-pending .ws-arrow { stroke-width: 3; stroke-dasharray: 8 5; }
+
+.ws-frame-bar {
+  position: absolute; z-index: 15; transform: translate(-50%, -100%); display: flex; gap: 2px; padding: 3px;
+  background: var(--ws-panel); border: 1px solid var(--ws-line); border-radius: 9px; box-shadow: var(--ws-shadow); cursor: default;
+}
+.ws-frame-bar.is-below { transform: translateX(-50%); }
+.ws-frame-bar .ws-icon:not(.orbit-frame *) { display: inline-flex; padding: 5px; border-radius: 6px; color: var(--ws-text); }
+.ws-frame-bar .ws-icon:hover:not(.orbit-frame *) { background: var(--ws-hover); }
+.ws-frame-bar [data-f="bar-trash"]:hover:not(.orbit-frame *) { color: var(--ws-danger); }
+
+.ws-toast {
+  position: absolute; left: 50%; bottom: 76px; transform: translateX(-50%); z-index: 25; display: flex; align-items: center; gap: 12px;
+  padding: 8px 10px 8px 14px; background: var(--ws-text); color: var(--ws-panel); border-radius: 10px; box-shadow: var(--ws-shadow); white-space: nowrap;
+}
+.ws-toast button:not(.orbit-frame *) { border: 0; background: transparent; color: inherit; font-weight: 700; text-decoration: underline; }
+.ws-toast button:hover:not(.orbit-frame *) { background: transparent; opacity: 0.8; }
+
+.ws-shelf { border-top: 1px solid var(--ws-line); margin-top: 10px; padding-top: 6px; }
+.ws-shelf summary { display: flex; align-items: center; justify-content: space-between; cursor: pointer; padding: 6px 4px; color: var(--ws-muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; font-weight: 700; }
+.ws-shelf-title { display: inline-flex; align-items: center; gap: 8px; }
+.ws-count { font-size: 11px; padding: 0 7px; border-radius: 999px; background: var(--ws-hover); }
+.ws-shelf-row { color: var(--ws-muted); cursor: default; }
+.ws-shelf .ws-row .ws-icon[aria-label^="Restore"]:not(.orbit-frame *) { display: inline-flex; padding: 4px 6px; color: var(--ws-muted); opacity: 0; }
+.ws-shelf .ws-row:hover .ws-icon:not(.orbit-frame *), .ws-shelf .ws-row:focus-within .ws-icon:not(.orbit-frame *) { opacity: 1; color: var(--ws-text); }

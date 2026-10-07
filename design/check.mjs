@@ -3,7 +3,8 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import {
-  STORAGE_KEY, loadWorkspace, moveFrameToPage, parseWorkspace, removeFrame, removePage, saveDraft, setOverride, validateWorkspace,
+  STORAGE_KEY, loadWorkspace, moveFrameToPage, moveShelfItem, normalize, parseWorkspace, removeFrame, removePage, restoreFrame, saveDraft, setOverride, shelveFrame,
+  uniqueId, validateWorkspace,
 } from './js/store.js';
 
 const root = dirname(fileURLToPath(import.meta.url));
@@ -78,6 +79,29 @@ assert.equal(ws.startFrameId, null);
 assert.deepEqual(ws.connections.map((c) => c.id), []);
 assert.equal(ws.selectedPageId, 'p2');
 assert.deepEqual(ws.pages.map((p) => p.id), ['p2']);
+assert.deepEqual(ws.trash.map((item) => item.frame.id), ['f2', 'f1'], 'deleting a page moves its frames to Trash');
+
+ws = normalize(doc());
+shelveFrame(ws, 'f1', 'archived');
+assert.deepEqual(ws.pages[0].frames.map((f) => f.id), ['f2'], 'archiving takes the frame off its page');
+assert.deepEqual(ws.connections, [], 'and its connections');
+assert.equal(ws.startFrameId, null);
+assert.deepEqual(validateWorkspace(ws, context), [], 'a workspace with archived frames is valid');
+assert.equal(uniqueId(ws, 'f1'), 'f1-2', 'archived frame ids stay reserved');
+rejects('shelved duplicate', (d) => { d.trash = [{ frame: frame('f2', 'screens/a'), connections: [], overrides: {} }]; }, /Duplicate frame id f2 in trash/);
+rejects('connection to a shelved frame', (d) => { d.archived = [{ frame: frame('f9', 'screens/a') }]; d.connections[0].to.frameId = 'f9'; }, /missing frame f9/);
+shelveFrame(ws, 'f3', 'trash');
+moveShelfItem(ws, 'f3', 'trash', 'archived');
+assert.deepEqual(ws.archived.map((item) => item.frame.id), ['f3', 'f1'], 'items move between Trash and Archived');
+restoreFrame(ws, 'archived', 'f1', 'p1');
+assert.deepEqual(ws.pages[0].frames.map((f) => f.id), ['f1', 'f2'], 'restoring returns the frame to its page and place');
+assert.deepEqual(ws.connections.map((c) => c.id), ['c1'], 'with connections whose other end is live');
+assert.equal(ws.startFrameId, 'f1', 'and the start frame');
+assert.equal(ws.overrides.frames.f1.go.text.en, 'Hi', 'and its overrides');
+assert.deepEqual(ws.archived[0].connections.map((c) => c.id), ['c2'], 'a connection to a still archived frame waits for it');
+restoreFrame(ws, 'archived', 'f3', 'p1');
+assert.deepEqual(ws.connections.map((c) => c.id).sort(), ['c1', 'c2'], 'and comes back with it');
+assert.deepEqual(validateWorkspace(ws, context), [], 'the restored workspace is valid');
 ws = doc();
 moveFrameToPage(ws, 'f2', 'p2');
 assert.deepEqual(ws.pages.map((p) => p.frames.map((f) => f.id)), [['f1'], ['f3', 'f2']], 'frames move between pages');
@@ -91,12 +115,12 @@ assert.deepEqual(overrides, { tokens: {}, frames: {} }, 'resetting prunes empty 
 
 const memory = (items = {}) => ({ getItem: (k) => items[k] ?? null, setItem: (k, v) => { items[k] = v; }, removeItem: (k) => delete items[k] });
 const seed = doc();
-assert.deepEqual(loadWorkspace({ storage: memory(), seed, context }).ws, seed, 'no draft opens the seed');
+assert.deepEqual(loadWorkspace({ storage: memory(), seed, context }).ws, normalize(doc()), 'no draft opens the seed');
 const corrupt = loadWorkspace({ storage: memory({ [STORAGE_KEY]: '{oops' }), seed, context });
 assert.ok(corrupt.notice && corrupt.draftText === '{oops', 'a corrupt draft is kept and flagged');
 const stored = memory();
 assert.ok(saveDraft(stored, seed));
-assert.deepEqual(loadWorkspace({ storage: stored, seed: doc(), context }).ws, seed, 'a valid draft wins over the seed');
+assert.deepEqual(loadWorkspace({ storage: stored, seed: doc(), context }).ws, normalize(doc()), 'a valid draft wins over the seed');
 assert.equal(saveDraft({ setItem() { throw new Error('quota'); } }, seed), false, 'a failed write reports false');
 
 const catalogDir = join(root, 'catalog');

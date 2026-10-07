@@ -226,7 +226,6 @@ export function createInspector(app) {
     return h('div', {}, editor.el, hint(`Changes every consumer of ${row.token} in ${row.scope === 'invariant' ? 'all palettes and modes' : row.scope}.`));
   }
 
-  // ponytail: connections are made with a destination select, not by dragging an arrow; add drag-to-connect on the canvas if the select gets tedious.
   function groupedFrames(current, exclude, label, onchange) {
     return h('select', { 'aria-label': label, value: current ?? '', onchange: (e) => onchange(e.target.value || null) },
       h('option', { value: '' }, 'None'),
@@ -241,7 +240,7 @@ export function createInspector(app) {
       app.change();
     }))];
     const loc = app.selection && app.locate(app.selection.frameId);
-    if (!loc) return [...out, hint('Select a frame on the canvas to connect it to another frame.')];
+    if (!loc) return [...out, hint('Click a component on a screen, then click the destination screen. Right-click or Esc cancels.')];
     const vp = app.canvas.viewport(loc.frame.id);
     const spots = [...(vp?.querySelectorAll('[data-hotspot]') ?? [])].map((el) => ({
       id: el.dataset.hotspot,
@@ -249,6 +248,7 @@ export function createInspector(app) {
       inactive: inspectInfo(el)?.inactive,
     }));
     out.push(h('h3', {}, app.frameName(loc.frame)));
+    out.push(hint('Click a component on the canvas and then its destination screen, or use the link button above the screen for the whole screen. Right-click or Esc cancels.'));
     for (const spot of [{ id: null, label: 'Whole frame' }, ...spots]) {
       const connection = connectionOf(ws, loc.frame.id, spot.id);
       out.push(h('div', { class: 'ws-binding' },

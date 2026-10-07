@@ -2,7 +2,8 @@ import { BASE_CSS, LANGUAGES, hotspotsOf, loadCatalog, overridesCss } from '../c
 import { MOBILE_SCREEN, deviceOf, h, kids, openMenu, preserveFocus } from './dom.js';
 import { icon } from './icons.js';
 import {
-  STORAGE_KEY, loadWorkspace, locate, moveFrameToPage, nextFreeX, normalize, parseWorkspace, removeFrame, removePage, saveDraft, uniqueId, validateWorkspace,
+  STORAGE_KEY, loadWorkspace, locate, moveFrameToPage, moveShelfItem, nextFreeX, normalize, parseWorkspace, removePage, restoreFrame, saveDraft, shelveFrame, uniqueId,
+  validateWorkspace,
 } from './store.js';
 import { createCanvas } from './canvas.js';
 import { createInspector } from './inspector.js';
@@ -72,6 +73,7 @@ async function boot() {
     ws: null,
     rawDraft: null,
     selection: null,
+    mode: 'inspect',
     page: () => app.ws.pages.find((page) => page.id === app.ws.selectedPageId) ?? null,
     locate: (frameId) => locate(app.ws, frameId),
     frameName: (frame) => entryMap.get(frame.catalogId)?.name ?? frame.catalogId,
@@ -127,6 +129,41 @@ async function boot() {
     renderSidebar();
     app.inspector.render();
   };
+  app.setMode = (mode) => {
+    app.mode = mode;
+    if (mode !== 'move' && app.inspector.tab() !== mode) app.inspector.showTab(mode);
+    app.canvas.setMode(mode);
+    syncModes();
+  };
+
+  const SHELF_NAMES = { archived: 'Archived', trash: 'Trash' };
+  const toast = h('div', { class: 'ws-toast', role: 'status', hidden: true });
+  $('stage-wrap').append(toast);
+  let toastTimer = 0;
+  function showToast(message, action) {
+    clearTimeout(toastTimer);
+    toast.replaceChildren(...kids([h('span', {}, message), action && h('button', { onclick: () => { toast.hidden = true; action.run(); } }, action.label)]));
+    toast.hidden = false;
+    toastTimer = setTimeout(() => { toast.hidden = true; }, 6000);
+  }
+  app.shelve = (frameId, shelf) => {
+    const loc = app.locate(frameId);
+    if (!loc) return;
+    const name = app.frameName(loc.frame);
+    shelveFrame(app.ws, frameId, shelf);
+    if (app.selection?.frameId === frameId) app.selection = null;
+    shelvesOpen.add(shelf);
+    app.commit();
+    showToast(`${name} moved to ${SHELF_NAMES[shelf]}.`, { label: 'Undo', run: () => restore(shelf, frameId) });
+  };
+  function restore(shelf, frameId) {
+    const page = restoreFrame(app.ws, shelf, frameId, app.ws.selectedPageId);
+    if (!page) return;
+    app.ws.selectedPageId = page.id;
+    app.selection = { frameId, key: null };
+    app.commit();
+  }
+
   app.newPage = () => {
     const id = uniqueId(app.ws, 'page');
     app.ws.pages.push({ id, name: `Page ${app.ws.pages.length + 1}`, view: { x: 80, y: 80, zoom: 1 }, frames: [] });
@@ -152,12 +189,13 @@ async function boot() {
   const balloon = (items) => (e) => openMenu(e.currentTarget, items(), { above: true });
   const modeButton = (name, label) => h('button', {
     class: 'ws-seg', 'data-f': `tool-${name}`, 'aria-pressed': 'false', 'aria-label': label, title: label,
-    onclick: () => app.inspector.showTab(name),
+    onclick: () => app.setMode(name),
   }, icon(name));
   const zoomText = h('span', { class: 'ws-zoom-pct' }, '100%');
   const tools = {
-    inspect: modeButton('inspect', 'Inspect mode'),
-    prototype: modeButton('prototype', 'Prototype mode'),
+    move: modeButton('move', 'Move mode (H)'),
+    inspect: modeButton('inspect', 'Inspect mode (V)'),
+    prototype: modeButton('prototype', 'Prototype mode (P)'),
     palette: tool('palette', 'Palette', balloon(() => [{ heading: 'Palette' }, ...choices('palette', catalog.tokens.palettes, capital, swatch)]), h('img', { class: 'ws-swatch', alt: '', width: 20, height: 20 })),
     mode: tool('mode', 'Mode', balloon(() => [{ heading: 'Mode' }, ...choices('mode', catalog.tokens.modes, capital, (value) => icon(value))]), icon('light')),
     language: tool('language', 'Language', balloon(() => [{ heading: 'Language' }, ...choices('language', LANGUAGES, (value) => LANGUAGE_NAMES[value] ?? value.toUpperCase())]),
@@ -172,16 +210,18 @@ async function boot() {
     ]), zoomText, icon('chevron', 14)),
   };
   $('tools').replaceChildren(
-    h('div', { class: 'ws-segment', role: 'group', 'aria-label': 'Panel mode' }, tools.inspect, tools.prototype),
+    h('div', { class: 'ws-segment', role: 'group', 'aria-label': 'Canvas mode' }, tools.move, tools.inspect, tools.prototype),
     h('span', { class: 'ws-tools-sep', 'aria-hidden': 'true' }),
     tools.palette, tools.mode, tools.language, tools.device,
     h('span', { class: 'ws-tools-sep', 'aria-hidden': 'true' }),
     tools.zoom,
   );
   app.onZoom = (zoom) => { zoomText.textContent = `${Math.round(zoom * 100)}%`; };
-  app.onTab = (name) => {
-    for (const key of ['inspect', 'prototype']) tools[key].setAttribute('aria-pressed', String(key === name));
-  };
+  function syncModes() {
+    for (const key of ['move', 'inspect', 'prototype']) tools[key].setAttribute('aria-pressed', String(key === app.mode));
+  }
+  // Choosing a tab in the inspector switches the canvas to that mode too.
+  app.onTab = (name) => { if (app.mode !== name) app.setMode(name); };
   function syncToolbar() {
     const { palette, mode, language, device = 'ios' } = app.ws.settings;
     const label = (key, text) => { tools[key].title = text; tools[key].setAttribute('aria-label', text); };
@@ -194,7 +234,7 @@ async function boot() {
     label('mode', `Mode: ${capital(mode)}`);
     label('language', `Language: ${LANGUAGE_NAMES[language] ?? language}`);
     label('device', `Device: ${DEVICE_NAMES[device]}`);
-    app.onTab(app.inspector.tab());
+    syncModes();
   }
 
   const left = $('left-body');
@@ -260,6 +300,28 @@ async function boot() {
   const sectionHead = (title, label, onclick, { popup = false, disabled = false } = {}) => h('div', { class: 'ws-section-head' },
     h('h2', {}, title), h('button', { class: 'ws-icon', 'aria-label': label, 'aria-haspopup': popup ? 'menu' : null, disabled, onclick }, '+'));
 
+  const shelvesOpen = new Set();
+  function shelfSection(shelf) {
+    const items = app.ws[shelf] ?? [];
+    const other = shelf === 'archived' ? 'trash' : 'archived';
+    const section = h('details', { class: 'ws-shelf', open: shelvesOpen.has(shelf) },
+      h('summary', {}, h('span', { class: 'ws-shelf-title' }, icon(shelf === 'archived' ? 'archive' : 'trash', 16), SHELF_NAMES[shelf]), h('span', { class: 'ws-count' }, String(items.length))),
+      items.length ? null : h('p', { class: 'ws-hint' }, shelf === 'archived' ? 'Archived screens are kept here for reference.' : 'Deleted screens wait here until you restore them.'),
+      h('ul', { class: 'ws-rows' }, ...items.map((item) => {
+        const name = app.frameName(item.frame);
+        return h('li', { class: 'ws-row' },
+          h('span', { class: 'ws-row-main ws-shelf-row' }, h('span', { class: 'ws-glyph', 'aria-hidden': 'true' }),
+            h('span', { class: 'ws-row-name' }, name), h('span', { class: 'ws-tag' }, item.pageName ?? '')),
+          h('button', { class: 'ws-icon', 'aria-label': `Restore ${name}`, title: 'Restore', 'data-f': `restore-${item.frame.id}`, onclick: () => restore(shelf, item.frame.id) }, icon('restore', 16)),
+          moreButton(`Actions for ${name} in ${SHELF_NAMES[shelf]}`, `shelf-more-${item.frame.id}`, [
+            { label: `Restore to ${app.ws.pages.some((p) => p.id === item.pageId) ? item.pageName : 'the current page'}`, run: () => restore(shelf, item.frame.id) },
+            { label: `Move to ${SHELF_NAMES[other]}`, run: () => { moveShelfItem(app.ws, item.frame.id, shelf, other); shelvesOpen.add(other); app.commit(); } },
+          ]));
+      })));
+    section.addEventListener('toggle', () => { if (section.open) shelvesOpen.add(shelf); else shelvesOpen.delete(shelf); });
+    return section;
+  }
+
   function renderSidebar() {
     preserveFocus(left, () => {
       const { ws } = app;
@@ -283,7 +345,7 @@ async function boot() {
             {
               label: 'Delete page',
               run: () => {
-                if (!confirm(`Delete the page "${p.name}" and its frames?`)) return;
+                if (p.frames.length && !confirm(`Delete the page "${p.name}"? Its ${p.frames.length} frames move to Trash.`)) return;
                 removePage(ws, p.id);
                 app.selection = null;
                 app.commit();
@@ -303,16 +365,11 @@ async function boot() {
             entryMap.get(frame.catalogId)?.status === 'proposed' ? h('span', { class: 'ws-tag' }, 'proposed') : null),
             moreButton(`Actions for frame ${name}`, `frame-more-${frame.id}`, [
               ...ws.pages.filter((p) => p !== page).map((p) => ({ label: `Move to ${p.name}`, run: () => { moveFrameToPage(ws, frame.id, p.id); app.commit(); } })),
-              {
-                label: 'Remove frame',
-                run: () => {
-                  removeFrame(ws, frame.id);
-                  if (app.selection?.frameId === frame.id) app.selection = null;
-                  app.commit();
-                },
-              },
+              { label: 'Archive', run: () => app.shelve(frame.id, 'archived') },
+              { label: 'Move to Trash', run: () => app.shelve(frame.id, 'trash') },
             ]));
         })),
+        ...Object.keys(SHELF_NAMES).map(shelfSection),
       ]));
     });
   }
@@ -363,6 +420,15 @@ async function boot() {
 
   document.addEventListener('keydown', (e) => {
     if (e.defaultPrevented || e.ctrlKey || e.metaKey || e.altKey || e.target.closest?.('input, textarea, select, [contenteditable], dialog')) return;
+    if (e.key === 'Escape' && app.canvas.endLink()) { e.preventDefault(); return; }
+    const mode = !e.shiftKey && { v: 'inspect', h: 'move', p: 'prototype' }[e.key.toLowerCase()];
+    if (mode) { e.preventDefault(); app.setMode(mode); return; }
+    const frameId = app.selection?.frameId;
+    if ((e.key === 'Delete' || e.key === 'Backspace') && frameId && app.locate(frameId) && !e.target.closest?.('[role="menu"]')) {
+      e.preventDefault();
+      app.shelve(frameId, 'trash');
+      return;
+    }
     const run = { '+': app.canvas.zoomIn, '=': app.canvas.zoomIn, '-': app.canvas.zoomOut, ')': app.canvas.zoomReset, '!': app.canvas.fit }[e.key]
       ?? (e.shiftKey ? { Digit0: app.canvas.zoomReset, Digit1: app.canvas.fit }[e.code] : null);
     if (!run) return;
@@ -396,6 +462,7 @@ async function boot() {
   applyPanels();
 
   app.refresh();
+  app.canvas.setMode(app.mode);
   setStatus(true);
 }
 
