@@ -641,7 +641,7 @@ async function boot() {
         class: 'ws-account-button', 'data-f': 'account', 'aria-label': app.t('workspace_signed_in_as', { name: user.name }), title: user.name, 'aria-haspopup': 'menu',
         onclick: (e) => openMenu(e.currentTarget, [{ heading: user.name }, { label: app.t('workspace_sign_out'), run: () => review.signOut() }]),
       }, user.avatarUrl ? h('img', { class: 'ws-avatar', src: user.avatarUrl, alt: '', width: 26, height: 26, referrerPolicy: 'no-referrer' }) : h('span', { class: 'ws-avatar' }, user.name[0]?.toUpperCase()))
-      : h('button', { class: 'ws-signin', 'data-f': 'sign-in', onclick: () => review.signIn() }, app.t('workspace_sign_in')));
+      : h('button', { class: 'ws-signin', 'data-f': 'sign-in', title: app.t('workspace_sign_in'), 'aria-label': app.t('workspace_sign_in'), onclick: () => review.signIn() }, app.t('workspace_sign_in_short')));
   }
 
   // The review page shows comments only; the workspace adds a Comments tab when sign-in is configured.
