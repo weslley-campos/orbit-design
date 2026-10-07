@@ -42,7 +42,7 @@ export function createAccount(app, env) {
     accountEl.hidden = !cloud;
     if (!cloud) return;
     if (!user) {
-      accountEl.replaceChildren(h('button', { class: 'ws-signin', 'data-f': 'sign-in', onclick: signIn }, t('workspace_sign_in')));
+      accountEl.replaceChildren(h('button', { class: 'ws-signin', 'data-f': 'sign-in', title: t('workspace_sign_in'), 'aria-label': t('workspace_sign_in'), onclick: signIn }, t('workspace_sign_in_short')));
       return;
     }
     const label = t('workspace_signed_in_as', { name: user.name });
