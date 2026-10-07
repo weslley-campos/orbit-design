@@ -41,7 +41,7 @@ Each field shows the source value, marks drafts as "edited" and offers "Reset to
 - A corrupt or invalid draft is not loaded: the seed opens with a notice and "Download draft".
 - To publish a flow, export, replace `design/workspace.json` with the exported file and commit it.
 
-## Verify and synchronize
+## Regenerate and verify
 
 Run the JavaScript self-check from this repository:
 
