@@ -7,10 +7,10 @@ How the Orbit design workspace is published to GitHub Pages and connected to Sup
 | Published site | <https://weslley-campos.github.io/orbit-design/> |
 | Deploy workflow | [`.github/workflows/pages.yml`](../.github/workflows/pages.yml) |
 | Supabase project | `https://pikdrddsjnptodpolvxa.supabase.co` (project ref `pikdrddsjnptodpolvxa`) |
-| Database migration | [`supabase/migrations/20261007120000_design_workspace_auth_sharing.sql`](../supabase/migrations/20261007120000_design_workspace_auth_sharing.sql) |
+| Database migrations | [`supabase/migrations/`](../supabase/migrations) (run in file-name order) |
 | Browser config | [`design/cloud.config.js`](../design/cloud.config.js) (empty in the repository; filled in at deploy time) |
 
-Sign-in is optional. Without the Supabase settings the site works browser-only, exactly as on localhost.
+Sign-in is optional. Without the Supabase settings the site works browser-only, exactly as on localhost. **With them, the workspace is private**: only accounts listed as editors (step 5) can open it; everyone else sees a sign-in page, and people you share a screen with open just that screen through its link.
 
 ## 1. GitHub Pages
 
@@ -30,8 +30,10 @@ A failing check stops the deploy; the previous version stays online.
 ## 2. Supabase project and database
 
 1. Create a project at <https://supabase.com> (the free plan is enough).
-2. **SQL Editor → New query**: paste the whole migration file ([raw](https://raw.githubusercontent.com/weslley-campos/orbit-design/main/supabase/migrations/20261007120000_design_workspace_auth_sharing.sql)) and **Run**. It should end with *Success. No rows returned*.
-   - Run it once. A second run fails with "already exists"; that is harmless.
+2. **SQL Editor → New query**: run each migration once, in order, pasting the whole file and clicking **Run**. Each should end with *Success. No rows returned*.
+   1. [`20261007120000_design_workspace_auth_sharing.sql`](https://raw.githubusercontent.com/weslley-campos/orbit-design/main/supabase/migrations/20261007120000_design_workspace_auth_sharing.sql): workspaces, shares, comments.
+   2. [`20261008090000_design_editors.sql`](https://raw.githubusercontent.com/weslley-campos/orbit-design/main/supabase/migrations/20261008090000_design_editors.sql): the editor list that makes the workspace private.
+   - A second run of the same file fails with "already exists"; that is harmless.
    - With the Supabase CLI instead: `supabase link --project-ref pikdrddsjnptodpolvxa` then `supabase db push`.
 
 The migration creates private tables (workspaces, backups, profiles, shares, comments) that no client can read or write directly, and the `design_*` functions the site calls. Each function checks the signed-in user or the share link on every request.
@@ -79,11 +81,36 @@ The anon key is public by design: it ends up in the published `cloud.config.js`,
 
 Settings are read at deploy time: after adding or changing them, push or run the workflow manually.
 
-## 5. Deploy and verify
+## 5. Editors
+
+Only editors can open the workspace, save, share and see comments on their screens. Nobody is an editor until you add them, and nobody can add themselves (the table is only writable from the Supabase dashboard).
+
+1. Sign in on the site once with that GitHub account (it then shows *… is not an editor*).
+2. In the Supabase **SQL Editor**, run (with the GitHub login):
+
+   ```sql
+   insert into public.design_editors (user_id)
+   select user_id from auth.identities
+   where provider = 'github' and identity_data ->> 'user_name' = 'weslley-campos';
+   ```
+
+   It should report *1 row* inserted. Alternatively, **Table Editor → design_editors → Insert row** with the user's id from **Authentication → Users**.
+3. Click **Retry** or reload the site.
+
+To list editors: `select u.raw_user_meta_data ->> 'user_name' as login, e.added_at from public.design_editors e join auth.users u on u.id = e.user_id;`
+To remove one: `delete from public.design_editors where user_id = (select user_id from auth.identities where provider = 'github' and identity_data ->> 'user_name' = 'login');` Their saved workspace stays in the database; they just cannot open it.
+
+People who only review never need to be editors: a share link shows that one screen to anyone who has it, and anyone signed in with GitHub can comment there.
+
+### What "private" covers
+
+The editor check protects everything stored in Supabase: your saved workspace, edits, Archived/Trash, links and comments. It also hides the canvas from non-editors on the site. It cannot hide the files of this **public repository**: the catalog (`design/catalog/`), the committed seed `design/workspace.json` and the assets are readable on GitHub and as files on the Pages site by anyone who looks for them. To keep those private too, the repository must be private and the site hosted somewhere with access control (for example GitHub Pages with private visibility on GitHub Enterprise Cloud, or Cloudflare Pages with Cloudflare Access).
+
+## 6. Deploy and verify
 
 1. **Actions → Deploy design workspace to GitHub Pages → Run workflow** (branch `main`). In the build log, the step *Configure sign-in from repository settings* prints `Sign-in enabled for ***`.
 2. Open the site and hard-refresh. The right panel header shows **Sign in**.
-3. Sign in with GitHub. A first sign-in asks **Start your cloud workspace**: upload this browser's draft or start from the committed workspace.
+3. Sign in with GitHub and add yourself as an editor (step 5). A first sign-in as editor asks **Start your cloud workspace**: upload this browser's draft or start from the committed workspace.
 4. The sidebar status reads **Saved to the cloud**.
 5. Select a screen, **Share → Create link**, open the link in a private window: the screen and its comments appear, and signing in there allows commenting.
 
@@ -96,7 +123,8 @@ Settings are read at deploy time: after adding or changing them, push or run the
 | GitHub page: *The redirect_uri is not associated with this application* | Wrong callback URL in the OAuth app | Use `https://pikdrddsjnptodpolvxa.supabase.co/auth/v1/callback` |
 | After sign-in you land on the wrong page or `localhost:3000` | Site URL / redirect URLs not set | Step 3, redirect URLs |
 | Notice: *Sign-in did not complete. Your work is unchanged.* | Sign-in cancelled or denied on GitHub | Try again |
-| Notice: *Your cloud workspace could not be loaded (the database is not set up…)* | Migration not run | Step 2, then **Retry** |
+| Notice: *Your cloud workspace could not be loaded (the database is not set up…)*, or the private page says *Your access could not be checked (the database is not set up…)* | A migration was not run | Step 2 (both files), then **Retry** |
+| Private page: *… is not an editor of this workspace* | That account is not in `design_editors` | Step 5, or sign out and use an editor account |
 | Notice: *…could not be loaded (offline)* | No connection to Supabase | **Retry** when online; nothing is overwritten meanwhile |
 | Status: *Newer copy in the cloud* | Another device saved since these edits started | **Download local copy**, then **Load cloud copy** ([recovery](../design/README.md#recovery)) |
 | Review link: *This link was revoked or no longer exists* | Link revoked, or the workspace was Reset/replaced by Import | Share the screen again |

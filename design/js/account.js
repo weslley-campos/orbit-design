@@ -174,18 +174,19 @@ export function createAccount(app, env) {
     prefs?.stop();
     active = false;
     threads.clear();
-    if (user) {
-      // Never leave one account's document open (and saved as the guest draft) while another loads.
-      app.ws = env.loadGuest();
-      app.selection = null;
-      app.shelfView = null;
-      app.refresh();
-      if (hadPending && !next) env.showNotice(t('workspace_session_expired'), [], [{ label: t('workspace_sign_in'), run: signIn }]);
-    }
+    if (user && !next && hadPending) env.showNotice(t('workspace_session_expired'), [], [{ label: t('workspace_sign_in'), run: signIn }]);
     user = next;
     renderAccount();
     renderStatus();
-    if (!user) return;
+    // The workspace stays hidden until the service confirms this account is an editor.
+    if (!user) { env.lock({ kind: 'signed-out', signIn }); return; }
+    env.lock({ kind: 'checking' });
+    const access = await cloud.access();
+    if (user?.id !== next.id) return;
+    if (access.error) { env.lock({ kind: 'error', error: access.error, retry: () => switchUser(next, true), signOut }); return; }
+    if (!access.data.editor) { env.lock({ kind: 'denied', name: access.data.name ?? user.name, handle: access.data.handle ?? '?', signOut }); return; }
+    // Never leave one account's document open (and saved as the guest draft) while another loads.
+    env.unlock();
     sync = createSync({ backend: cloud, storage, onStatus: onSyncStatus });
     prefs = createPreferenceSync({ backend: cloud });
     handleStart(await sync.start(user));
@@ -201,12 +202,14 @@ export function createAccount(app, env) {
       } catch (error) {
         console.error(error);
         env.showNotice(t('workspace_cloud_unavailable'));
+        env.lock({ kind: 'error', error: { code: 'offline' }, retry: () => location.reload() });
         return;
       }
       renderAccount();
       if (cloud.redirectError) env.showNotice(t('workspace_sign_in_failed'));
       cloud.onUserChange((next) => switchUser(next));
       if (cloud.user) await switchUser(cloud.user);
+      else env.lock({ kind: 'signed-out', signIn });
     },
     cloud: () => cloud,
     user: () => user,

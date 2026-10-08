@@ -1,7 +1,7 @@
 // Maps Supabase/PostgREST errors and the design_* functions' messages to the codes the workspace reacts to.
 const KNOWN = new Set([
   'not_authenticated', 'stale_revision', 'invalid_document', 'invalid_preferences', 'invalid_reason', 'frame_not_live',
-  'link_unavailable', 'screen_unavailable', 'invalid_body', 'invalid_client_id', 'not_found',
+  'link_unavailable', 'screen_unavailable', 'invalid_body', 'invalid_client_id', 'not_found', 'not_editor',
 ]);
 
 export function classifyError(error) {

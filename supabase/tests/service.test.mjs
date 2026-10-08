@@ -63,6 +63,9 @@ const user = (id, meta) => {
 };
 const weslley = user('11111111-1111-4111-8111-111111111111', { full_name: 'Weslley Campos', user_name: 'weslley-campos', avatar_url: 'https://avatars.example/w.png' });
 const marina = user('22222222-2222-4222-8222-222222222222', { user_name: 'marina' });
+const outsider = user('33333333-3333-4333-8333-333333333333', { user_name: 'outsider' });
+// Editors are added by hand in Supabase; the outsider is a signed-in GitHub user who is not one.
+psql(`insert into public.design_editors (user_id) values (${q(weslley.id)}), (${q(marina.id)});`);
 
 const frame = (id, x = 0) => ({ id, catalogId: 'screens/home', x, y: 0, width: 402, height: 874 });
 const doc = (frames = [frame('home'), frame('home-2', 500), frame('sign-in', 1000)], extra = {}) => ({
@@ -115,6 +118,19 @@ assert.deepEqual(profile.preferences.panels, { left: true, right: false });
 fails(as(weslley, `select design_save_preferences(${j({ theme: 'purple' })});`), /invalid_preferences/);
 fails(as(weslley, `select design_save_preferences(${j({ theme: 'dark', email: 'x' })});`), /invalid_preferences/);
 
+// Only editors reach the workspace; others get nothing but share links.
+assert.deepEqual(value(weslley, 'design_access()'), { editor: true, name: 'Weslley Campos', handle: 'weslley-campos' });
+assert.deepEqual(value(outsider, 'design_access()'), { editor: false, name: 'outsider', handle: 'outsider' }, 'a first call already knows the GitHub login');
+fails(as(null, 'select design_access();'), /permission denied/);
+fails(as(outsider, 'select * from design_load_workspace();'), /not_editor/, 'non-editors cannot open a workspace');
+fails(save(outsider, doc(), null), /not_editor/, 'or create one');
+fails(as(outsider, `select design_save_preferences(${j({ theme: 'dark' })});`), /not_editor/);
+fails(as(outsider, 'select * from design_list_shares();'), /not_editor/);
+fails(as(outsider, `select design_list_comments(null, 'home');`), /not_editor/);
+fails(as(outsider, `select design_post_comment(null, 'home', 'hi', gen_random_uuid(), null);`), /not_editor/);
+fails(as(outsider, 'select design_editor_uid();'), /permission denied/, 'the helper is private');
+fails(as(outsider, 'insert into design_editors (user_id) values (auth.uid());'), /permission denied/, 'nobody can make themselves an editor');
+
 // R5: what a link holder sees.
 const token = value(weslley, `design_create_share('home-2')`);
 assert.match(token, /^[0-9a-f]{64}$/, 'links use 256-bit unguessable tokens');
@@ -149,21 +165,25 @@ let thread = value(null, `design_list_comments(${q(token)}, null)`);
 assert.equal(thread.length, 3);
 assert.ok(!JSON.stringify(thread).includes('@example.com'), 'emails are never exposed');
 assert.ok(thread.every((c) => c.clientId === null && c.mine === false), 'anonymous readers see no client ids');
+const viaLink = value(outsider, `design_post_comment(${q(token)}, null, 'From a reviewer without editor access', 'cccccccc-0000-4000-8000-000000000001'::uuid, null)`);
+assert.equal(viaLink.author.handle, 'outsider', 'non-editors still comment through a share link');
+thread = value(null, `design_list_comments(${q(token)}, null)`);
+assert.equal(thread.length, 4);
 assert.equal(value(weslley, `design_list_comments(null, 'home')`).length, 0, 'the other Home instance has its own (empty) thread');
-assert.equal(value(weslley, `design_list_comments(null, 'home-2')`).length, 3, 'the owner sees the shared instance’s thread');
+assert.equal(value(weslley, `design_list_comments(null, 'home-2')`).length, 4, 'the owner sees the shared instance’s thread');
 const own = value(weslley, `design_post_comment(null, 'home', 'Owner note', 'bbbbbbbb-0000-4000-8000-000000000001'::uuid, null)`);
 assert.equal(own.author.name, 'Weslley Campos');
 assert.equal(value(null, `design_get_shared_frame(${q(token)})`).ownerName, 'Weslley Campos (@weslley-campos)');
 
 // R6: moving keeps comments; shelving suspends the link; restoring resumes it; revoking is permanent.
 saved = rows(weslley, `design_save_workspace(${j(doc([frame('home'), frame('home-2', 900), frame('sign-in', 1400)]))}, 8)`)[0];
-assert.equal(value(weslley, `design_list_comments(null, 'home-2')`).length, 3, 'comments follow a moved frame');
+assert.equal(value(weslley, `design_list_comments(null, 'home-2')`).length, 4, 'comments follow a moved frame');
 const shelved = doc([frame('home'), frame('sign-in', 1000)], { trash: [{ frame: frame('home-2', 900), pageId: 'mobile', pageName: 'Screens / Mobile', index: 1, platform: 'mobile', connections: [], overrides: {}, start: false, at: '2026-10-07T00:00:00Z' }] });
 saved = rows(weslley, `design_save_workspace(${j(shelved)}, ${saved.revision})`)[0];
 fails(as(null, `select design_get_shared_frame(${q(token)});`), /screen_unavailable/, 'a trashed screen’s link is suspended');
 fails(as(null, `select design_list_comments(${q(token)}, null);`), /screen_unavailable/);
 fails(post(marina, 'Still there?', 'aaaaaaaa-0000-4000-8000-000000000005'), /screen_unavailable/, 'and cannot be posted to');
-assert.equal(value(weslley, `design_list_comments(null, 'home-2')`).length, 3, 'the owner keeps the comments in the shelf view');
+assert.equal(value(weslley, `design_list_comments(null, 'home-2')`).length, 4, 'the owner keeps the comments in the shelf view');
 fails(as(weslley, `select design_post_comment(null, 'home-2', 'note', gen_random_uuid(), null);`), /screen_unavailable/, 'shelved screens take no new comments');
 saved = rows(weslley, `design_save_workspace(${j(doc())}, ${saved.revision})`)[0];
 assert.equal(value(null, `design_get_shared_frame(${q(token)})`).frame.id, 'home-2', 'restoring the same frame resumes the link');

@@ -379,3 +379,12 @@ button.ws-shelf-row:not(.orbit-frame *) { cursor: pointer; color: var(--ws-text)
 .ws-composer .ws-primary:not(.orbit-frame *) { margin-right: 0; }
 .ws-segment[hidden] + .ws-tools-sep { display: none; }
 #right #account[hidden] + #play { margin-left: auto; }
+
+body.is-locked #left, body.is-locked #right, body.is-locked #stage-wrap, body.is-locked #left-mini, body.is-locked #right-mini { visibility: hidden; }
+.ws-gate {
+  position: fixed; inset: 0; z-index: 50; display: grid; place-content: center; justify-items: center; gap: 12px; padding: 24px; text-align: center;
+  background: var(--ws-bg) radial-gradient(circle, var(--ws-dot) 1px, transparent 1px) 0 0 / 24px 24px;
+}
+.ws-gate h1 { margin: 0; font-size: 22px; }
+.ws-gate p { margin: 0; max-width: 420px; color: var(--ws-muted); }
+.ws-gate .ws-primary:not(.orbit-frame *) { margin: 0; padding: 8px 16px; }
