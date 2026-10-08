@@ -56,6 +56,8 @@ Optional, specified in [docs/specs/workspace-auth-sharing.md](../docs/specs/work
 
 ### Setup (once)
 
+The complete checklist, with troubleshooting, is in [docs/deployment.md](../docs/deployment.md).
+
 1. Create a [Supabase](https://supabase.com) project. In its SQL editor run [`supabase/migrations/20261007120000_design_workspace_auth_sharing.sql`](../supabase/migrations/20261007120000_design_workspace_auth_sharing.sql) (or `supabase db push` with the Supabase CLI). It creates private tables and the `design_*` functions; clients can call only those functions, which check the signed-in user or the share link on every request.
 2. Create a GitHub OAuth app (GitHub → Settings → Developer settings) with the callback URL `https://<project-ref>.supabase.co/auth/v1/callback`, and enable the GitHub provider in Supabase (Authentication → Sign In / Providers) with its client id and secret.
 3. In Authentication → URL Configuration, set the Site URL to `https://weslley-campos.github.io/orbit-design/` and add `http://localhost:4173/` to the redirect URLs.

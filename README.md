@@ -12,4 +12,4 @@ Open [localhost:4173](http://localhost:4173). Python 3 is enough to preview the 
 node design/check.mjs
 ```
 
-See [the workspace guide](design/README.md) for editing, prototype flows, export/import and synchronizing with the [Orbit application](https://github.com/weslley-campos/orbit). Design specs live in [docs/specs](docs/specs).
+See [the workspace guide](design/README.md) for editing, prototype flows, export/import and synchronizing with the [Orbit application](https://github.com/weslley-campos/orbit). Design specs live in [docs/specs](docs/specs). Publishing to GitHub Pages and connecting sign-in are covered in [docs/deployment.md](docs/deployment.md).
