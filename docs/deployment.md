@@ -30,12 +30,12 @@ A failing check stops the deploy; the previous version stays online.
 ## 2. Supabase project and database
 
 1. Create a project at <https://supabase.com> (the free plan is enough).
-2. **SQL Editor → New query**: run each migration once, in order, pasting the whole file and clicking **Run**. Each should end with *Success. No rows returned*.
+2. Apply the migrations in [`supabase/migrations/`](../supabase/migrations). **Automatically** (recommended): add the `SUPABASE_DB_URL` secret below and every deploy applies new ones. **By hand**: in the **SQL Editor → New query**, run each file in order, pasting the whole file and clicking **Run**; each should end with *Success. No rows returned*.
    1. [`20261007120000_design_workspace_auth_sharing.sql`](https://raw.githubusercontent.com/weslley-campos/orbit-design/main/supabase/migrations/20261007120000_design_workspace_auth_sharing.sql): workspaces, shares, comments.
    2. [`20261008090000_design_editors.sql`](https://raw.githubusercontent.com/weslley-campos/orbit-design/main/supabase/migrations/20261008090000_design_editors.sql): the editor list that makes the workspace private.
    3. [`20261008120000_design_project_shares.sql`](https://raw.githubusercontent.com/weslley-campos/orbit-design/main/supabase/migrations/20261008120000_design_project_shares.sql): links to the whole project.
-   - A second run of the same file fails with "already exists"; that is harmless.
-   - With the Supabase CLI instead: `supabase link --project-ref pikdrddsjnptodpolvxa` then `supabase db push`.
+   - Every migration is safe to run again (`if not exists`, `create or replace`), so running one twice, by hand or by the deploy, changes nothing.
+   - From a terminal with the Supabase CLI: `supabase db push --db-url "<SUPABASE_DB_URL>"` from the repository root.
 
 The migration creates private tables (workspaces, backups, profiles, shares, comments) that no client can read or write directly, and the `design_*` functions the site calls. Each function checks the signed-in user or the share link on every request.
 
@@ -77,6 +77,18 @@ The workspace always returns to exactly these addresses (with the trailing `/`);
 | `SUPABASE_ANON_KEY` | the `anon` / public API key |
 
 The anon key is public by design: it ends up in the published `cloud.config.js`, and the database functions decide what each request may do.
+
+### Automatic migrations
+
+Add one more **Secret** (not a variable: it contains the database password):
+
+| Name | Value |
+| --- | --- |
+| `SUPABASE_DB_URL` | Supabase → **Connect** (top of the project dashboard) → **Session pooler** connection string, with `[YOUR-PASSWORD]` replaced by the database password |
+
+It looks like `postgresql://postgres.pikdrddsjnptodpolvxa:<password>@aws-0-<region>.pooler.supabase.com:5432/postgres`. Use the *Session pooler* string: GitHub's runners have no IPv6, so the *Direct connection* string does not work there. If you do not know the database password, reset it in **Project Settings → Database** (the site is not affected; it never uses it).
+
+With it set, the deploy has a **migrate** job between the checks and the publish: it runs `supabase db push` (Supabase CLI 2.117.0), which applies only the files the database has not recorded yet and records them in `supabase_migrations.schema_migrations`. The first run also records the migrations you already ran by hand (re-running them is harmless). The site is published only after the migrations succeeded, so it never needs a function the database does not have yet. Without the secret the job prints a notice and the deploy continues as before.
 
 **Never store** the `service_role` key or the GitHub client secret in the repository, in Actions settings or in `cloud.config.js`. The client secret belongs only in the Supabase GitHub provider.
 
@@ -124,6 +136,7 @@ The editor check protects everything stored in Supabase: your saved workspace, e
 | GitHub page: *The redirect_uri is not associated with this application* | Wrong callback URL in the OAuth app | Use `https://pikdrddsjnptodpolvxa.supabase.co/auth/v1/callback` |
 | After sign-in you land on the wrong page or `localhost:3000` | Site URL / redirect URLs not set | Step 3, redirect URLs |
 | Notice: *Sign-in did not complete. Your work is unchanged.* | Sign-in cancelled or denied on GitHub | Try again |
+| The **migrate** job fails with a connection or password error | `SUPABASE_DB_URL` is the direct-connection string, or has the wrong password | Use the *Session pooler* string with the current database password |
 | Notice: *Your cloud workspace could not be loaded (the database is not set up…)*, or the private page says *Your access could not be checked (the database is not set up…)* | A migration was not run | Step 2 (both files), then **Retry** |
 | Private page: *… is not an editor of this workspace* | That account is not in `design_editors` | Step 5, or sign out and use an editor account |
 | Notice: *…could not be loaded (offline)* | No connection to Supabase | **Retry** when online; nothing is overwritten meanwhile |
@@ -150,4 +163,4 @@ node supabase/tests/service.test.mjs     # database functions on a throwaway loc
 
 ## Changing the database later
 
-Add a new file to `supabase/migrations/` (never edit one that already ran), extend `supabase/tests/service.test.mjs`, push (CI runs the tests), then run the new file in the SQL editor or with `supabase db push`. Deploy the site after the database change when the browser code depends on it.
+Add a new file to `supabase/migrations/` named `<UTC timestamp>_<what>.sql` (later than the existing ones; never change what an applied file does), write it so it can run twice, extend `supabase/tests/service.test.mjs` (it applies every migration twice on a throwaway PostgreSQL), and push. CI runs the tests, the **migrate** job applies the new file, and then the site deploys. Without `SUPABASE_DB_URL`, run the new file in the SQL editor yourself before or right after the deploy.
