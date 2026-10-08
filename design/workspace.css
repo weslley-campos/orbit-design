@@ -97,7 +97,10 @@ body.no-left { --ws-left: 0px; }
 body.no-right { --ws-right: 0px; }
 
 .ws-head { display: flex; align-items: center; gap: 4px; min-height: 52px; padding: 8px 6px 8px 8px; border-bottom: 1px solid var(--ws-line); }
-#right .ws-head { justify-content: flex-end; padding-right: 8px; }
+#right .ws-head { gap: 6px; padding-right: 8px; }
+#right #account { margin-right: auto; }
+#right .ws-head .ws-primary:not(.orbit-frame *) { margin-right: 0; padding: 5px 14px; }
+#play[data-icon] .ws-svg svg { fill: currentColor; }
 .ws-brand:not(.orbit-frame *) { flex: 1; min-width: 0; display: flex; align-items: center; gap: 6px; border: 0; background: transparent; padding: 4px 2px; text-align: left; }
 .ws-brand-text { display: grid; min-width: 0; line-height: 1.25; }
 .ws-brand-text strong { font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -339,7 +342,8 @@ button.ws-shelf-row:not(.orbit-frame *) { cursor: pointer; color: var(--ws-text)
 
 #account { flex: none; display: flex; align-items: center; }
 .ws-signin:not(.orbit-frame *) { padding: 3px 7px; font-size: 12px; font-weight: 600; white-space: nowrap; border-color: var(--ws-line); }
-.ws-account-button:not(.orbit-frame *) { display: inline-flex; border: 0; background: transparent; padding: 2px; border-radius: 999px; }
+.ws-account-button:not(.orbit-frame *) { display: inline-flex; align-items: center; gap: 2px; border: 0; background: transparent; padding: 3px 4px 3px 3px; border-radius: 999px; color: var(--ws-muted); }
+.ws-account-button:hover:not(.orbit-frame *) { background: var(--ws-hover); }
 .ws-avatar { flex: none; display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 999px; object-fit: cover; background: var(--ws-accent-soft); color: var(--ws-accent); font-weight: 700; font-size: 12px; }
 #save-status.is-pending { color: var(--ws-accent); }
 #notice button:not(.orbit-frame *) { padding: 2px 10px; }
@@ -374,3 +378,4 @@ button.ws-shelf-row:not(.orbit-frame *) { cursor: pointer; color: var(--ws-text)
 .ws-count-text.is-over { color: var(--ws-danger); font-weight: 600; }
 .ws-composer .ws-primary:not(.orbit-frame *) { margin-right: 0; }
 .ws-segment[hidden] + .ws-tools-sep { display: none; }
+#right #account[hidden] + #play { margin-left: auto; }
