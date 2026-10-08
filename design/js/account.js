@@ -50,7 +50,7 @@ export function createAccount(app, env) {
       class: 'ws-account-button', 'data-f': 'account', 'aria-label': label, title: label, 'aria-haspopup': 'menu',
       onclick: (e) => openMenu(e.currentTarget, accountMenu()),
     }, user.avatarUrl ? h('img', { class: 'ws-avatar', src: user.avatarUrl, alt: '', width: 26, height: 26, referrerPolicy: 'no-referrer' })
-      : h('span', { class: 'ws-avatar', 'aria-hidden': 'true' }, user.name[0]?.toUpperCase() ?? '?')));
+      : h('span', { class: 'ws-avatar', 'aria-hidden': 'true' }, user.name[0]?.toUpperCase() ?? '?'), icon('chevron', 14)));
   }
 
   function accountMenu() {
