@@ -41,7 +41,11 @@ function psql(sql, { file } = {}) {
 }
 const setup = (file) => { const r = psql(null, { file }); if (r.error) throw new Error(`${file}: ${r.error}`); };
 setup(join(here, 'supabase-stub.sql'));
-for (const file of readdirSync(migrations).filter((name) => name.endsWith('.sql')).sort()) setup(join(migrations, file));
+// Applied twice: migrations must be safe to re-run, because the deploy pushes them to a database where they
+// may already have been run by hand.
+for (let pass = 0; pass < 2; pass++) {
+  for (const file of readdirSync(migrations).filter((name) => name.endsWith('.sql')).sort()) setup(join(migrations, file));
+}
 
 const q = (value) => (value == null ? 'null' : `'${String(value).replaceAll("'", "''")}'`);
 const j = (value) => `${q(JSON.stringify(value))}::jsonb`;

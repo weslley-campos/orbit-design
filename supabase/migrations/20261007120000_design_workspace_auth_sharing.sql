@@ -2,7 +2,7 @@
 -- Spec: docs/specs/workspace-auth-sharing.md. Every client call goes through the functions below; the tables
 -- grant nothing to anon or authenticated, so ownership and link access are checked on every request.
 
-create table public.design_workspaces (
+create table if not exists public.design_workspaces (
   owner uuid primary key references auth.users (id) on delete cascade,
   document jsonb not null,
   revision integer not null default 1 check (revision > 0),
@@ -11,7 +11,7 @@ create table public.design_workspaces (
   updated_at timestamptz not null default now()
 );
 
-create table public.design_workspace_backups (
+create table if not exists public.design_workspace_backups (
   id bigint generated always as identity primary key,
   owner uuid not null references auth.users (id) on delete cascade,
   document jsonb not null,
@@ -20,9 +20,9 @@ create table public.design_workspace_backups (
   reason text not null,
   created_at timestamptz not null default now()
 );
-create index design_workspace_backups_owner on public.design_workspace_backups (owner, created_at desc);
+create index if not exists design_workspace_backups_owner on public.design_workspace_backups (owner, created_at desc);
 
-create table public.design_profiles (
+create table if not exists public.design_profiles (
   id uuid primary key references auth.users (id) on delete cascade,
   display_name text not null default 'Orbit user',
   -- GitHub login: unique, so two people with the same display name stay distinguishable.
@@ -32,7 +32,7 @@ create table public.design_profiles (
   updated_at timestamptz not null default now()
 );
 
-create table public.design_shares (
+create table if not exists public.design_shares (
   token text primary key check (token ~ '^[0-9a-f]{64}$'),
   owner uuid not null references auth.users (id) on delete cascade,
   generation uuid not null,
@@ -40,9 +40,9 @@ create table public.design_shares (
   created_at timestamptz not null default now(),
   revoked_at timestamptz
 );
-create index design_shares_owner on public.design_shares (owner, generation, frame_id);
+create index if not exists design_shares_owner on public.design_shares (owner, generation, frame_id);
 
-create table public.design_comments (
+create table if not exists public.design_comments (
   id uuid primary key default gen_random_uuid(),
   owner uuid not null references auth.users (id) on delete cascade,
   generation uuid not null,
@@ -54,7 +54,7 @@ create table public.design_comments (
   created_at timestamptz not null default now(),
   unique (author, client_id)
 );
-create index design_comments_thread on public.design_comments (owner, generation, frame_id, created_at);
+create index if not exists design_comments_thread on public.design_comments (owner, generation, frame_id, created_at);
 
 alter table public.design_workspaces enable row level security;
 alter table public.design_workspace_backups enable row level security;
@@ -66,7 +66,7 @@ revoke all on public.design_workspaces, public.design_workspace_backups, public.
 
 -- Helpers ------------------------------------------------------------------------------------------------
 
-create function public.design_uid() returns uuid
+create or replace function public.design_uid() returns uuid
 language plpgsql stable set search_path = public, pg_temp as $$
 declare uid uuid := auth.uid();
 begin
@@ -74,18 +74,18 @@ begin
   return uid;
 end $$;
 
-create function public.design_is_number(value jsonb) returns boolean
+create or replace function public.design_is_number(value jsonb) returns boolean
 language sql immutable as $$ select coalesce(jsonb_typeof(value) = 'number', false) $$;
 
-create function public.design_is_text(value jsonb) returns boolean
+create or replace function public.design_is_text(value jsonb) returns boolean
 language sql immutable as $$ select coalesce(jsonb_typeof(value) = 'string' and value #>> '{}' <> '', false) $$;
 
-create function public.design_is_optional(value jsonb, kind text) returns boolean
+create or replace function public.design_is_optional(value jsonb, kind text) returns boolean
 language sql immutable as $$ select value is null or jsonb_typeof(value) in ('null', kind) $$;
 
 -- Structural validation of a version-1 workspace document, including frames, connections and overrides nested in shelf items.
 -- The browser runs the full catalog-aware validation; this guards the service boundary.
-create function public.design_validate_document(doc jsonb) returns void
+create or replace function public.design_validate_document(doc jsonb) returns void
 language plpgsql immutable set search_path = public, pg_temp as $$
 declare
   page jsonb;
@@ -158,7 +158,7 @@ begin
   end loop;
 end $$;
 
-create function public.design_frame_problem(frame jsonb) returns text
+create or replace function public.design_frame_problem(frame jsonb) returns text
 language sql immutable as $$
   select case
     when jsonb_typeof(frame) is distinct from 'object' or not public.design_is_text(frame -> 'id') then 'a frame has no id'
@@ -169,7 +169,7 @@ language sql immutable as $$
   end
 $$;
 
-create function public.design_connection_problem(conn jsonb) returns text
+create or replace function public.design_connection_problem(conn jsonb) returns text
 language sql immutable as $$
   select case
     when jsonb_typeof(conn) is distinct from 'object' or not public.design_is_text(conn -> 'id') then 'a connection has no id'
@@ -181,7 +181,7 @@ language sql immutable as $$
 $$;
 
 -- The frame (and its page platform) when it sits on a page, not in a shelf.
-create function public.design_live_frame(doc jsonb, frame_id text) returns jsonb
+create or replace function public.design_live_frame(doc jsonb, frame_id text) returns jsonb
 language sql immutable as $$
   select jsonb_build_object('frame', f.frame, 'platform', p.page -> 'platform')
   from jsonb_array_elements(doc -> 'pages') as p(page), jsonb_array_elements(p.page -> 'frames') as f(frame)
@@ -191,7 +191,7 @@ $$;
 
 -- Name, login and avatar come from the GitHub identity (provider data the user cannot edit), refreshed on each call,
 -- falling back to user metadata for other providers. Emails are never copied.
-create function public.design_ensure_profile(uid uuid) returns void
+create or replace function public.design_ensure_profile(uid uuid) returns void
 language plpgsql security definer set search_path = public, pg_temp as $$
 declare meta jsonb;
 begin
@@ -208,7 +208,7 @@ begin
 end $$;
 
 -- A share that can be read now: not revoked, same generation and its frame on a page of the latest saved document.
-create function public.design_open_share(p_token text, out share public.design_shares, out ws public.design_workspaces, out live jsonb)
+create or replace function public.design_open_share(p_token text, out share public.design_shares, out ws public.design_workspaces, out live jsonb)
 language plpgsql stable security definer set search_path = public, pg_temp as $$
 begin
   select * into share from design_shares s where s.token = p_token;
@@ -221,7 +221,7 @@ end $$;
 
 -- Workspace -----------------------------------------------------------------------------------------------
 
-create function public.design_load_workspace()
+create or replace function public.design_load_workspace()
 returns table (document jsonb, revision integer, generation uuid, updated_at timestamptz)
 language plpgsql stable security definer set search_path = public, pg_temp as $$
 begin
@@ -229,7 +229,7 @@ begin
 end $$;
 
 -- Saves an edit. p_base_revision is the revision the edit was made on (null only for the very first save).
-create function public.design_save_workspace(p_document jsonb, p_base_revision integer)
+create or replace function public.design_save_workspace(p_document jsonb, p_base_revision integer)
 returns table (revision integer, generation uuid, updated_at timestamptz)
 language plpgsql security definer set search_path = public, pg_temp as $$
 declare
@@ -252,7 +252,7 @@ begin
 end $$;
 
 -- Reset or replacing Import: keeps the previous copy as a backup and starts a new review generation.
-create function public.design_replace_workspace(p_document jsonb, p_base_revision integer, p_reason text)
+create or replace function public.design_replace_workspace(p_document jsonb, p_base_revision integer, p_reason text)
 returns table (revision integer, generation uuid, updated_at timestamptz)
 language plpgsql security definer set search_path = public, pg_temp as $$
 declare
@@ -275,20 +275,20 @@ begin
     where w.owner = uid returning w.revision, w.generation, w.updated_at;
 end $$;
 
-create function public.design_list_backups()
+create or replace function public.design_list_backups()
 returns table (id bigint, revision integer, reason text, created_at timestamptz)
 language sql stable security definer set search_path = public, pg_temp as $$
   select b.id, b.revision, b.reason, b.created_at from design_workspace_backups b where b.owner = design_uid() order by b.created_at desc, b.id desc
 $$;
 
-create function public.design_get_backup(p_id bigint) returns jsonb
+create or replace function public.design_get_backup(p_id bigint) returns jsonb
 language sql stable security definer set search_path = public, pg_temp as $$
   select b.document from design_workspace_backups b where b.owner = design_uid() and b.id = p_id
 $$;
 
 -- Profile -------------------------------------------------------------------------------------------------
 
-create function public.design_get_profile()
+create or replace function public.design_get_profile()
 returns table (display_name text, handle text, avatar_url text, preferences jsonb)
 language plpgsql security definer set search_path = public, pg_temp as $$
 declare uid uuid := design_uid();
@@ -298,7 +298,7 @@ begin
 end $$;
 
 -- Preferences: { theme: system | light | dark, panels: { left: boolean, right: boolean } }.
-create function public.design_save_preferences(p_preferences jsonb) returns jsonb
+create or replace function public.design_save_preferences(p_preferences jsonb) returns jsonb
 language plpgsql security definer set search_path = public, pg_temp as $$
 declare uid uuid := design_uid();
 begin
@@ -318,7 +318,7 @@ end $$;
 
 -- Shares --------------------------------------------------------------------------------------------------
 
-create function public.design_create_share(p_frame_id text) returns text
+create or replace function public.design_create_share(p_frame_id text) returns text
 language plpgsql security definer set search_path = public, pg_temp as $$
 declare
   uid uuid := design_uid();
@@ -338,7 +338,7 @@ begin
 end $$;
 
 -- Returns the revocation time once stored; revocation is permanent.
-create function public.design_revoke_share(p_token text) returns timestamptz
+create or replace function public.design_revoke_share(p_token text) returns timestamptz
 language plpgsql security definer set search_path = public, pg_temp as $$
 declare
   uid uuid := design_uid();
@@ -351,7 +351,7 @@ begin
 end $$;
 
 -- The owner's links for the current generation, including revoked ones.
-create function public.design_list_shares()
+create or replace function public.design_list_shares()
 returns table (token text, frame_id text, created_at timestamptz, revoked_at timestamptz)
 language sql stable security definer set search_path = public, pg_temp as $$
   select s.token, s.frame_id, s.created_at, s.revoked_at
@@ -361,7 +361,7 @@ language sql stable security definer set search_path = public, pg_temp as $$
 $$;
 
 -- What a link holder may see: the frame, its render settings and the overrides it needs. No connections or other frames.
-create function public.design_get_shared_frame(p_token text) returns jsonb
+create or replace function public.design_get_shared_frame(p_token text) returns jsonb
 language plpgsql stable security definer set search_path = public, pg_temp as $$
 declare
   opened record;
@@ -384,7 +384,7 @@ end $$;
 
 -- Comments ------------------------------------------------------------------------------------------------
 
-create function public.design_comment_json(c public.design_comments, viewer uuid) returns jsonb
+create or replace function public.design_comment_json(c public.design_comments, viewer uuid) returns jsonb
 language sql stable security definer set search_path = public, pg_temp as $$
   select jsonb_build_object(
     'id', c.id, 'frameId', c.frame_id, 'body', c.body, 'createdAt', c.created_at, 'revision', c.revision,
@@ -396,7 +396,7 @@ $$;
 
 -- With a token: the shared screen's thread (the link must be readable). Without: the owner's thread for one of
 -- their frames in the current generation, live or shelved.
-create function public.design_list_comments(p_token text, p_frame_id text default null) returns jsonb
+create or replace function public.design_list_comments(p_token text, p_frame_id text default null) returns jsonb
 language plpgsql stable security definer set search_path = public, pg_temp as $$
 declare
   viewer uuid := auth.uid();
@@ -418,7 +418,7 @@ begin
 end $$;
 
 -- Posts as the signed-in user. A retry with the same client id returns the first comment instead of a duplicate.
-create function public.design_post_comment(p_token text, p_frame_id text, p_body text, p_client_id uuid, p_viewed_revision integer default null)
+create or replace function public.design_post_comment(p_token text, p_frame_id text, p_body text, p_client_id uuid, p_viewed_revision integer default null)
 returns jsonb
 language plpgsql security definer set search_path = public, pg_temp as $$
 declare

@@ -18,7 +18,7 @@ begin
 end $$;
 
 -- The screen a link's comments go to: the link's own screen, or (project link) the requested one if it is on a page.
-create function public.design_share_target(p_share public.design_shares, p_doc jsonb, p_frame_id text) returns text
+create or replace function public.design_share_target(p_share public.design_shares, p_doc jsonb, p_frame_id text) returns text
 language plpgsql stable security definer set search_path = public, pg_temp as $$
 begin
   if p_share.frame_id is not null then return p_share.frame_id; end if;

@@ -1,0 +1,2 @@
+# Supabase CLI project file, used by `supabase db push` (see docs/deployment.md). Settings not listed use CLI defaults.
+project_id = "orbit-design"

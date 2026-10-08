@@ -47,8 +47,28 @@ jobs:
         with:
           path: _site
 
-  deploy:
+  # Applies new files in supabase/migrations to the Supabase database before the site that needs them goes live.
+  # Skipped when the SUPABASE_DB_URL secret is not set. Migrations are written to be safe to re-run.
+  migrate:
     needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 2.117.0
+      - name: Apply database migrations
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          if [ -z "$SUPABASE_DB_URL" ]; then
+            echo "SUPABASE_DB_URL not set: migrations are not applied automatically"
+            exit 0
+          fi
+          supabase db push --db-url "$SUPABASE_DB_URL" --yes
+
+  deploy:
+    needs: [build, migrate]
     runs-on: ubuntu-latest
     environment:
       name: github-pages
