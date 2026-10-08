@@ -195,6 +195,7 @@ assert.equal(classifyError({ message: 'TypeError: Failed to fetch', code: '' }).
 assert.deepEqual(classifyError({ message: 'stale_revision', code: 'P0001', details: '8' }), { code: 'stale_revision', message: 'stale_revision', revision: 8 });
 assert.equal(classifyError({ message: 'invalid_document: duplicate frame id home in trash', code: 'P0001' }).code, 'invalid_document');
 assert.equal(classifyError({ message: 'JWT expired', code: 'PGRST301' }).code, 'session_expired');
+assert.equal(classifyError({ message: 'Could not find the function public.design_load_workspace without parameters in the schema cache', code: 'PGRST202' }).code, 'setup_missing');
 assert.equal(classifyError({ message: 'permission denied for function design_save_workspace', code: '42501' }).code, 'not_authenticated');
 
 console.log('design/check-sync.mjs passed');
