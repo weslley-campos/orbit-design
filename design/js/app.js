@@ -101,7 +101,10 @@ async function boot() {
   });
   const loadGuest = () => loadWorkspace({ storage, seed, context });
 
-  const loaded = app.review ? { ws: emptyWorkspace() } : loadGuest();
+  // With sign-in configured, nothing is shown until the account is confirmed as an editor (review links excepted).
+  let locked = !app.review && cloudConfigured();
+  const lockedWorkspace = () => normalize({ ...emptyWorkspace(), selectedPageId: null, pages: [] });
+  const loaded = app.review ? { ws: emptyWorkspace() } : locked ? { ws: lockedWorkspace() } : loadGuest();
   app.ws = loaded.ws;
   app.rawDraft = loaded.draftText ?? null;
 
@@ -122,7 +125,7 @@ async function boot() {
   else if (loaded.notice) showNotice(loaded.notice);
 
   // Browser draft or cloud copy, decided by the account module; a review page never saves.
-  app.save = () => { if (!app.review) account?.save(); };
+  app.save = () => { if (!app.review && !locked) account?.save(); };
 
   const refreshOverrides = () => { $('orbit-overrides').textContent = overridesCss(catalog.tokens, app.ws.overrides); };
   app.change = () => {
@@ -637,9 +640,49 @@ async function boot() {
     }
   }
 
+  const gate = h('div', { class: 'ws-gate', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'gate-title', hidden: true });
+  document.body.append(gate);
+  function lock(state) {
+    locked = true;
+    document.body.classList.add('is-locked');
+    if (app.ws.pages.length) {
+      app.ws = lockedWorkspace();
+      app.selection = null;
+      app.shelfView = null;
+      app.refresh();
+    }
+    const t = app.t;
+    const action = (label, run, primary = true) => h('button', { class: primary ? 'ws-primary' : '', 'data-f': 'gate-action', onclick: run }, label);
+    gate.replaceChildren(...kids([
+      h('img', { class: 'ws-logo', src: `assets/core-ui/drawable/ic_logo_${seed.settings.palette}.svg`, alt: '', width: 48, height: 48 }),
+      h('h1', { id: 'gate-title' }, t('workspace_gate_title')),
+      h('p', { role: 'status' }, {
+        checking: t('workspace_gate_checking'),
+        'signed-out': t('workspace_gate_body'),
+        denied: t('workspace_gate_denied', { name: state.name, handle: state.handle }),
+        error: t('workspace_gate_error', { reason: account?.reason(state.error) ?? state.error?.code }),
+      }[state.kind]),
+      state.kind === 'signed-out' ? action(t('workspace_sign_in'), state.signIn) : null,
+      state.kind === 'error' ? action(t('workspace_retry'), state.retry) : null,
+      state.signOut ? action(t('workspace_sign_out'), state.signOut, state.kind !== 'denied' ? false : true) : null,
+    ]));
+    gate.hidden = false;
+    gate.querySelector('[data-f="gate-action"]')?.focus();
+  }
+  function unlock() {
+    if (!locked) return;
+    locked = false;
+    document.body.classList.remove('is-locked');
+    gate.hidden = true;
+    app.ws = loadGuest().ws;
+    app.selection = null;
+    app.shelfView = null;
+    app.refresh();
+  }
+
   const env = {
     t: app.t, storage, seed, context, download, showNotice, clearNotice, showToast, loadGuest: () => loadGuest().ws,
-    emptyWorkspace, preferences, applyPreferences, renderAccount: renderReviewAccount,
+    emptyWorkspace, preferences, applyPreferences, renderAccount: renderReviewAccount, lock, unlock,
   };
   if (app.review) {
     review = createReview(app, env, token);
@@ -672,6 +715,7 @@ async function boot() {
   if (app.review) { app.mode = 'move'; app.inspector.showTab('comments'); }
   addEventListener('hashchange', () => { if (reviewToken() !== token) location.reload(); });
 
+  if (locked) lock({ kind: 'checking' });
   app.refresh();
   app.canvas.setMode(app.mode);
   await (review ?? account).start();

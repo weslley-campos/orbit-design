@@ -54,11 +54,13 @@ Each field shows the source value, marks drafts as "edited" and offers "Reset to
 
 Optional, specified in [docs/specs/workspace-auth-sharing.md](../docs/specs/workspace-auth-sharing.md). With empty values in `design/cloud.config.js` (the default) none of this appears and the workspace stays browser-only.
 
+When sign-in is configured the workspace is **private**: it opens only for accounts listed in the `design_editors` table (added by hand in Supabase, see [docs/deployment.md](../docs/deployment.md#5-editors)). Everyone else sees a sign-in page; a share link still opens its one screen for anyone who has it. The repository's own files (catalog, seed, assets) remain public on GitHub.
+
 ### Setup (once)
 
 The complete checklist, with troubleshooting, is in [docs/deployment.md](../docs/deployment.md).
 
-1. Create a [Supabase](https://supabase.com) project. In its SQL editor run [`supabase/migrations/20261007120000_design_workspace_auth_sharing.sql`](../supabase/migrations/20261007120000_design_workspace_auth_sharing.sql) (or `supabase db push` with the Supabase CLI). It creates private tables and the `design_*` functions; clients can call only those functions, which check the signed-in user or the share link on every request.
+1. Create a [Supabase](https://supabase.com) project. In its SQL editor run the files in [`supabase/migrations/`](../supabase/migrations) in order (or `supabase db push` with the Supabase CLI), then add yourself to `design_editors`. It creates private tables and the `design_*` functions; clients can call only those functions, which check the signed-in user or the share link on every request.
 2. Create a GitHub OAuth app (GitHub → Settings → Developer settings) with the callback URL `https://<project-ref>.supabase.co/auth/v1/callback`, and enable the GitHub provider in Supabase (Authentication → Sign In / Providers) with its client id and secret.
 3. In Authentication → URL Configuration, set the Site URL to `https://weslley-campos.github.io/orbit-design/` and add `http://localhost:4173/` to the redirect URLs.
 4. For the published site, add the project URL and the anon (public) key as repository variables `SUPABASE_URL` and `SUPABASE_ANON_KEY` (Settings → Secrets and variables → Actions; secrets with those names work too). The deploy writes them into the published `cloud.config.js`; the committed file stays empty. For localhost, put the same two values in `design/cloud.config.js` without committing them. The anon key is meant to be public; never store the service-role key or the GitHub secret here.

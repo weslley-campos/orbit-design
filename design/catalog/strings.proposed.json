@@ -202,7 +202,13 @@
     "workspace_reason_error": "unexpected error",
     "workspace_sign_in_short": "Sign in",
     "workspace_reason_setup_missing": "the database is not set up: run the migration from supabase/migrations in the Supabase SQL editor",
-    "workspace_share_select": "Select a screen to share it"
+    "workspace_share_select": "Select a screen to share it",
+    "workspace_gate_title": "Orbit design is private",
+    "workspace_gate_body": "Editors sign in with GitHub to open the workspace. If someone shared a screen with you, open the link they sent.",
+    "workspace_gate_checking": "Checking your access…",
+    "workspace_gate_denied": "{name} (@{handle}) is not an editor of this workspace. Ask the owner for access, or open a share link you received.",
+    "workspace_gate_error": "Your access could not be checked ({reason}).",
+    "workspace_reason_not_editor": "this account is not an editor"
   },
   "pt": {
     "forgot_password_title": "Recuperar senha",
@@ -407,6 +413,12 @@
     "workspace_reason_error": "erro inesperado",
     "workspace_sign_in_short": "Entrar",
     "workspace_reason_setup_missing": "o banco de dados não está configurado: rode a migração de supabase/migrations no SQL editor do Supabase",
-    "workspace_share_select": "Selecione uma tela para compartilhar"
+    "workspace_share_select": "Selecione uma tela para compartilhar",
+    "workspace_gate_title": "O Orbit design é privado",
+    "workspace_gate_body": "Editores entram com o GitHub para abrir o workspace. Se alguém compartilhou uma tela com você, abra o link que recebeu.",
+    "workspace_gate_checking": "Verificando seu acesso…",
+    "workspace_gate_denied": "{name} (@{handle}) não é editor deste workspace. Peça acesso ao dono ou abra um link de compartilhamento que você recebeu.",
+    "workspace_gate_error": "Não foi possível verificar seu acesso ({reason}).",
+    "workspace_reason_not_editor": "esta conta não é editora"
   }
 }

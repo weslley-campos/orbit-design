@@ -76,6 +76,7 @@ export async function createCloud() {
       const { error } = await client.auth.signOut({ scope: 'local' });
       return error ? { error: classifyError(error) } : { data: true };
     },
+    access: () => call('design_access'),
     async loadWorkspace() {
       const r = row(await call('design_load_workspace'));
       if (r.error || !r.data) return r;
