@@ -4,14 +4,14 @@
 --   insert into public.design_editors (user_id)
 --   select user_id from auth.identities where provider = 'github' and identity_data ->> 'user_name' = 'weslley-campos';
 
-create table public.design_editors (
+create table if not exists public.design_editors (
   user_id uuid primary key references auth.users (id) on delete cascade,
   added_at timestamptz not null default now()
 );
 alter table public.design_editors enable row level security;
 revoke all on public.design_editors from public, anon, authenticated;
 
-create function public.design_editor_uid() returns uuid
+create or replace function public.design_editor_uid() returns uuid
 language plpgsql stable security definer set search_path = public, pg_temp as $$
 declare uid uuid := design_uid();
 begin
@@ -22,7 +22,7 @@ begin
 end $$;
 
 -- What the signed-in account may do; the workspace asks this before showing anything.
-create function public.design_access() returns jsonb
+create or replace function public.design_access() returns jsonb
 language plpgsql security definer set search_path = public, pg_temp as $$
 declare uid uuid := design_uid();
 begin
