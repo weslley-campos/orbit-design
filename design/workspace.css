@@ -388,3 +388,7 @@ body.is-locked #left, body.is-locked #right, body.is-locked #stage-wrap, body.is
 .ws-gate h1 { margin: 0; font-size: 22px; }
 .ws-gate p { margin: 0; max-width: 420px; color: var(--ws-muted); }
 .ws-gate .ws-primary:not(.orbit-frame *) { margin: 0; padding: 8px 16px; }
+
+/* Scrollbars inside a frame follow the frame's Mode, not the workspace theme. */
+.orbit-frame[data-mode="dark"], .ws-device-screen[data-mode="dark"] { color-scheme: dark; }
+.orbit-frame[data-mode="light"], .ws-device-screen[data-mode="light"] { color-scheme: light; }

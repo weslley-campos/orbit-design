@@ -33,6 +33,7 @@ A failing check stops the deploy; the previous version stays online.
 2. **SQL Editor → New query**: run each migration once, in order, pasting the whole file and clicking **Run**. Each should end with *Success. No rows returned*.
    1. [`20261007120000_design_workspace_auth_sharing.sql`](https://raw.githubusercontent.com/weslley-campos/orbit-design/main/supabase/migrations/20261007120000_design_workspace_auth_sharing.sql): workspaces, shares, comments.
    2. [`20261008090000_design_editors.sql`](https://raw.githubusercontent.com/weslley-campos/orbit-design/main/supabase/migrations/20261008090000_design_editors.sql): the editor list that makes the workspace private.
+   3. [`20261008120000_design_project_shares.sql`](https://raw.githubusercontent.com/weslley-campos/orbit-design/main/supabase/migrations/20261008120000_design_project_shares.sql): links to the whole project.
    - A second run of the same file fails with "already exists"; that is harmless.
    - With the Supabase CLI instead: `supabase link --project-ref pikdrddsjnptodpolvxa` then `supabase db push`.
 

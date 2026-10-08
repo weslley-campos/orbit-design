@@ -166,8 +166,9 @@ async function boot() {
       button.onclick = () => account.signIn();
       return;
     }
-    const frameId = app.selection?.frameId;
-    const action = frameId ? account.shareAction(frameId) : null;
+    // Nothing selected shares the whole project (live pages only); a selected screen shares just that screen.
+    const frameId = app.selection?.frameId ?? null;
+    const action = account.shareAction(frameId);
     button.disabled = !action || action.disabled;
     button.title = action?.label ?? app.t('workspace_share_select');
     button.onclick = () => action?.run();

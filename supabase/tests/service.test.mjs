@@ -137,7 +137,7 @@ assert.match(token, /^[0-9a-f]{64}$/, 'links use 256-bit unguessable tokens');
 assert.equal(value(weslley, `design_create_share('home-2')`), token, 'sharing the same screen again reuses its live link');
 const shared = value(null, `design_get_shared_frame(${q(token)})`);
 assert.equal(shared.frame.id, 'home-2');
-assert.deepEqual(Object.keys(shared).sort(), ['frame', 'overrides', 'ownerName', 'platform', 'revision', 'settings']);
+assert.deepEqual(Object.keys(shared).sort(), ['frame', 'kind', 'overrides', 'ownerName', 'platform', 'revision', 'settings']);
 assert.deepEqual(Object.keys(shared.overrides.frames), ['home-2'], 'only that frame’s overrides are returned');
 assert.ok(!JSON.stringify(shared).includes('private') && !JSON.stringify(shared).includes('sign-in'), 'no other frames, overrides or connections leak');
 assert.equal(shared.settings.language, 'pt');
@@ -197,12 +197,36 @@ const second = value(weslley, `design_create_share('home-2')`);
 assert.notEqual(second, token, 'sharing again creates a new link');
 assert.equal(rows(weslley, 'design_list_shares()').length, 2);
 
+// Project links: every page and screen on a page, never Archived or Trash.
+const current = () => rows(weslley, 'design_load_workspace()')[0].revision;
+const withSecretShelf = doc(undefined, { archived: [{ frame: frame('old-home', 2000), pageId: 'mobile', pageName: 'Screens / Mobile', connections: [], overrides: { title: { text: { en: 'archived secret' } } } }] });
+rows(weslley, `design_save_workspace(${j(withSecretShelf)}, ${current()})`);
+const project = value(weslley, 'design_create_share(null)');
+assert.match(project, /^[0-9a-f]{64}$/);
+assert.equal(value(weslley, 'design_create_share(null)'), project, 'the open project link is reused');
+assert.notEqual(project, second, 'and is separate from screen links');
+const whole = value(null, `design_get_shared_frame(${q(project)})`);
+assert.equal(whole.kind, 'project');
+assert.deepEqual(whole.document.pages[0].frames.map((f) => f.id), ['home', 'home-2', 'sign-in'], 'all live screens');
+assert.equal(whole.document.connections.length, 1, 'with their prototype links');
+assert.ok(!('archived' in whole.document) && !('trash' in whole.document) && !JSON.stringify(whole).includes('archived secret'), 'Archived and Trash stay private');
+assert.equal(value(null, `design_get_shared_frame(${q(second)})`).kind, 'screen');
+fails(as(null, `select design_list_comments(${q(project)}, null);`), /screen_unavailable/, 'project comments need a screen');
+fails(as(null, `select design_list_comments(${q(project)}, 'old-home');`), /screen_unavailable/, 'and never reach archived ones');
+const onProject = value(outsider, `design_post_comment(${q(project)}, 'sign-in', 'Seen on the project link', 'cccccccc-0000-4000-8000-000000000002'::uuid, null)`);
+assert.equal(onProject.frameId, 'sign-in');
+assert.equal(value(weslley, `design_list_comments(null, 'sign-in')`).length, 1, 'the owner sees it on that screen');
+fails(as(outsider, `select design_post_comment(${q(project)}, 'old-home', 'x', gen_random_uuid(), null);`), /screen_unavailable/);
+fails(as(outsider, 'select design_create_share(null);'), /not_editor/);
+assert.ok(rows(weslley, 'design_list_shares()').some((share) => share.token === project && share.frame_id === null));
+
 // R3/R6: Reset or replacing Import starts a new generation; old links and threads cannot attach to reused IDs.
 const before = rows(weslley, 'design_load_workspace()')[0];
 fails(as(weslley, `select * from design_replace_workspace(${j(doc())}, ${before.revision - 1}, 'reset');`), /stale_revision/);
 const replaced = rows(weslley, `design_replace_workspace(${j(doc())}, ${before.revision}, 'reset')`)[0];
 assert.notEqual(replaced.generation, before.generation);
 fails(as(null, `select design_get_shared_frame(${q(second)});`), /link_unavailable/, 'old links stop working');
+fails(as(null, `select design_get_shared_frame(${q(project)});`), /link_unavailable/, 'including the project link');
 assert.equal(value(weslley, `design_list_comments(null, 'home-2')`).length, 0, 'the reused frame ID starts with no comments');
 assert.equal(rows(weslley, 'design_list_shares()').length, 0);
 const backups = rows(weslley, 'design_list_backups()');
