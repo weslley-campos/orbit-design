@@ -11,6 +11,7 @@
   --ws-accent-soft: #e4ecfd;
   --ws-on-accent: #ffffff;
   --ws-danger: #b3261e;
+  --ws-ok: #1f8a4c;
   --ws-warn: #8a5a00;
   --ws-dot: #c3c8d2;
   --ws-code: #f4f5f7;
@@ -36,6 +37,7 @@
   --ws-accent-soft: #2b3a5c;
   --ws-on-accent: #ffffff;
   --ws-danger: #f2877e;
+  --ws-ok: #2f9e5f;
   --ws-warn: #e9b44c;
   --ws-dot: #3a3c42;
   --ws-code: #232428;
@@ -61,6 +63,7 @@
     --ws-accent-soft: #2b3a5c;
     --ws-on-accent: #ffffff;
     --ws-danger: #f2877e;
+  --ws-ok: #2f9e5f;
     --ws-warn: #e9b44c;
     --ws-dot: #3a3c42;
     --ws-code: #232428;
@@ -392,3 +395,33 @@ body.is-locked #left, body.is-locked #right, body.is-locked #stage-wrap, body.is
 /* Scrollbars inside a frame follow the frame's Mode, not the workspace theme. */
 .orbit-frame[data-mode="dark"], .ws-device-screen[data-mode="dark"] { color-scheme: dark; }
 .orbit-frame[data-mode="light"], .ws-device-screen[data-mode="light"] { color-scheme: light; }
+
+.ws-share.ws-dialog { width: min(520px, calc(100vw - 32px)); padding: 0; overflow: hidden; }
+.ws-share-head { display: flex; align-items: flex-start; gap: 12px; padding: 20px 16px 4px 22px; }
+.ws-share-head > div { flex: 1; }
+.ws-share-head h2 { margin: 0 0 4px; }
+.ws-share-head p { margin: 0; }
+.ws-share-head .ws-icon:not(.orbit-frame *) { display: inline-flex; padding: 6px; border: 0; border-radius: 8px; color: var(--ws-muted); }
+.ws-share-head .ws-icon:hover:not(.orbit-frame *) { background: var(--ws-hover); color: var(--ws-text); }
+.ws-share-body { padding: 14px 22px 4px; }
+.ws-share-label { display: block; font-weight: 600; margin-bottom: 6px; }
+.ws-copy-field { display: flex; align-items: stretch; border: 1px solid var(--ws-line); border-radius: 10px; background: var(--ws-bg); overflow: hidden; }
+.ws-copy-field:focus-within { border-color: var(--ws-accent); }
+.ws-copy-field input:not(.orbit-frame *) { flex: 1; min-width: 0; border: 0; background: transparent; padding: 9px 12px; color: var(--ws-text); text-overflow: ellipsis; }
+.ws-copy-field input:focus-visible:not(.orbit-frame *) { outline: none; }
+.ws-copy-field .ws-copy:not(.orbit-frame *) { margin: 4px; border-radius: 7px; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; padding: 6px 12px; }
+.ws-copy.is-done:not(.orbit-frame *), .ws-copy.is-done:hover:not(:disabled):not(.orbit-frame *) { background: var(--ws-ok, #1f9d55); border-color: var(--ws-ok, #1f9d55); }
+.ws-share-empty { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; border: 1px dashed var(--ws-line); border-radius: 10px; }
+.ws-share-empty p { margin: 0; color: var(--ws-muted); }
+.ws-share-empty .ws-primary:not(.orbit-frame *) { margin: 0; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.ws-share-access { margin: 14px 22px 0; padding-top: 12px; border-top: 1px solid var(--ws-line); }
+.ws-share-access h3 { margin: 0 0 8px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--ws-muted); }
+.ws-share-access ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.ws-share-access li { display: flex; align-items: center; gap: 10px; }
+.ws-share-access li > span:nth-child(2) { flex: 1; }
+.ws-share-icon { display: inline-grid; place-items: center; width: 30px; height: 30px; border-radius: 999px; background: var(--ws-hover); color: var(--ws-muted); }
+.ws-pill { font-size: 12px; color: var(--ws-muted); padding: 2px 10px; border-radius: 999px; border: 1px solid var(--ws-line); }
+.ws-share-footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 16px; padding: 12px 16px 12px 22px; background: var(--ws-bg); border-top: 1px solid var(--ws-line); }
+.ws-share-footer .ws-primary:not(.orbit-frame *) { margin: 0; padding: 6px 16px; }
+.ws-text-danger:not(.orbit-frame *) { border: 0; background: transparent; padding: 4px 0; color: var(--ws-danger); font-weight: 600; }
+.ws-text-danger:hover:not(:disabled):not(.orbit-frame *) { background: transparent; text-decoration: underline; }
