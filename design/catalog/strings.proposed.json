@@ -137,7 +137,7 @@
     "workspace_conflict_message": "This workspace was saved from another device (revision {revision}). Your edits here are kept: download them, then load the cloud copy.",
     "workspace_failed_message": "Your changes are kept in this browser but were not saved to the cloud ({reason}).",
     "workspace_session_expired": "Your session ended. Your changes are kept in this browser; sign in again to save them.",
-    "workspace_blocked_message": "Your cloud workspace could not be loaded, so nothing is saved over it. You are editing this browser’s draft.",
+    "workspace_blocked_message": "Your cloud workspace could not be loaded ({reason}), so nothing is saved over it. You are editing this browser’s draft.",
     "workspace_sign_in_failed": "Sign-in did not complete. Your work is unchanged.",
     "workspace_cloud_unavailable": "Sign-in could not load. You are working in this browser only.",
     "workspace_choice_title": "Start your cloud workspace",
@@ -200,7 +200,8 @@
     "workspace_reason_invalid_body": "use 1 to 2,000 characters",
     "workspace_reason_frame_not_live": "save the screen to the cloud first",
     "workspace_reason_error": "unexpected error",
-    "workspace_sign_in_short": "Sign in"
+    "workspace_sign_in_short": "Sign in",
+    "workspace_reason_setup_missing": "the database is not set up: run the migration from supabase/migrations in the Supabase SQL editor"
   },
   "pt": {
     "forgot_password_title": "Recuperar senha",
@@ -340,7 +341,7 @@
     "workspace_conflict_message": "Este workspace foi salvo em outro dispositivo (revisão {revision}). Suas alterações aqui estão guardadas: baixe-as e depois carregue a cópia da nuvem.",
     "workspace_failed_message": "Suas alterações estão guardadas neste navegador, mas não foram salvas na nuvem ({reason}).",
     "workspace_session_expired": "Sua sessão terminou. Suas alterações estão guardadas neste navegador; entre de novo para salvá-las.",
-    "workspace_blocked_message": "Não foi possível carregar seu workspace da nuvem, então nada é salvo por cima dele. Você está editando o rascunho deste navegador.",
+    "workspace_blocked_message": "Não foi possível carregar seu workspace da nuvem ({reason}), então nada é salvo por cima dele. Você está editando o rascunho deste navegador.",
     "workspace_sign_in_failed": "O login não foi concluído. Seu trabalho não mudou.",
     "workspace_cloud_unavailable": "Não foi possível carregar o login. Você está trabalhando só neste navegador.",
     "workspace_choice_title": "Comece seu workspace na nuvem",
@@ -403,6 +404,7 @@
     "workspace_reason_invalid_body": "use de 1 a 2.000 caracteres",
     "workspace_reason_frame_not_live": "salve a tela na nuvem primeiro",
     "workspace_reason_error": "erro inesperado",
-    "workspace_sign_in_short": "Entrar"
+    "workspace_sign_in_short": "Entrar",
+    "workspace_reason_setup_missing": "o banco de dados não está configurado: rode a migração de supabase/migrations no SQL editor do Supabase"
   }
 }

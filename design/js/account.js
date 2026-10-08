@@ -131,7 +131,7 @@ export function createAccount(app, env) {
     if (result.stale) return;
     if (result.blocked) {
       active = false;
-      env.showNotice(t('workspace_blocked_message'), [], [{ label: t('workspace_retry'), run: () => { env.clearNotice(); switchUser(user, true); } }]);
+      env.showNotice(t('workspace_blocked_message', { reason: reason(result.error) }), [], [{ label: t('workspace_retry'), run: () => { env.clearNotice(); switchUser(user, true); } }]);
       renderStatus();
     } else if (result.choose) {
       chooseFirstCopy();
