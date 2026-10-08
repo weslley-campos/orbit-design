@@ -201,7 +201,8 @@
     "workspace_reason_frame_not_live": "save the screen to the cloud first",
     "workspace_reason_error": "unexpected error",
     "workspace_sign_in_short": "Sign in",
-    "workspace_reason_setup_missing": "the database is not set up: run the migration from supabase/migrations in the Supabase SQL editor"
+    "workspace_reason_setup_missing": "the database is not set up: run the migration from supabase/migrations in the Supabase SQL editor",
+    "workspace_share_select": "Select a screen to share it"
   },
   "pt": {
     "forgot_password_title": "Recuperar senha",
@@ -405,6 +406,7 @@
     "workspace_reason_frame_not_live": "salve a tela na nuvem primeiro",
     "workspace_reason_error": "erro inesperado",
     "workspace_sign_in_short": "Entrar",
-    "workspace_reason_setup_missing": "o banco de dados não está configurado: rode a migração de supabase/migrations no SQL editor do Supabase"
+    "workspace_reason_setup_missing": "o banco de dados não está configurado: rode a migração de supabase/migrations no SQL editor do Supabase",
+    "workspace_share_select": "Selecione uma tela para compartilhar"
   }
 }

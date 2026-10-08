@@ -138,6 +138,7 @@ async function boot() {
     renderSidebar();
     app.canvas.render();
     app.inspector.render();
+    syncShare();
   };
   app.commit = () => {
     app.save();
@@ -148,7 +149,26 @@ async function boot() {
     app.canvas.updateSelection();
     renderSidebar();
     app.inspector.render();
+    syncShare();
   };
+  // Share in the inspector header, like Figma: shares the selected screen once it is saved to the cloud.
+  function syncShare() {
+    const button = $('share');
+    button.hidden = app.review || !cloudConfigured() || !account;
+    if (button.hidden) return;
+    button.textContent = app.t('workspace_share');
+    if (!account.user()) {
+      button.disabled = false;
+      button.title = app.t('workspace_share_needs_account');
+      button.onclick = () => account.signIn();
+      return;
+    }
+    const frameId = app.selection?.frameId;
+    const action = frameId ? account.shareAction(frameId) : null;
+    button.disabled = !action || action.disabled;
+    button.title = action?.label ?? app.t('workspace_share_select');
+    button.onclick = () => action?.run();
+  }
   app.setMode = (mode) => {
     app.mode = mode;
     if (mode !== 'move' && app.inspector.tab() !== mode) app.inspector.showTab(mode);
@@ -629,7 +649,7 @@ async function boot() {
     account = createAccount(app, env);
     app.commentsView = () => account.commentsView();
     app.shareAction = (frameId) => account.shareAction(frameId);
-    app.onCloudStatus = () => app.canvas.updateSelection();
+    app.onCloudStatus = () => { app.canvas.updateSelection(); syncShare(); };
   }
   function renderReviewAccount() {
     const box = $('account');
@@ -640,7 +660,7 @@ async function boot() {
       ? h('button', {
         class: 'ws-account-button', 'data-f': 'account', 'aria-label': app.t('workspace_signed_in_as', { name: user.name }), title: user.name, 'aria-haspopup': 'menu',
         onclick: (e) => openMenu(e.currentTarget, [{ heading: user.name }, { label: app.t('workspace_sign_out'), run: () => review.signOut() }]),
-      }, user.avatarUrl ? h('img', { class: 'ws-avatar', src: user.avatarUrl, alt: '', width: 26, height: 26, referrerPolicy: 'no-referrer' }) : h('span', { class: 'ws-avatar' }, user.name[0]?.toUpperCase()))
+      }, user.avatarUrl ? h('img', { class: 'ws-avatar', src: user.avatarUrl, alt: '', width: 26, height: 26, referrerPolicy: 'no-referrer' }) : h('span', { class: 'ws-avatar' }, user.name[0]?.toUpperCase()), icon('chevron', 14))
       : h('button', { class: 'ws-signin', 'data-f': 'sign-in', title: app.t('workspace_sign_in'), 'aria-label': app.t('workspace_sign_in'), onclick: () => review.signIn() }, app.t('workspace_sign_in_short')));
   }
 
