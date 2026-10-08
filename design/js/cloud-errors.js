@@ -12,6 +12,8 @@ export function classifyError(error) {
     const revision = code === 'stale_revision' && /^\d+$/.test(error.details ?? '') ? Number(error.details) : null;
     return { code, message, revision };
   }
+  // The design_* functions do not exist: the migration was not run on this Supabase project.
+  if (error.code === 'PGRST202' || error.code === '42883' || /could not find the function/i.test(message)) return { code: 'setup_missing', message };
   if (/^PGRST30/.test(error.code ?? '') || /jwt/i.test(message)) return { code: 'session_expired', message };
   if (error.code === '42501') return { code: 'not_authenticated', message };
   if (!error.code && /fetch|network|load failed|offline/i.test(message)) return { code: 'offline', message };
