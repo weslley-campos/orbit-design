@@ -276,57 +276,89 @@ export function createAccount(app, env) {
     if (!project && !loc) return;
     const name = project ? null : app.frameName(loc.frame);
     const body = h('div', { class: 'ws-share-body', 'aria-live': 'polite' });
-    const dialog = h('dialog', { class: 'ws-dialog', 'aria-labelledby': 'share-title' },
-      h('h2', { id: 'share-title' }, project ? t('workspace_share_project_title') : t('workspace_share_title', { name })),
-      h('p', {}, t(project ? 'workspace_share_project_disclosure' : 'workspace_share_disclosure')),
+    const footer = h('div', { class: 'ws-share-footer' });
+    const close = () => dialog.close();
+    const access = (glyph, who, can) => h('li', {}, h('span', { class: 'ws-share-icon' }, icon(glyph, 16)), h('span', {}, who), h('span', { class: 'ws-pill' }, can));
+    const dialog = h('dialog', { class: 'ws-dialog ws-share', 'aria-labelledby': 'share-title' },
+      h('header', { class: 'ws-share-head' },
+        h('div', {},
+          h('h2', { id: 'share-title' }, project ? t('workspace_share_project_title') : t('workspace_share_title', { name })),
+          h('p', {}, t(project ? 'workspace_share_project_scope' : 'workspace_share_screen_scope'))),
+        h('button', { class: 'ws-icon', 'aria-label': t('workspace_close'), title: t('workspace_close'), 'data-f': 'share-x', onclick: close }, icon('close', 18))),
       body,
-      h('div', { class: 'ws-dialog-actions' }, h('button', { 'data-f': 'share-close', onclick: () => dialog.close() }, t('workspace_close'))));
+      h('section', { class: 'ws-share-access', 'aria-labelledby': 'share-access' },
+        h('h3', { id: 'share-access' }, t('workspace_share_access_title')),
+        h('ul', {},
+          access('language', t('workspace_share_anyone'), t('workspace_share_can_view')),
+          access('comment', t('workspace_share_github'), t('workspace_share_can_comment')),
+          access('edit', t('workspace_share_editors'), t('workspace_share_can_edit')))),
+      footer);
     dialog.addEventListener('close', () => dialog.remove());
+    const done = () => h('button', { class: 'ws-primary', 'data-f': 'share-close', onclick: close }, t('workspace_done'));
     const fail = (error) => body.append(h('p', { class: 'ws-error', role: 'alert' }, t('workspace_share_failed', { reason: reason(error) })));
-    const createButton = () => h('button', {
-      class: 'ws-primary', 'data-f': 'share-create',
-      onclick: async (e) => {
-        e.currentTarget.disabled = true;
-        const { data, error } = await cloud.createShare(frameId);
-        if (error) { e.currentTarget.disabled = false; return fail(error); }
-        showLink(data);
-      },
-    }, t('workspace_share_create'));
+
+    function showCreate(message = t('workspace_share_none')) {
+      body.replaceChildren(h('div', { class: 'ws-share-empty' },
+        h('p', { role: 'status' }, message),
+        h('button', {
+          class: 'ws-primary', 'data-f': 'share-create',
+          onclick: async (e) => {
+            e.currentTarget.disabled = true;
+            const { data, error } = await cloud.createShare(frameId);
+            if (error) { e.currentTarget.disabled = false; return fail(error); }
+            showLink(data);
+          },
+        }, icon('link', 16), t('workspace_share_create'))));
+      footer.replaceChildren(h('span'), done());
+    }
+
     function showLink(token) {
       const url = reviewUrl(token);
-      const copied = h('span', { class: 'ws-hint', role: 'status' });
+      const input = h('input', { type: 'text', readOnly: true, value: url, 'data-f': 'share-url', 'aria-label': t(project ? 'workspace_share_link_project' : 'workspace_share_link'), onfocus: (e) => e.target.select() });
+      let reset = 0;
+      const copy = h('button', {
+        class: 'ws-primary ws-copy', 'data-f': 'share-copy',
+        onclick: async () => {
+          try {
+            await navigator.clipboard.writeText(url);
+          } catch {
+            input.select();
+            document.execCommand?.('copy');
+          }
+          copy.replaceChildren(icon('check', 16), t('workspace_share_copied_short'));
+          copy.classList.add('is-done');
+          clearTimeout(reset);
+          reset = setTimeout(() => { copy.replaceChildren(icon('link', 16), t('workspace_share_copy')); copy.classList.remove('is-done'); }, 2000);
+        },
+      }, icon('link', 16), t('workspace_share_copy'));
       body.replaceChildren(
-        h('label', { class: 'ws-field' }, h('span', {}, t('workspace_share_link')), h('input', { type: 'text', readOnly: true, value: url, 'data-f': 'share-url', onfocus: (e) => e.target.select() })),
-        h('div', { class: 'ws-dialog-actions is-start' },
-          h('button', {
-            class: 'ws-primary', 'data-f': 'share-copy',
-            onclick: async () => {
-              try { await navigator.clipboard.writeText(url); copied.textContent = t('workspace_share_copied'); } catch { body.querySelector('input').select(); }
-            },
-          }, t('workspace_share_copy')),
-          h('button', {
-            class: 'ws-danger', 'data-f': 'share-revoke',
-            onclick: async (e) => {
-              if (!confirm(t('workspace_share_revoke_confirm'))) return;
-              e.currentTarget.disabled = true;
-              const { error } = await cloud.revokeShare(token);
-              // Only an acknowledged revocation is reported as done.
-              if (error) { e.currentTarget.disabled = false; return fail(error); }
-              body.replaceChildren(h('p', { role: 'status' }, t('workspace_share_revoked')), createButton());
-            },
-          }, t('workspace_share_revoke')),
-          copied));
-      body.querySelector('[data-f="share-copy"]').focus();
+        h('label', { class: 'ws-share-label', for: 'share-url' }, t(project ? 'workspace_share_link_project' : 'workspace_share_link')),
+        h('div', { class: 'ws-copy-field' }, Object.assign(input, { id: 'share-url' }), copy));
+      footer.replaceChildren(
+        h('button', {
+          class: 'ws-text-danger', 'data-f': 'share-revoke',
+          onclick: async (e) => {
+            if (!confirm(t('workspace_share_revoke_confirm'))) return;
+            e.currentTarget.disabled = true;
+            const { error } = await cloud.revokeShare(token);
+            // Only an acknowledged revocation is reported as done.
+            if (error) { e.currentTarget.disabled = false; return fail(error); }
+            showCreate(t('workspace_share_revoked'));
+          },
+        }, t('workspace_share_revoke')),
+        done());
+      copy.focus();
     }
+
     body.append(h('p', { class: 'ws-hint' }, t('workspace_loading')));
+    footer.append(h('span'), done());
     document.body.append(dialog);
     dialog.showModal();
     cloud.listShares().then(({ data, error }) => {
-      body.replaceChildren();
-      if (error) { fail(error); body.append(createButton()); return; }
+      if (error) { showCreate(); fail(error); return; }
       const live = data.find((share) => (share.frame_id ?? null) === (frameId ?? null) && !share.revoked_at);
       if (live) showLink(live.token);
-      else body.append(createButton());
+      else showCreate();
     });
   }
 }
