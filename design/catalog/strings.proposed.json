@@ -208,7 +208,13 @@
     "workspace_gate_checking": "Checking your access…",
     "workspace_gate_denied": "{name} (@{handle}) is not an editor of this workspace. Ask the owner for access, or open a share link you received.",
     "workspace_gate_error": "Your access could not be checked ({reason}).",
-    "workspace_reason_not_editor": "this account is not an editor"
+    "workspace_reason_not_editor": "this account is not an editor",
+    "workspace_share_project_title": "Share the whole project",
+    "workspace_share_project_disclosure": "Anyone with the link can view every page and screen as last saved, with their prototype links and comments. Archived and Trash are not included, and nobody can edit. People signed in with GitHub can comment.",
+    "workspace_share_project_hint": "Share the whole project (select a screen to share only that screen)",
+    "workspace_review_project": "Whole project",
+    "workspace_review_pages": "Pages",
+    "workspace_review_screens": "Screens"
   },
   "pt": {
     "forgot_password_title": "Recuperar senha",
@@ -419,6 +425,12 @@
     "workspace_gate_checking": "Verificando seu acesso…",
     "workspace_gate_denied": "{name} (@{handle}) não é editor deste workspace. Peça acesso ao dono ou abra um link de compartilhamento que você recebeu.",
     "workspace_gate_error": "Não foi possível verificar seu acesso ({reason}).",
-    "workspace_reason_not_editor": "esta conta não é editora"
+    "workspace_reason_not_editor": "esta conta não é editora",
+    "workspace_share_project_title": "Compartilhar o projeto inteiro",
+    "workspace_share_project_disclosure": "Quem tiver o link pode ver todas as páginas e telas como foram salvas por último, com as ligações do protótipo e os comentários. Arquivados e Lixeira não entram, e ninguém pode editar. Quem entrar com o GitHub pode comentar.",
+    "workspace_share_project_hint": "Compartilhar o projeto inteiro (selecione uma tela para compartilhar só ela)",
+    "workspace_review_project": "Projeto inteiro",
+    "workspace_review_pages": "Páginas",
+    "workspace_review_screens": "Telas"
   }
 }

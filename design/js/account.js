@@ -238,11 +238,12 @@ export function createAccount(app, env) {
       if (!cloud) return [];
       return user ? [] : [{ heading: t('workspace_account') }, { label: t('workspace_sign_in'), run: signIn }];
     },
-    // The Share action for the screen toolbar; null when sharing is not possible at all.
+    // The Share action for a screen, or for the whole project when frameId is null; null when it is not possible.
     shareAction(frameId) {
-      if (!active || !app.locate(frameId)) return null;
+      if (!active || (frameId != null && !app.locate(frameId))) return null;
       const ready = sync.status() === 'saved' && !sync.pending();
-      return { label: ready ? t('workspace_share') : t('workspace_share_needs_save'), disabled: !ready, run: () => openShare(frameId) };
+      const label = frameId == null ? t('workspace_share_project_hint') : t('workspace_share');
+      return { label: ready ? label : t('workspace_share_needs_save'), disabled: !ready, run: () => openShare(frameId) };
     },
     commentsView,
     statusText: () => statusEl.textContent,
@@ -270,13 +271,14 @@ export function createAccount(app, env) {
   }
 
   function openShare(frameId) {
-    const loc = app.locate(frameId);
-    if (!loc) return;
-    const name = app.frameName(loc.frame);
+    const project = frameId == null;
+    const loc = project ? null : app.locate(frameId);
+    if (!project && !loc) return;
+    const name = project ? null : app.frameName(loc.frame);
     const body = h('div', { class: 'ws-share-body', 'aria-live': 'polite' });
     const dialog = h('dialog', { class: 'ws-dialog', 'aria-labelledby': 'share-title' },
-      h('h2', { id: 'share-title' }, t('workspace_share_title', { name })),
-      h('p', {}, t('workspace_share_disclosure')),
+      h('h2', { id: 'share-title' }, project ? t('workspace_share_project_title') : t('workspace_share_title', { name })),
+      h('p', {}, t(project ? 'workspace_share_project_disclosure' : 'workspace_share_disclosure')),
       body,
       h('div', { class: 'ws-dialog-actions' }, h('button', { 'data-f': 'share-close', onclick: () => dialog.close() }, t('workspace_close'))));
     dialog.addEventListener('close', () => dialog.remove());
@@ -322,7 +324,7 @@ export function createAccount(app, env) {
     cloud.listShares().then(({ data, error }) => {
       body.replaceChildren();
       if (error) { fail(error); body.append(createButton()); return; }
-      const live = data.find((share) => share.frame_id === frameId && !share.revoked_at);
+      const live = data.find((share) => (share.frame_id ?? null) === (frameId ?? null) && !share.revoked_at);
       if (live) showLink(live.token);
       else body.append(createButton());
     });
