@@ -47,6 +47,7 @@ Each field shows the source value, marks drafts as "edited" and offers "Reset to
 - A valid draft opens instead of the committed seed `design/workspace.json`.
 - **Export** (main menu) downloads a versioned `workspace.json`; **Import** reads one back. An invalid file (malformed JSON, unsupported version, duplicate ids, missing references, invalid overrides) is rejected with its errors and nothing changes.
 - **Reset** drops the draft and reloads the seed (after a confirmation). Signed in, Import and Reset replace the cloud copy instead (below).
+- **Merge committed changes** (main menu) brings what a newer seed added into the open workspace, signed in or not: screens it doesn't have yet join their page (or a new page) at their committed position, and committed prototype links are added. A committed link wins over yours on the same hotspot. Positions, Archived, Trash, edits, settings and your other links stay. When the seed has something new, a notice offers **Merge** on opening, so a new seed no longer needs a Reset.
 - A corrupt or invalid draft is not loaded: the seed opens with a notice and "Download draft".
 - To publish a flow, export, replace `design/workspace.json` with the exported file and commit it.
 

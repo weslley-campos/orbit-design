@@ -237,6 +237,40 @@ export function restoreFrame(ws, shelf, frameId, fallbackPageId) {
   return page;
 }
 
+// Brings what the committed seed added into a draft without losing the draft's own work. Frames are never deleted (only shelved),
+// so a seed frame whose id the draft doesn't know is new: it joins its page (a new page if the draft lacks it) at the seed position.
+// Seed connections between live frames are added, and win over the draft's link from the same hotspot. Positions, Archived, Trash,
+// overrides, settings, pages and the draft's other connections stay as they are. Returns what changed; ws is untouched if nothing did.
+export function pendingMerge(ws, seed) {
+  const known = new Set([...allFrames(ws), ...shelved(ws).map((item) => item.frame)].map((frame) => frame.id));
+  const frames = seed.pages.flatMap((page) => page.frames.filter((frame) => !known.has(frame.id)).map((frame) => ({ frame, page })));
+  const pages = new Set(frames.filter(({ page }) => !ws.pages.some((p) => p.id === page.id)).map(({ page }) => page.id));
+  const live = new Set([...allFrames(ws), ...frames.map(({ frame }) => frame)].map((frame) => frame.id));
+  const connections = seed.connections.filter((c) => live.has(c.from.frameId) && live.has(c.to.frameId)).filter((c) => {
+    const mine = connectionOf(ws, c.from.frameId, c.from.hotspotId);
+    return !mine || mine.to.frameId !== c.to.frameId;
+  });
+  return { frames, pages: pages.size, connections };
+}
+
+export function mergeSeed(ws, seed) {
+  const pending = pendingMerge(ws, seed);
+  for (const { frame, page } of pending.frames) {
+    let target = ws.pages.find((p) => p.id === page.id);
+    if (!target) {
+      target = { ...structuredClone(page), frames: [] };
+      ws.pages.push(target);
+    }
+    target.frames.push(structuredClone(frame));
+  }
+  for (const c of pending.connections) {
+    const mine = connectionOf(ws, c.from.frameId, c.from.hotspotId);
+    if (mine) mine.to = { frameId: c.to.frameId };
+    else ws.connections.push({ ...structuredClone(c), id: uniqueId(ws, c.id) });
+  }
+  return { frames: pending.frames.length, pages: pending.pages, connections: pending.connections.length };
+}
+
 // Deleting a page moves its frames to Trash.
 export function removePage(ws, pageId) {
   const index = ws.pages.findIndex((page) => page.id === pageId);
