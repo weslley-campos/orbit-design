@@ -316,6 +316,22 @@
         {
           "id": "mobile-connectors",
           "catalogId": "screens/connectors",
+          "x": 4608,
+          "y": 966,
+          "width": 402,
+          "height": 874
+        },
+        {
+          "id": "mobile-connectors-institutions",
+          "catalogId": "screens/connectors-institutions",
+          "x": 5120,
+          "y": 966,
+          "width": 402,
+          "height": 874
+        },
+        {
+          "id": "mobile-connectors-empty",
+          "catalogId": "screens/connectors-empty",
           "x": 4096,
           "y": 966,
           "width": 402,
@@ -719,6 +735,39 @@
       "id": "mobile-connectors-back",
       "from": {
         "frameId": "mobile-connectors",
+        "hotspotId": "back"
+      },
+      "to": {
+        "frameId": "mobile-home"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-connectors-add-bank",
+      "from": {
+        "frameId": "mobile-connectors",
+        "hotspotId": "add-bank"
+      },
+      "to": {
+        "frameId": "mobile-connectors-institutions"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-connectors-institutions-back",
+      "from": {
+        "frameId": "mobile-connectors-institutions",
+        "hotspotId": "back"
+      },
+      "to": {
+        "frameId": "mobile-connectors"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-connectors-empty-back",
+      "from": {
+        "frameId": "mobile-connectors-empty",
         "hotspotId": "back"
       },
       "to": {
