@@ -255,7 +255,20 @@
     "connectors_more_soon": "More connectors coming soon",
     "connectors_not_connected": "Open Finance · not set up",
     "connectors_setup_body": "Connect through Open Finance and choose which banks Orbit can read transactions from.",
-    "connectors_setup": "Set up Pluggy"
+    "connectors_setup": "Set up Pluggy",
+    "pluggy_setup_title": "Set up Pluggy",
+    "pluggy_setup_guidance": "Enter the credentials from your Pluggy dashboard so Orbit can read your transactions.",
+    "pluggy_client_id_label": "Client ID",
+    "pluggy_client_id_placeholder": "Paste your client ID",
+    "pluggy_client_secret_label": "Client secret",
+    "pluggy_client_secret_placeholder": "Paste your client secret",
+    "pluggy_client_secret_hint": "Stored encrypted. Orbit never shows it again after you save.",
+    "pluggy_connector_id_label": "Connector ID",
+    "pluggy_connector_id_placeholder": "e.g. 201",
+    "pluggy_connector_id_hint": "The Pluggy connector Orbit syncs from.",
+    "pluggy_setup_help": "Where do I find these?",
+    "pluggy_setup_save": "Save and connect",
+    "pluggy_setup_cancel": "Cancel"
   },
   "pt": {
     "forgot_password_title": "Recuperar senha",
@@ -513,6 +526,19 @@
     "connectors_more_soon": "Mais conexões em breve",
     "connectors_not_connected": "Open Finance · não configurado",
     "connectors_setup_body": "Conecte pelo Open Finance e escolha de quais bancos o Orbit pode ler as transações.",
-    "connectors_setup": "Configurar Pluggy"
+    "connectors_setup": "Configurar Pluggy",
+    "pluggy_setup_title": "Configurar Pluggy",
+    "pluggy_setup_guidance": "Informe as credenciais do seu painel da Pluggy para o Orbit ler suas transações.",
+    "pluggy_client_id_label": "Client ID",
+    "pluggy_client_id_placeholder": "Cole seu client ID",
+    "pluggy_client_secret_label": "Client secret",
+    "pluggy_client_secret_placeholder": "Cole seu client secret",
+    "pluggy_client_secret_hint": "Guardado com criptografia. O Orbit não mostra de novo depois de salvar.",
+    "pluggy_connector_id_label": "ID do conector",
+    "pluggy_connector_id_placeholder": "ex.: 201",
+    "pluggy_connector_id_hint": "O conector da Pluggy usado na sincronização.",
+    "pluggy_setup_help": "Onde encontro esses dados?",
+    "pluggy_setup_save": "Salvar e conectar",
+    "pluggy_setup_cancel": "Cancelar"
   }
 }
