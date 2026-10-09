@@ -5,7 +5,7 @@ Status: Draft
 ## 1. Outcome
 - User: someone who tracks expenses in Orbit and doesn't want to type each one.
 - Problem: there is no place to connect Orbit to an aggregator or to see which banks feed it transactions.
-- Desired result: a Connectors (Conexões) screen, opened from the profile. It lists connectors, and today that means Pluggy only. Once Pluggy is set up, the banks it reads transactions from are shown beneath it.
+- Desired result: a Connectors (Conexões) screen, opened from Settings. It lists connectors, and today that means Pluggy only. Once Pluggy is set up, the banks it reads transactions from are shown beneath it.
 
 ## 2. Scope
 - Included:
@@ -13,11 +13,11 @@ Status: Draft
   - `screens/connectors`: Pluggy connected, with its banks (one synced, one paused with Reconnect) and Add a bank.
   - `screens/connectors-institutions`: the institutions Pluggy's `GET /connectors` returns, with search, type filters, health status and a Connected tag.
   - A "More connectors coming soon" placeholder and prototype links.
-- Excluded: the Pluggy setup screen (opened by tapping Pluggy or Set up Pluggy), the Profile screen, the Pluggy Connect consent flow, disconnecting, per-bank detail and production app changes.
-- Design: `screens/home` → `screens/connectors` → `screens/connectors-institutions`; `screens/connectors-empty`.
+- Excluded: the Pluggy setup screen (opened by tapping Pluggy or Set up Pluggy), the Settings screen ([settings.md](settings.md)), the Pluggy Connect consent flow, disconnecting, per-bank detail and production app changes.
+- Design: `screens/settings` → `screens/connectors` → `screens/connectors-institutions`; `screens/connectors-empty`.
 
 ## 3. Required behavior
-- R1: Activating the Profile tab on Home in Play opens Connectors, and Back returns to Home. This link stands in until a Profile frame exists.
+- R1: Activating Connectors on Settings in Play opens Connectors, and Back returns to Settings.
 - R2: Connectors shows a single Pluggy card. Not set up, it shows "Open Finance · not set up", a short explanation and Set up Pluggy. Connected, it shows "Connected · 2 banks" and a chevron for the future setup screen.
 - R3: Under "Transactions from", each bank shows its Pluggy `primaryColor` logo, its name and a sync status. Synced uses the success color with a check icon. Paused uses the warning color with an alert icon and Reconnect. Add a bank opens the institutions list.
 - R4: The institutions list shows Pluggy's connectors with name, logo color and type (`PERSONAL_BANK` → Personal bank, `INVESTMENT` → Brokerage), plus search (`name`) and All / Banks / Investments filters (`types`). `health.status` `UNSTABLE` shows "Unstable right now". `OFFLINE` fades the row and disables it. Banks already connected show Connected.
@@ -29,7 +29,7 @@ Status: Draft
 - New icons are Lucide proposals (`ic_plug`, `ic_landmark`, `ic_search`, `ic_shield_check`, `ic_circle_check`) under `design/assets/proposed`.
 
 ## 6. Acceptance criteria
-- [x] R1 · manual — Given Home in Play, when the Profile tab is activated, then Connectors opens; when Back is activated, then Home is shown.
+- [x] R1 · manual — Given Settings in Play, when Connectors is activated, then Connectors opens; when Back is activated, then Settings is shown.
 - [x] R2 · manual — Given Connectors · Not set up, when inspected, then Pluggy shows "Open Finance · not set up" and Set up Pluggy; given Connectors, then Pluggy shows "Connected · 2 banks".
 - [x] R3 · manual — Given Connectors, when Add a bank is activated in Play, then the institutions list opens; Nubank shows "Synced 5 min ago" and Itaú "Sync paused" with Reconnect.
 - [x] R4 · manual — Given the institutions list, when inspected, then nine institutions show; Caixa reads "Unstable right now", Santander is faded without a chevron, and Itaú and Nubank show Connected.
