@@ -817,7 +817,6 @@ const categoryTile = (ctx, category, { styles, percent = false }) => {
 const navIcon = (ctx, key, glyph, hotspot) => ctx.node({
   key, styles: [`Icon/${glyph}`], bind: { width: { token: 'sizes.large' }, height: { token: 'sizes.large' } }, hotspot,
 });
-const navItem = (ctx, glyph, labelKey, hotspot) => ({ labelKey, icon: navIcon(ctx, `nav-${glyph}`, glyph, hotspot) });
 // Filled artwork for the selected destination, outlined otherwise. `key` stays the old hotspot id so saved prototype links keep working.
 const navToggleItem = (ctx, key, name, labelKey, hotspot) => ({
   labelKey, icon: (selected) => navIcon(ctx, key, `${name}_${selected ? 'filled' : 'outline'}`, hotspot),
@@ -984,33 +983,7 @@ const homePulse = frame('home-pulse', 'Home · Pulse', { status: 'proposed' }, (
       gap(ctx, 'gap-bottom', 'spacing.large'),
     ],
   }),
-  ctx.node({
-    key: 'bottom',
-    styles: ['Home/bottom'],
-    children: [OrbitNavigationBar(ctx, {
-      key: 'nav',
-      selectedIndex: 0,
-      items: [
-        navItem(ctx, 'house', 'home_nav_home'),
-        navItem(ctx, 'receipt_text', 'home_nav_expenses'),
-        {
-          slot: ctx.node({
-            key: 'nav-add-slot',
-            styles: ['Home/addSlot'],
-            children: [ctx.node({
-              key: 'add-expense',
-              styles: ['Home/addButton'],
-              hotspot: true,
-              attrs: addExpenseAttrs(ctx),
-              children: [icon(ctx, 'add-expense/icon', 'plus', 'large', 'colors.text.onInk')],
-            })],
-          }),
-        },
-        navItem(ctx, 'target', 'home_nav_plans'),
-        navItem(ctx, 'users', 'home_nav_family'),
-      ],
-    })],
-  }),
+  mainNav(ctx, MAIN_NAV.home),
 ]));
 
 const WEEK = [35, 60, 90, 45, 20, 70, 55];
@@ -1189,27 +1162,10 @@ const homeBudget = frame('home-budget', 'Home · Budget', { status: 'proposed' }
       inset(ctx, 'goal/inset', goalCard(ctx)),
       gap(ctx, 'gap-goal', 'spacing.large'),
       ...recent(ctx, 3),
-      ctx.node({ key: 'clearance', styles: ['Home/clearance'] }),
+      gap(ctx, 'gap-bottom', 'spacing.large'),
     ],
   }),
-  ctx.node({
-    key: 'bottom',
-    styles: ['Home/bottom'],
-    children: [
-      ctx.node({
-        key: 'add-expense',
-        styles: ['Home/fab', 'Home/fabSquare', 'Home/fabAbove'],
-        hotspot: true,
-        attrs: addExpenseAttrs(ctx),
-        children: [icon(ctx, 'add-expense/icon', 'plus', 'large', 'colors.text.onInk')],
-      }),
-      OrbitNavigationBar(ctx, {
-        key: 'nav',
-        selectedIndex: 0,
-        items: [navItem(ctx, 'house', 'home_nav_home'), navItem(ctx, 'receipt_text', 'home_nav_expenses'), navItem(ctx, 'target', 'home_nav_plans')],
-      }),
-    ],
-  }),
+  mainNav(ctx, MAIN_NAV.home),
 ]));
 
 const RANKS = [['groceries', 16, '37%'], ['restaurants', 10, '22%'], ['transport', 6, '13%'], ['other', 12, '28%']];
@@ -1325,34 +1281,30 @@ const homeLeftover = frame('home-leftover', 'Home · Leftover', { status: 'propo
       ...section(ctx, 'attention', sectionHeader(ctx, 'attention-header', 'home_attention_eyebrow'), attentionCard(ctx)),
       gap(ctx, 'gap-attention', 'spacing.large'),
       ...recent(ctx, 5),
-      ctx.node({ key: 'clearance', styles: ['Home/clearance'] }),
+      gap(ctx, 'gap-bottom', 'spacing.large'),
     ],
   }),
-  ctx.node({
-    key: 'add-expense',
-    styles: ['Home/fab', 'Home/fabPill', 'Home/fabFloor'],
-    hotspot: true,
-    attrs: addExpenseAttrs(ctx),
-    children: [
-      icon(ctx, 'add-expense/icon', 'plus', 'medium', 'colors.text.onInk'),
-      text(ctx, 'add-expense/label', 'Screen/label', { textKey: 'home_add_expense' }),
-    ],
-  }),
+  mainNav(ctx, MAIN_NAV.home),
 ]));
 
+// Add is a round gradient button in the middle of the bar, without a label.
 const addNavItem = (ctx) => ({
-  labelKey: 'home_nav_add',
-  icon: ctx.node({
-    key: 'add-expense',
-    styles: ['Home/navAdd'],
-    hotspot: true,
-    attrs: addExpenseAttrs(ctx),
-    children: [icon(ctx, 'add-expense/icon', 'plus', 'large', 'colors.text.onInk')],
+  slot: ctx.node({
+    key: 'nav-add-slot',
+    styles: ['Nav/addSlot'],
+    children: [ctx.node({
+      key: 'add-expense',
+      styles: ['Nav/add'],
+      hotspot: true,
+      attrs: addExpenseAttrs(ctx),
+      children: [icon(ctx, 'add-expense/icon', 'plus', 'large', 'colors.text.onInk')],
+    })],
   }),
 });
 
-// Home, Charts, Add, Cards and Settings; the destinations other than the selected one are hotspots.
-const MAIN_NAV = { home: 0, settings: 4 };
+// Home, Charts, Add, Wallet and Settings, each with filled artwork when selected. The destinations other than the selected one are hotspots;
+// their keys stay the old hotspot ids (`nav-house`, `nav-user_round`) so saved prototype links keep working.
+const MAIN_NAV = { home: 0, charts: 1, wallet: 3, settings: 4 };
 const mainNav = (ctx, selectedIndex) => ctx.node({
   key: 'bottom',
   styles: ['Home/bottom'],
@@ -1360,10 +1312,10 @@ const mainNav = (ctx, selectedIndex) => ctx.node({
     key: 'nav',
     selectedIndex,
     items: [
-      navItem(ctx, 'house', 'home_nav_home', selectedIndex !== MAIN_NAV.home),
-      navItem(ctx, 'chart_no_axes_column', 'home_nav_charts'),
+      navToggleItem(ctx, 'nav-house', 'home', 'home_nav_home', selectedIndex !== MAIN_NAV.home),
+      navToggleItem(ctx, 'nav-charts', 'chart_pie', 'home_nav_charts', selectedIndex !== MAIN_NAV.charts),
       addNavItem(ctx),
-      navItem(ctx, 'credit_card', 'home_nav_cards'),
+      navToggleItem(ctx, 'nav-wallet', 'wallet', 'home_nav_wallet', selectedIndex !== MAIN_NAV.wallet),
       navToggleItem(ctx, 'nav-user_round', 'settings', 'home_nav_settings', selectedIndex !== MAIN_NAV.settings),
     ],
   })],
@@ -1425,7 +1377,7 @@ const home = frame('home', 'Home', { status: 'proposed' }, (ctx) => screenFrame(
       gap(ctx, 'gap-goal', 'spacing.large'),
     ],
   }),
-  mainNav(ctx, 0),
+  mainNav(ctx, MAIN_NAV.home),
 ]));
 
 const homeMonthPicker = frame('home-month-picker', 'Home · Month picker', {

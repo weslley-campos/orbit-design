@@ -1958,133 +1958,6 @@
         "flex-shrink": "0"
       }
     },
-    "Home/addSlot": {
-      "css": {
-        "display": "flex",
-        "flex": "1",
-        "justify-content": "center",
-        "align-items": "flex-start"
-      }
-    },
-    "Home/addButton": {
-      "bind": {
-        "width": {
-          "literal": "56dp",
-          "proposal": "floating action size; no size token"
-        },
-        "height": {
-          "literal": "56dp",
-          "proposal": "floating action size; no size token"
-        },
-        "border-radius": {
-          "token": "shapes.pill"
-        },
-        "background": {
-          "token": "gradients.primary"
-        },
-        "color": {
-          "token": "colors.text.onInk"
-        },
-        "box-shadow": {
-          "token": "elevation.floatingShadow"
-        },
-        "margin-top": {
-          "literal": "-16dp",
-          "proposal": "add button overlaps the top edge of the bar"
-        }
-      },
-      "css": {
-        "display": "flex",
-        "align-items": "center",
-        "justify-content": "center",
-        "cursor": "pointer"
-      }
-    },
-    "Home/fab": {
-      "bind": {
-        "height": {
-          "literal": "56dp",
-          "proposal": "floating action size; no size token"
-        },
-        "background": {
-          "token": "gradients.primary"
-        },
-        "color": {
-          "token": "colors.text.onInk"
-        },
-        "box-shadow": {
-          "token": "elevation.floatingShadow"
-        },
-        "right": {
-          "token": "spacing.medium"
-        }
-      },
-      "css": {
-        "display": "flex",
-        "align-items": "center",
-        "justify-content": "center",
-        "position": "absolute",
-        "cursor": "pointer"
-      }
-    },
-    "Home/fabSquare": {
-      "bind": {
-        "width": {
-          "literal": "56dp",
-          "proposal": "floating action size; no size token"
-        },
-        "border-radius": {
-          "token": "shapes.button"
-        }
-      }
-    },
-    "Home/fabPill": {
-      "bind": {
-        "border-radius": {
-          "token": "shapes.pill"
-        },
-        "padding-left": {
-          "token": "spacing.small"
-        },
-        "padding-right": {
-          "token": "spacing.medium"
-        },
-        "gap": {
-          "token": "spacing.xxSmall"
-        }
-      },
-      "css": {
-        "white-space": "nowrap"
-      }
-    },
-    "Home/fabAbove": {
-      "bind": {
-        "margin-bottom": {
-          "token": "spacing.medium"
-        }
-      },
-      "css": {
-        "bottom": "100%"
-      }
-    },
-    "Home/fabFloor": {
-      "bind": {
-        "bottom": {
-          "token": "spacing.medium"
-        }
-      }
-    },
-    "Home/clearance": {
-      "bind": {
-        "height": {
-          "literal": "96dp",
-          "proposal": "room for the floating action button so the last card stays clear of it"
-        }
-      },
-      "css": {
-        "flex-shrink": "0"
-      }
-    },
     "Home/grow/6": {
       "css": {
         "flex-grow": "6"
@@ -2278,39 +2151,6 @@
         "icon": {
           "resource": "proposed.drawable.ic_bell",
           "proposal": "Lucide bell (ISC)"
-        }
-      },
-      "css": {
-        "flex-shrink": "0"
-      }
-    },
-    "Icon/house": {
-      "bind": {
-        "icon": {
-          "resource": "proposed.drawable.ic_house",
-          "proposal": "Lucide house (ISC)"
-        }
-      },
-      "css": {
-        "flex-shrink": "0"
-      }
-    },
-    "Icon/receipt_text": {
-      "bind": {
-        "icon": {
-          "resource": "proposed.drawable.ic_receipt_text",
-          "proposal": "Lucide receipt-text (ISC)"
-        }
-      },
-      "css": {
-        "flex-shrink": "0"
-      }
-    },
-    "Icon/target": {
-      "bind": {
-        "icon": {
-          "resource": "proposed.drawable.ic_target",
-          "proposal": "Lucide target (ISC)"
         }
       },
       "css": {
@@ -2631,17 +2471,6 @@
         "flex-shrink": "0"
       }
     },
-    "Icon/chart_no_axes_column": {
-      "bind": {
-        "icon": {
-          "resource": "proposed.drawable.ic_chart_no_axes_column",
-          "proposal": "Lucide chart-no-axes-column (ISC)"
-        }
-      },
-      "css": {
-        "flex-shrink": "0"
-      }
-    },
     "Icon/credit_card": {
       "bind": {
         "icon": {
@@ -2703,33 +2532,6 @@
         "flex": "1",
         "min-width": "0",
         "justify-content": "center"
-      }
-    },
-    "Home/navAdd": {
-      "bind": {
-        "width": {
-          "literal": "64dp",
-          "proposal": "matches the OrbitNavigationBar active indicator width"
-        },
-        "height": {
-          "literal": "32dp",
-          "proposal": "matches the OrbitNavigationBar active indicator height"
-        },
-        "border-radius": {
-          "token": "shapes.pill"
-        },
-        "background": {
-          "token": "gradients.primary"
-        },
-        "color": {
-          "token": "colors.text.onInk"
-        }
-      },
-      "css": {
-        "display": "flex",
-        "align-items": "center",
-        "justify-content": "center",
-        "cursor": "pointer"
       }
     },
     "Icon/palette": {
@@ -3072,6 +2874,110 @@
       "css": {
         "text-align": "center",
         "flex-shrink": "0"
+      }
+    },
+    "Icon/home_filled": {
+      "bind": {
+        "icon": {
+          "resource": "proposed.drawable.ic_home_filled",
+          "proposal": "Heroicons home solid (MIT); the selected destination"
+        }
+      },
+      "css": {
+        "flex-shrink": "0"
+      }
+    },
+    "Icon/home_outline": {
+      "bind": {
+        "icon": {
+          "resource": "proposed.drawable.ic_home_outline",
+          "proposal": "Heroicons home outline (MIT)"
+        }
+      },
+      "css": {
+        "flex-shrink": "0"
+      }
+    },
+    "Icon/chart_pie_filled": {
+      "bind": {
+        "icon": {
+          "resource": "proposed.drawable.ic_chart_pie_filled",
+          "proposal": "Heroicons chart-pie solid (MIT); the selected destination"
+        }
+      },
+      "css": {
+        "flex-shrink": "0"
+      }
+    },
+    "Icon/chart_pie_outline": {
+      "bind": {
+        "icon": {
+          "resource": "proposed.drawable.ic_chart_pie_outline",
+          "proposal": "Heroicons chart-pie outline (MIT)"
+        }
+      },
+      "css": {
+        "flex-shrink": "0"
+      }
+    },
+    "Icon/wallet_filled": {
+      "bind": {
+        "icon": {
+          "resource": "proposed.drawable.ic_wallet_filled",
+          "proposal": "Heroicons wallet solid (MIT); the selected destination"
+        }
+      },
+      "css": {
+        "flex-shrink": "0"
+      }
+    },
+    "Icon/wallet_outline": {
+      "bind": {
+        "icon": {
+          "resource": "proposed.drawable.ic_wallet_outline",
+          "proposal": "Heroicons wallet outline (MIT)"
+        }
+      },
+      "css": {
+        "flex-shrink": "0"
+      }
+    },
+    "Nav/addSlot": {
+      "css": {
+        "display": "flex",
+        "flex": "1",
+        "justify-content": "center",
+        "align-items": "center"
+      }
+    },
+    "Nav/add": {
+      "bind": {
+        "width": {
+          "literal": "56dp",
+          "proposal": "floating action size; no size token"
+        },
+        "height": {
+          "literal": "56dp",
+          "proposal": "floating action size; no size token"
+        },
+        "border-radius": {
+          "token": "shapes.pill"
+        },
+        "background": {
+          "token": "gradients.primary"
+        },
+        "color": {
+          "token": "colors.text.onInk"
+        },
+        "box-shadow": {
+          "token": "elevation.floatingShadow"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "align-items": "center",
+        "justify-content": "center",
+        "cursor": "pointer"
       }
     }
   }
