@@ -818,6 +818,10 @@ const navIcon = (ctx, key, glyph, hotspot) => ctx.node({
   key, styles: [`Icon/${glyph}`], bind: { width: { token: 'sizes.large' }, height: { token: 'sizes.large' } }, hotspot,
 });
 const navItem = (ctx, glyph, labelKey, hotspot) => ({ labelKey, icon: navIcon(ctx, `nav-${glyph}`, glyph, hotspot) });
+// Filled artwork for the selected destination, outlined otherwise. `key` stays the old hotspot id so saved prototype links keep working.
+const navToggleItem = (ctx, key, name, labelKey, hotspot) => ({
+  labelKey, icon: (selected) => navIcon(ctx, key, `${name}_${selected ? 'filled' : 'outline'}`, hotspot),
+});
 const addExpenseAttrs = (ctx) => ({ role: 'button', 'aria-label': ctx.t('home_add_expense') });
 
 const donut = (ctx) => {
@@ -1414,7 +1418,7 @@ const home = frame('home', 'Home', { status: 'proposed' }, (ctx) => screenFrame(
         navItem(ctx, 'chart_no_axes_column', 'home_nav_charts'),
         addNavItem(ctx),
         navItem(ctx, 'credit_card', 'home_nav_cards'),
-        navItem(ctx, 'user_round', 'home_nav_profile', true),
+        navToggleItem(ctx, 'nav-user_round', 'settings', 'home_nav_profile', true),
       ],
     })],
   }),

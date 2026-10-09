@@ -890,8 +890,7 @@
     "Icon/plus": {
       "bind": {
         "icon": {
-          "resource": "proposed.drawable.ic_plus",
-          "proposal": "Lucide plus (ISC)"
+          "resource": "CoreUiRes.drawable.ic_plus"
         }
       },
       "css": {
@@ -2654,11 +2653,20 @@
         "flex-shrink": "0"
       }
     },
-    "Icon/user_round": {
+    "Icon/settings_filled": {
       "bind": {
         "icon": {
-          "resource": "proposed.drawable.ic_user_round",
-          "proposal": "Lucide user-round (ISC)"
+          "resource": "CoreUiRes.drawable.ic_settings_filled"
+        }
+      },
+      "css": {
+        "flex-shrink": "0"
+      }
+    },
+    "Icon/settings_outline": {
+      "bind": {
+        "icon": {
+          "resource": "CoreUiRes.drawable.ic_settings_outline"
         }
       },
       "css": {

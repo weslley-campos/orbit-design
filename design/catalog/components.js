@@ -250,7 +250,12 @@ export function OrbitNavigationBar(ctx, options) {
       key: itemKey,
       styles: [part('item'), selected && part('item/Selected'), !enabled && part('item/Disabled')],
       children: [
-        ctx.node({ key: `${itemKey}/indicator`, styles: [part('indicator'), selected && part(enabled ? 'indicator/Selected' : 'indicator/SelectedDisabled')], children: [item.icon] }),
+        // An icon given as a function receives `selected`, like the Kotlin icon slot that picks filled or outlined artwork.
+        ctx.node({
+          key: `${itemKey}/indicator`,
+          styles: [part('indicator'), selected && part(enabled ? 'indicator/Selected' : 'indicator/SelectedDisabled')],
+          children: [typeof item.icon === 'function' ? item.icon(selected) : item.icon],
+        }),
         (alwaysShowLabel || selected) && ctx.node({ key: `${itemKey}/label`, styles: [part('label')], ...text(item, 'label') }),
       ],
     });
@@ -353,6 +358,7 @@ const block = (ctx, key, title, cells) => ctx.node({
 const page = (ctx, children) => OrbitScaffold(ctx, { key: 'root' }, [ctx.node({ key: 'page', styles: ['Catalog/page'], children })]);
 const closeIcon = (ctx, key) => ctx.node({ key, styles: ['OrbitIconButton/icon/close'] });
 const glyph = (ctx, key, character) => ctx.node({ key, styles: ['Catalog/glyph'], text: character });
+const navIcon = (ctx, key, name) => ctx.node({ key, styles: [`Icon/${name}`], bind: { width: { token: 'sizes.large' }, height: { token: 'sizes.large' } } });
 
 const frame = (name, viewport, render, extra = {}) => {
   const slug = name.toLowerCase().replaceAll(' ', '-');
@@ -480,9 +486,11 @@ export const frames = [
       selectedIndex,
       alwaysShowLabel,
       items: [
-        { label: 'Home', icon: glyph(ctx, `${key}/home`, '⌂'), enabled },
-        { label: 'Ledger', icon: glyph(ctx, `${key}/ledger`, '≡') },
-        { label: 'Plans', icon: glyph(ctx, `${key}/plans`, '◎') },
+        { label: 'Home', icon: navIcon(ctx, `${key}/home`, 'house'), enabled },
+        { label: 'Charts', icon: navIcon(ctx, `${key}/charts`, 'chart_no_axes_column') },
+        { label: 'Add', icon: navIcon(ctx, `${key}/add`, 'plus') },
+        { label: 'Wallet', icon: navIcon(ctx, `${key}/wallet`, 'credit_card') },
+        { label: 'Settings', icon: (selected) => navIcon(ctx, `${key}/settings`, `settings_${selected ? 'filled' : 'outline'}`) },
       ],
     }), 'Catalog/screen');
   })))), { source: `${KOTLIN}components/OrbitNavigationBar.kt` }),
