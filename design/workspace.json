@@ -440,6 +440,46 @@
           "y": 3864,
           "width": 402,
           "height": 874
+        },
+        {
+          "id": "mobile-transactions",
+          "catalogId": "screens/transactions",
+          "x": 3584,
+          "y": 4830,
+          "width": 402,
+          "height": 874
+        },
+        {
+          "id": "mobile-transactions-week",
+          "catalogId": "screens/transactions-week",
+          "x": 4096,
+          "y": 4830,
+          "width": 402,
+          "height": 874
+        },
+        {
+          "id": "mobile-transactions-day",
+          "catalogId": "screens/transactions-day",
+          "x": 4608,
+          "y": 4830,
+          "width": 402,
+          "height": 874
+        },
+        {
+          "id": "mobile-transactions-year",
+          "catalogId": "screens/transactions-year",
+          "x": 5120,
+          "y": 4830,
+          "width": 402,
+          "height": 874
+        },
+        {
+          "id": "mobile-transaction-detail",
+          "catalogId": "screens/transaction-detail",
+          "x": 5632,
+          "y": 4830,
+          "width": 402,
+          "height": 874
         }
       ]
     },
@@ -1514,6 +1554,314 @@
       },
       "to": {
         "frameId": "mobile-wallet-card"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-home-recent-header/link",
+      "from": {
+        "frameId": "mobile-home",
+        "hotspotId": "recent-header/link"
+      },
+      "to": {
+        "frameId": "mobile-transactions"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-home-ifood",
+      "from": {
+        "frameId": "mobile-home",
+        "hotspotId": "ifood"
+      },
+      "to": {
+        "frameId": "mobile-transaction-detail"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-card-transactions-header/link",
+      "from": {
+        "frameId": "mobile-wallet-card",
+        "hotspotId": "transactions-header/link"
+      },
+      "to": {
+        "frameId": "mobile-transactions"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-card-ifood",
+      "from": {
+        "frameId": "mobile-wallet-card",
+        "hotspotId": "ifood"
+      },
+      "to": {
+        "frameId": "mobile-transaction-detail"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-charts-category-ifood",
+      "from": {
+        "frameId": "mobile-charts-category",
+        "hotspotId": "ifood"
+      },
+      "to": {
+        "frameId": "mobile-transaction-detail"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-transactions-day-back",
+      "from": {
+        "frameId": "mobile-transactions-day",
+        "hotspotId": "back"
+      },
+      "to": {
+        "frameId": "mobile-home"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-transactions-day-period-week",
+      "from": {
+        "frameId": "mobile-transactions-day",
+        "hotspotId": "period-week"
+      },
+      "to": {
+        "frameId": "mobile-transactions-week"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-transactions-day-period-month",
+      "from": {
+        "frameId": "mobile-transactions-day",
+        "hotspotId": "period-month"
+      },
+      "to": {
+        "frameId": "mobile-transactions"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-transactions-day-period-year",
+      "from": {
+        "frameId": "mobile-transactions-day",
+        "hotspotId": "period-year"
+      },
+      "to": {
+        "frameId": "mobile-transactions-year"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-transactions-week-back",
+      "from": {
+        "frameId": "mobile-transactions-week",
+        "hotspotId": "back"
+      },
+      "to": {
+        "frameId": "mobile-home"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-transactions-week-period-day",
+      "from": {
+        "frameId": "mobile-transactions-week",
+        "hotspotId": "period-day"
+      },
+      "to": {
+        "frameId": "mobile-transactions-day"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-transactions-week-period-month",
+      "from": {
+        "frameId": "mobile-transactions-week",
+        "hotspotId": "period-month"
+      },
+      "to": {
+        "frameId": "mobile-transactions"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-transactions-week-period-year",
+      "from": {
+        "frameId": "mobile-transactions-week",
+        "hotspotId": "period-year"
+      },
+      "to": {
+        "frameId": "mobile-transactions-year"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-transactions-back",
+      "from": {
+        "frameId": "mobile-transactions",
+        "hotspotId": "back"
+      },
+      "to": {
+        "frameId": "mobile-home"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-transactions-period-day",
+      "from": {
+        "frameId": "mobile-transactions",
+        "hotspotId": "period-day"
+      },
+      "to": {
+        "frameId": "mobile-transactions-day"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-transactions-period-week",
+      "from": {
+        "frameId": "mobile-transactions",
+        "hotspotId": "period-week"
+      },
+      "to": {
+        "frameId": "mobile-transactions-week"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-transactions-period-year",
+      "from": {
+        "frameId": "mobile-transactions",
+        "hotspotId": "period-year"
+      },
+      "to": {
+        "frameId": "mobile-transactions-year"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-transactions-year-back",
+      "from": {
+        "frameId": "mobile-transactions-year",
+        "hotspotId": "back"
+      },
+      "to": {
+        "frameId": "mobile-home"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-transactions-year-period-day",
+      "from": {
+        "frameId": "mobile-transactions-year",
+        "hotspotId": "period-day"
+      },
+      "to": {
+        "frameId": "mobile-transactions-day"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-transactions-year-period-week",
+      "from": {
+        "frameId": "mobile-transactions-year",
+        "hotspotId": "period-week"
+      },
+      "to": {
+        "frameId": "mobile-transactions-week"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-transactions-year-period-month",
+      "from": {
+        "frameId": "mobile-transactions-year",
+        "hotspotId": "period-month"
+      },
+      "to": {
+        "frameId": "mobile-transactions"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-transactions-ifood",
+      "from": {
+        "frameId": "mobile-transactions",
+        "hotspotId": "ifood"
+      },
+      "to": {
+        "frameId": "mobile-transaction-detail"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-transactions-week-ifood",
+      "from": {
+        "frameId": "mobile-transactions-week",
+        "hotspotId": "ifood"
+      },
+      "to": {
+        "frameId": "mobile-transaction-detail"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-transactions-year-month-10",
+      "from": {
+        "frameId": "mobile-transactions-year",
+        "hotspotId": "month-10"
+      },
+      "to": {
+        "frameId": "mobile-transactions"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-transaction-detail-back",
+      "from": {
+        "frameId": "mobile-transaction-detail",
+        "hotspotId": "back"
+      },
+      "to": {
+        "frameId": "mobile-transactions"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-transaction-detail-card",
+      "from": {
+        "frameId": "mobile-transaction-detail",
+        "hotspotId": "card"
+      },
+      "to": {
+        "frameId": "mobile-wallet-card"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-transaction-detail-budget",
+      "from": {
+        "frameId": "mobile-transaction-detail",
+        "hotspotId": "budget"
+      },
+      "to": {
+        "frameId": "mobile-charts-category"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-transaction-detail-merchant",
+      "from": {
+        "frameId": "mobile-transaction-detail",
+        "hotspotId": "merchant"
+      },
+      "to": {
+        "frameId": "mobile-transactions"
       },
       "trigger": "click"
     }

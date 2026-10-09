@@ -3554,6 +3554,66 @@
         "flex-wrap": "wrap",
         "flex-shrink": "0"
       }
+    },
+    "Icon/sliders_horizontal": {
+      "bind": {
+        "icon": {
+          "resource": "proposed.drawable.ic_sliders_horizontal",
+          "proposal": "Lucide sliders-horizontal (ISC)"
+        }
+      },
+      "css": {
+        "flex-shrink": "0"
+      }
+    },
+    "Icon/trash": {
+      "bind": {
+        "icon": {
+          "resource": "proposed.drawable.ic_trash",
+          "proposal": "Lucide trash (ISC)"
+        }
+      },
+      "css": {
+        "flex-shrink": "0"
+      }
+    },
+    "Icon/store": {
+      "bind": {
+        "icon": {
+          "resource": "proposed.drawable.ic_store",
+          "proposal": "Lucide store (ISC)"
+        }
+      },
+      "css": {
+        "flex-shrink": "0"
+      }
+    },
+    "Tx/hero": {
+      "bind": {
+        "gap": {
+          "token": "spacing.xxSmall"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "flex-direction": "column",
+        "align-items": "center",
+        "text-align": "center",
+        "flex-shrink": "0"
+      }
+    },
+    "Tx/statement": {
+      "bind": {
+        "font": {
+          "token": "typography.money"
+        },
+        "color": {
+          "token": "colors.text.secondary"
+        }
+      },
+      "css": {
+        "overflow-wrap": "anywhere"
+      }
     }
   }
 }
