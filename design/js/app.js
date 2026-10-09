@@ -337,7 +337,7 @@ async function boot() {
     move: modeButton('move', 'Move mode (H)'),
     inspect: modeButton('inspect', 'Inspect mode (V)'),
     prototype: modeButton('prototype', 'Prototype mode (P)'),
-    palette: tool('palette', 'Palette', balloon(() => [{ heading: 'Palette' }, ...choices('palette', catalog.tokens.palettes, capital, swatch)]), h('img', { class: 'ws-swatch', alt: '', width: 20, height: 20 })),
+    palette: tool('palette', 'Palette', balloon(() => [{ heading: 'Palette' }, ...choices('palette', catalog.tokens.palettes, capital, swatch)]), h('img', { class: 'ws-swatch', alt: '', width: 24, height: 24 })),
     mode: tool('mode', 'Mode', balloon(() => [{ heading: 'Mode' }, ...choices('mode', catalog.tokens.modes, capital, (value) => icon(value))]), icon('light')),
     language: tool('language', 'Language', balloon(() => [{ heading: 'Language' }, ...choices('language', LANGUAGES, (value) => LANGUAGE_NAMES[value] ?? value.toUpperCase())]),
       icon('language'), h('span', { class: 'ws-tool-text' })),
