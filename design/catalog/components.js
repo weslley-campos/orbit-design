@@ -486,10 +486,10 @@ export const frames = [
       selectedIndex,
       alwaysShowLabel,
       items: [
-        { label: 'Home', icon: navIcon(ctx, `${key}/home`, 'house'), enabled },
-        { label: 'Charts', icon: navIcon(ctx, `${key}/charts`, 'chart_no_axes_column') },
+        { label: 'Home', icon: (selected) => navIcon(ctx, `${key}/home`, `home_${selected ? 'filled' : 'outline'}`), enabled },
+        { label: 'Charts', icon: (selected) => navIcon(ctx, `${key}/charts`, `chart_pie_${selected ? 'filled' : 'outline'}`) },
         { label: 'Add', icon: navIcon(ctx, `${key}/add`, 'plus') },
-        { label: 'Wallet', icon: navIcon(ctx, `${key}/wallet`, 'credit_card') },
+        { label: 'Wallet', icon: (selected) => navIcon(ctx, `${key}/wallet`, `wallet_${selected ? 'filled' : 'outline'}`) },
         { label: 'Settings', icon: (selected) => navIcon(ctx, `${key}/settings`, `settings_${selected ? 'filled' : 'outline'}`) },
       ],
     }), 'Catalog/screen');
