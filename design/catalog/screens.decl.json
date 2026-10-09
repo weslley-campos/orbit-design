@@ -2537,6 +2537,57 @@
         "flex-direction": "column"
       }
     },
+    "Icon/circle_help": {
+      "bind": {
+        "icon": {
+          "resource": "proposed.drawable.ic_circle_help",
+          "proposal": "Lucide circle-question-mark (ISC)"
+        }
+      },
+      "css": {
+        "flex-shrink": "0"
+      }
+    },
+    "Icon/eye_off": {
+      "bind": {
+        "icon": {
+          "resource": "CoreUiRes.drawable.ic_eye_off"
+        }
+      },
+      "css": {
+        "flex-shrink": "0"
+      }
+    },
+    "Pluggy/labelRow": {
+      "bind": {
+        "gap": {
+          "token": "spacing.xxxSmall"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "align-items": "center",
+        "flex-shrink": "0"
+      }
+    },
+    "Pluggy/helpPoint": {
+      "bind": {
+        "gap": {
+          "token": "spacing.small"
+        },
+        "padding-top": {
+          "token": "spacing.xSmall"
+        },
+        "padding-bottom": {
+          "token": "spacing.xSmall"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "align-items": "flex-start",
+        "flex-shrink": "0"
+      }
+    },
     "Icon/chevron_right": {
       "bind": {
         "icon": {

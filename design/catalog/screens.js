@@ -535,19 +535,30 @@ const pluggySetup = frame('pluggy-setup', 'Connectors · Pluggy setup', { status
     ...field(ctx, 'client-id', 'pluggy_client_id_label', {
       value: '8f3c2a71-5d4e-4b9a-a1c6-2e7f90b3d415', placeholderKey: 'pluggy_client_id_placeholder',
     }),
-    gap(ctx, 'gap-client-id', 'spacing.small'),
-    ...field(ctx, 'client-secret', 'pluggy_client_secret_label', {
-      value: 'pk_live_4K9P27xQ', password: true, placeholderKey: 'pluggy_client_secret_placeholder',
-      supportingTextKey: 'pluggy_client_secret_hint',
+    ctx.node({
+      key: 'client-secret/label-row',
+      styles: ['Pluggy/labelRow'],
+      children: [
+        text(ctx, 'client-secret/eyebrow', 'Screen/eyebrow', { textKey: 'pluggy_client_secret_label' }),
+        OrbitIconButton(ctx, { key: 'secret-help', hotspot: true, contentDescription: ctx.t('pluggy_secret_help_title') }, [
+          icon(ctx, 'secret-help/icon', 'circle_help', 'small', 'colors.text.tertiary'),
+        ]),
+      ],
+    }),
+    OrbitOutlineTextField(ctx, {
+      key: 'client-secret',
+      value: 'pk_live_4K9P27xQ',
+      password: true,
+      placeholderKey: 'pluggy_client_secret_placeholder',
       trailingIcon: OrbitIconButton(ctx, {
         key: 'show-secret', contentDescription: ctx.t('password_show'),
       }, [icon(ctx, 'show-secret/icon', 'eye', 'medium', 'colors.text.secondary')]),
     }),
     gap(ctx, 'gap-client-secret', 'spacing.small'),
     ...field(ctx, 'connector-id', 'pluggy_connector_id_label', {
-      value: '201', placeholderKey: 'pluggy_connector_id_placeholder', supportingTextKey: 'pluggy_connector_id_hint',
+      value: 'c3b1e2f4-7a9d-4e60-b8f5-1d2a6c9e0b47', placeholderKey: 'pluggy_connector_id_placeholder',
     }),
-    gap(ctx, 'gap-connector-id', 'spacing.small'),
+    gap(ctx, 'gap-connector-id', 'spacing.medium'),
     ctx.node({ key: 'help', styles: ['Screen/guidance', 'Screen/link'], textKey: 'pluggy_setup_help', hotspot: true }),
     ctx.node({ key: 'spacer', styles: ['Screen/grow'] }),
     actions(ctx, [
@@ -556,6 +567,64 @@ const pluggySetup = frame('pluggy-setup', 'Connectors · Pluggy setup', { status
     ]),
   ]),
 ]));
+
+const helpPoint = (ctx, key, glyph, titleKey, bodyKey) => ctx.node({
+  key,
+  styles: ['Pluggy/helpPoint'],
+  children: [
+    icon(ctx, `${key}/icon`, glyph, 'medium', 'colors.text.brand'),
+    ctx.node({
+      key: `${key}/text`,
+      styles: ['Family/info'],
+      children: [
+        text(ctx, `${key}/title`, 'Family/name', { textKey: titleKey }),
+        text(ctx, `${key}/body`, 'Screen/guidance', { textKey: bodyKey }),
+      ],
+    }),
+  ],
+});
+
+const pluggySecretHelp = frame('pluggy-secret-help', 'Connectors · Pluggy setup · Secret help', {
+  status: 'proposed', spec: 'docs/specs/pluggy-setup.md',
+}, (ctx) => ctx.node({
+  key: 'help-frame',
+  styles: ['OrbitScaffold'],
+  children: [
+    ctx.node({
+      key: 'help-background',
+      styles: ['MonthPicker/background'],
+      attrs: { inert: '', 'aria-hidden': 'true' },
+      children: [pluggySetup.render(ctx)],
+    }),
+    OrbitBottomSheet(ctx, {
+      key: 'secret-help-sheet',
+      attrs: { role: 'dialog', 'aria-modal': 'true', 'aria-label': ctx.t('pluggy_secret_help_title') },
+    }, [ctx.node({
+      key: 'help-content',
+      styles: ['Screen/content'],
+      children: [
+        ctx.node({
+          key: 'help-header',
+          styles: ['Home/spread'],
+          children: [
+            text(ctx, 'help-title', 'SignIn/title', { textKey: 'pluggy_secret_help_title' }),
+            OrbitIconButton(ctx, { key: 'help-close', hotspot: true, contentDescription: ctx.t('home_picker_close') }, [
+              icon(ctx, 'help-close/icon', 'x', 'medium', 'colors.text.secondary'),
+            ]),
+          ],
+        }),
+        gap(ctx, 'help-gap-title', 'spacing.small'),
+        helpPoint(ctx, 'help-encrypted', 'shield_check', 'pluggy_secret_help_encrypted_title', 'pluggy_secret_help_encrypted_body'),
+        helpPoint(ctx, 'help-hidden', 'eye_off', 'pluggy_secret_help_hidden_title', 'pluggy_secret_help_hidden_body'),
+        helpPoint(ctx, 'help-private', 'triangle_alert', 'pluggy_secret_help_private_title', 'pluggy_secret_help_private_body'),
+        gap(ctx, 'help-gap-button', 'spacing.large'),
+        OrbitButton(ctx, { key: 'help-done', hotspot: true, styles: ['Screen/fill'] }, [
+          label(ctx, 'help-done/label', { textKey: 'pluggy_secret_help_done' }),
+        ]),
+      ],
+    })]),
+  ],
+}));
 
 // Sample of what Pluggy's GET /connectors returns: [key, initials, name, type, health.status, already connected].
 const INSTITUTIONS = [
@@ -1441,5 +1510,6 @@ export const frames = [
   connectorsEmpty,
   connectors,
   pluggySetup,
+  pluggySecretHelp,
   connectorsInstitutions,
 ];

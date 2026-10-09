@@ -344,6 +344,14 @@
           "y": 966,
           "width": 402,
           "height": 874
+        },
+        {
+          "id": "mobile-pluggy-secret-help",
+          "catalogId": "screens/pluggy-secret-help",
+          "x": 5120,
+          "y": 1932,
+          "width": 402,
+          "height": 874
         }
       ]
     },
@@ -835,6 +843,39 @@
       },
       "to": {
         "frameId": "mobile-connectors"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-pluggy-setup-secret-help",
+      "from": {
+        "frameId": "mobile-pluggy-setup",
+        "hotspotId": "secret-help"
+      },
+      "to": {
+        "frameId": "mobile-pluggy-secret-help"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-pluggy-secret-help-close",
+      "from": {
+        "frameId": "mobile-pluggy-secret-help",
+        "hotspotId": "help-close"
+      },
+      "to": {
+        "frameId": "mobile-pluggy-setup"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-pluggy-secret-help-done",
+      "from": {
+        "frameId": "mobile-pluggy-secret-help",
+        "hotspotId": "help-done"
+      },
+      "to": {
+        "frameId": "mobile-pluggy-setup"
       },
       "trigger": "click"
     }

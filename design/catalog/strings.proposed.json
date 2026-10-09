@@ -262,13 +262,19 @@
     "pluggy_client_id_placeholder": "Paste your client ID",
     "pluggy_client_secret_label": "Client secret",
     "pluggy_client_secret_placeholder": "Paste your client secret",
-    "pluggy_client_secret_hint": "Stored encrypted. Orbit never shows it again after you save.",
     "pluggy_connector_id_label": "Connector ID",
-    "pluggy_connector_id_placeholder": "e.g. 201",
-    "pluggy_connector_id_hint": "The Pluggy connector Orbit syncs from.",
+    "pluggy_connector_id_placeholder": "Paste the connector ID",
     "pluggy_setup_help": "Where do I find these?",
     "pluggy_setup_save": "Save and connect",
-    "pluggy_setup_cancel": "Cancel"
+    "pluggy_setup_cancel": "Cancel",
+    "pluggy_secret_help_title": "About the client secret",
+    "pluggy_secret_help_encrypted_title": "Stored encrypted",
+    "pluggy_secret_help_encrypted_body": "Orbit encrypts your client secret before saving it.",
+    "pluggy_secret_help_hidden_title": "Never shown again",
+    "pluggy_secret_help_hidden_body": "After you save, it stays hidden. To change it, paste a new one.",
+    "pluggy_secret_help_private_title": "Keep it private",
+    "pluggy_secret_help_private_body": "Anyone with your client secret can read data from your Pluggy account.",
+    "pluggy_secret_help_done": "Got it"
   },
   "pt": {
     "forgot_password_title": "Recuperar senha",
@@ -533,12 +539,18 @@
     "pluggy_client_id_placeholder": "Cole seu client ID",
     "pluggy_client_secret_label": "Client secret",
     "pluggy_client_secret_placeholder": "Cole seu client secret",
-    "pluggy_client_secret_hint": "Guardado com criptografia. O Orbit não mostra de novo depois de salvar.",
     "pluggy_connector_id_label": "ID do conector",
-    "pluggy_connector_id_placeholder": "ex.: 201",
-    "pluggy_connector_id_hint": "O conector da Pluggy usado na sincronização.",
+    "pluggy_connector_id_placeholder": "Cole o ID do conector",
     "pluggy_setup_help": "Onde encontro esses dados?",
     "pluggy_setup_save": "Salvar e conectar",
-    "pluggy_setup_cancel": "Cancelar"
+    "pluggy_setup_cancel": "Cancelar",
+    "pluggy_secret_help_title": "Sobre o client secret",
+    "pluggy_secret_help_encrypted_title": "Guardado com criptografia",
+    "pluggy_secret_help_encrypted_body": "O Orbit criptografa seu client secret antes de salvar.",
+    "pluggy_secret_help_hidden_title": "Não aparece de novo",
+    "pluggy_secret_help_hidden_body": "Depois de salvar, ele fica oculto. Para trocar, cole um novo.",
+    "pluggy_secret_help_private_title": "Mantenha em segredo",
+    "pluggy_secret_help_private_body": "Quem tiver seu client secret consegue ler os dados da sua conta na Pluggy.",
+    "pluggy_secret_help_done": "Entendi"
   }
 }
