@@ -312,6 +312,14 @@
           "y": 966,
           "width": 402,
           "height": 874
+        },
+        {
+          "id": "mobile-connectors",
+          "catalogId": "screens/connectors",
+          "x": 4096,
+          "y": 966,
+          "width": 402,
+          "height": 874
         }
       ]
     },
@@ -690,6 +698,28 @@
       "from": {
         "frameId": "mobile-home-month-picker",
         "hotspotId": "picker-apply"
+      },
+      "to": {
+        "frameId": "mobile-home"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-home-profile",
+      "from": {
+        "frameId": "mobile-home",
+        "hotspotId": "nav-user_round"
+      },
+      "to": {
+        "frameId": "mobile-connectors"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-connectors-back",
+      "from": {
+        "frameId": "mobile-connectors",
+        "hotspotId": "back"
       },
       "to": {
         "frameId": "mobile-home"

@@ -421,6 +421,80 @@ const invite = frame('invite', 'Invite', { status: 'proposed' }, (ctx) => screen
   ]),
 ]));
 
+const status = (ctx, key, glyph, color, textKey, textArgs) => ctx.node({
+  key,
+  styles: ['Family/pending'],
+  bind: { color: { token: color } },
+  children: [
+    icon(ctx, `${key}/icon`, glyph, 'xSmall', color),
+    ctx.node({ key: `${key}/text`, tag: 'span', textKey, textArgs }),
+  ],
+});
+const institution = (ctx, key, initials, name, detail, trailing, { hotspot = false, muted = false } = {}) => ctx.node({
+  key,
+  styles: ['Family/row'],
+  hotspot,
+  attrs: hotspot ? { role: 'button', tabindex: 0 } : {},
+  children: [
+    text(ctx, `${key}/logo`, 'Family/avatar', { text: initials }, muted ? {
+      bind: { background: { token: 'colors.surface.sunken' }, color: { token: 'colors.text.secondary' } },
+    } : {}),
+    ctx.node({
+      key: `${key}/info`,
+      styles: ['Family/info'],
+      children: [text(ctx, `${key}/name`, 'Family/name', { text: name }), detail],
+    }),
+    trailing ?? icon(ctx, `${key}/chevron`, 'chevron_right', 'medium', 'colors.text.tertiary'),
+  ],
+});
+const AVAILABLE = [['inter', 'In', 'Inter'], ['banco-do-brasil', 'BB', 'Banco do Brasil'], ['bradesco', 'Br', 'Bradesco']];
+
+const connectors = frame('connectors', 'Connectors', { status: 'proposed', spec: 'docs/specs/connectors.md' }, (ctx) => screenFrame(ctx, [
+  content(ctx, [
+    ...header(ctx, 'connectors_title', 'connectors_guidance'),
+    text(ctx, 'connected-eyebrow', 'Screen/eyebrow', { textKey: 'connectors_connected_eyebrow' }),
+    gap(ctx, 'gap-connected', 'spacing.xxSmall'),
+    OrbitCard(ctx, { key: 'connected', variant: 'Base' }, [
+      institution(ctx, 'nubank', 'Nu', 'Nubank',
+        status(ctx, 'nubank/status', 'circle_check', 'colors.text.success', 'connectors_synced', ['5']), null, { hotspot: true }),
+      HorizontalDivider(ctx, { key: 'connected-divider' }),
+      institution(ctx, 'itau', 'It', 'Itaú',
+        status(ctx, 'itau/status', 'triangle_alert', 'colors.text.warning', 'connectors_sync_paused'),
+        textButton(ctx, 'reconnect', 'connectors_reconnect', [])),
+    ]),
+    gap(ctx, 'gap-connected-card', 'spacing.large'),
+    text(ctx, 'available-eyebrow', 'Screen/eyebrow', { textKey: 'connectors_available_eyebrow' }),
+    gap(ctx, 'gap-available', 'spacing.xxSmall'),
+    OrbitCard(ctx, { key: 'available', variant: 'Base' }, [
+      ...AVAILABLE.flatMap(([key, initials, name]) => [
+        institution(ctx, key, initials, name,
+          text(ctx, `${key}/detail`, 'Family/pending', { textKey: 'connectors_accounts_cards' }), null, { hotspot: true, muted: true }),
+        HorizontalDivider(ctx, { key: `${key}-divider` }),
+      ]),
+      ctx.node({
+        key: 'search',
+        styles: ['Family/row'],
+        hotspot: true,
+        attrs: { role: 'button', tabindex: 0 },
+        children: [
+          ctx.node({ key: 'search-ring', styles: ['Family/addRing'], children: [icon(ctx, 'search-ring/icon', 'landmark', 'small', 'colors.text.tertiary')] }),
+          text(ctx, 'search-label', 'Family/addPlaceholder', { textKey: 'connectors_search' }),
+          icon(ctx, 'search/chevron', 'chevron_right', 'medium', 'colors.text.tertiary'),
+        ],
+      }),
+    ]),
+    gap(ctx, 'gap-available-card', 'spacing.small'),
+    ctx.node({
+      key: 'note',
+      styles: ['Family/note'],
+      children: [
+        icon(ctx, 'note/icon', 'shield_check', 'medium', 'colors.text.tertiary'),
+        ctx.node({ key: 'note/text', textKey: 'connectors_note' }),
+      ],
+    }),
+  ]),
+]));
+
 const CATEGORIES = {
   groceries: { glyph: 'shopping_basket', color: 'colors.category.primary', spent: 'R$ 1.284,40', budget: 'R$ 1.500', used: 0.856 },
   restaurants: { glyph: 'utensils', color: 'colors.category.secondary', spent: 'R$ 767,60', budget: 'R$ 700', used: 1.097, over: 'R$ 67,60' },
@@ -527,10 +601,10 @@ const categoryTile = (ctx, category, { styles, percent = false }) => {
   ]);
 };
 
-const navIcon = (ctx, key, glyph) => ctx.node({
-  key, styles: [`Icon/${glyph}`], bind: { width: { token: 'sizes.large' }, height: { token: 'sizes.large' } },
+const navIcon = (ctx, key, glyph, hotspot) => ctx.node({
+  key, styles: [`Icon/${glyph}`], bind: { width: { token: 'sizes.large' }, height: { token: 'sizes.large' } }, hotspot,
 });
-const navItem = (ctx, glyph, labelKey) => ({ labelKey, icon: navIcon(ctx, `nav-${glyph}`, glyph) });
+const navItem = (ctx, glyph, labelKey, hotspot) => ({ labelKey, icon: navIcon(ctx, `nav-${glyph}`, glyph, hotspot) });
 const addExpenseAttrs = (ctx) => ({ role: 'button', 'aria-label': ctx.t('home_add_expense') });
 
 const donut = (ctx) => {
@@ -1127,7 +1201,7 @@ const home = frame('home', 'Home', { status: 'proposed' }, (ctx) => screenFrame(
         navItem(ctx, 'chart_no_axes_column', 'home_nav_charts'),
         addNavItem(ctx),
         navItem(ctx, 'credit_card', 'home_nav_cards'),
-        navItem(ctx, 'user_round', 'home_nav_profile'),
+        navItem(ctx, 'user_round', 'home_nav_profile', true),
       ],
     })],
   }),
@@ -1220,4 +1294,5 @@ export const frames = [
   homePulse,
   homeBudget,
   homeLeftover,
+  connectors,
 ];

@@ -227,7 +227,17 @@
     "workspace_share_link_project": "Link to this project",
     "workspace_share_none": "There is no link yet. Create one to share.",
     "workspace_share_copied_short": "Copied",
-    "workspace_done": "Done"
+    "workspace_done": "Done",
+    "connectors_title": "Connectors",
+    "connectors_guidance": "Connect your bank accounts and cards to bring your expenses into Orbit automatically.",
+    "connectors_connected_eyebrow": "CONNECTED",
+    "connectors_available_eyebrow": "AVAILABLE",
+    "connectors_synced": "Synced %1$s min ago",
+    "connectors_sync_paused": "Sync paused",
+    "connectors_reconnect": "Reconnect",
+    "connectors_accounts_cards": "Accounts and cards",
+    "connectors_search": "Find another bank",
+    "connectors_note": "Orbit only reads your transactions — it never moves money. You can disconnect at any time."
   },
   "pt": {
     "forgot_password_title": "Recuperar senha",
@@ -457,6 +467,16 @@
     "workspace_share_link_project": "Link para este projeto",
     "workspace_share_none": "Ainda não há link. Crie um para compartilhar.",
     "workspace_share_copied_short": "Copiado",
-    "workspace_done": "Concluir"
+    "workspace_done": "Concluir",
+    "connectors_title": "Conexões",
+    "connectors_guidance": "Conecte suas contas e cartões para trazer seus gastos para o Orbit automaticamente.",
+    "connectors_connected_eyebrow": "CONECTADAS",
+    "connectors_available_eyebrow": "DISPONÍVEIS",
+    "connectors_synced": "Sincronizada há %1$s min",
+    "connectors_sync_paused": "Sincronização pausada",
+    "connectors_reconnect": "Reconectar",
+    "connectors_accounts_cards": "Contas e cartões",
+    "connectors_search": "Buscar outro banco",
+    "connectors_note": "O Orbit só lê suas transações, nunca movimenta dinheiro. Você pode desconectar quando quiser."
   }
 }

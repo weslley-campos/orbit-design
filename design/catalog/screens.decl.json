@@ -2318,6 +2318,39 @@
         "flex-shrink": "0"
       }
     },
+    "Icon/landmark": {
+      "bind": {
+        "icon": {
+          "resource": "proposed.drawable.ic_landmark",
+          "proposal": "Lucide landmark (ISC)"
+        }
+      },
+      "css": {
+        "flex-shrink": "0"
+      }
+    },
+    "Icon/shield_check": {
+      "bind": {
+        "icon": {
+          "resource": "proposed.drawable.ic_shield_check",
+          "proposal": "Lucide shield-check (ISC)"
+        }
+      },
+      "css": {
+        "flex-shrink": "0"
+      }
+    },
+    "Icon/circle_check": {
+      "bind": {
+        "icon": {
+          "resource": "proposed.drawable.ic_circle_check",
+          "proposal": "Lucide circle-check (ISC)"
+        }
+      },
+      "css": {
+        "flex-shrink": "0"
+      }
+    },
     "Icon/chevron_right": {
       "bind": {
         "icon": {
