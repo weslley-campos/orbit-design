@@ -4,36 +4,43 @@ Status: Draft
 
 ## 1. Outcome
 - User: someone who tracks expenses in Orbit and doesn't want to type each one.
-- Problem: there is no place to see or manage the banks and cards linked to Orbit.
-- Desired result: a Connectors (Conexões) screen, opened from the profile, that lists connected and available connectors. Each connector will get its own detail screen later.
+- Problem: there is no place to connect Orbit to an aggregator or to see which banks feed it transactions.
+- Desired result: a Connectors (Conexões) screen, opened from the profile. It lists connectors, and today that means Pluggy only. Once Pluggy is set up, the banks it reads transactions from are shown beneath it.
 
 ## 2. Scope
-- Included: a proposed `screens/connectors` frame with a back button, title and guidance, a Connected card (one connector synced, one paused with Reconnect), an Available card (three banks and "Find another bank"), and a note saying Orbit only reads transactions. Prototype links from Home's Profile tab and back to Home.
-- Excluded: the Profile screen, the per-connector detail screen, the connect/consent flow, search, disconnecting, and production app changes.
-- Design: `screens/home` → `screens/connectors`.
+- Included:
+  - `screens/connectors-empty`: Pluggy not set up yet, with a Set up Pluggy button.
+  - `screens/connectors`: Pluggy connected, with its banks (one synced, one paused with Reconnect) and Add a bank.
+  - `screens/connectors-institutions`: the institutions Pluggy's `GET /connectors` returns, with search, type filters, health status and a Connected tag.
+  - A "More connectors coming soon" placeholder and prototype links.
+- Excluded: the Pluggy setup screen (opened by tapping Pluggy or Set up Pluggy), the Profile screen, the Pluggy Connect consent flow, disconnecting, per-bank detail and production app changes.
+- Design: `screens/home` → `screens/connectors` → `screens/connectors-institutions`; `screens/connectors-empty`.
 
 ## 3. Required behavior
 - R1: Activating the Profile tab on Home in Play opens Connectors, and Back returns to Home. This link stands in until a Profile frame exists.
-- R2: The Connected card shows each connector's initials, name and sync status. Synced uses the success color with a check icon. Paused uses the warning color with an alert icon and a Reconnect action.
-- R3: The Available card lists Inter, Banco do Brasil and Bradesco with a chevron, followed by "Find another bank". Every row is a hotspot ready to link to the future connector screen.
-- R4: Palette, light/dark mode and English/Portuguese settings apply to the whole screen, and no text is clipped at 402 × 874.
+- R2: Connectors shows a single Pluggy card. Not set up, it shows "Open Finance · not set up", a short explanation and Set up Pluggy. Connected, it shows "Connected · 2 banks" and a chevron for the future setup screen.
+- R3: Under "Transactions from", each bank shows its Pluggy `primaryColor` logo, its name and a sync status. Synced uses the success color with a check icon. Paused uses the warning color with an alert icon and Reconnect. Add a bank opens the institutions list.
+- R4: The institutions list shows Pluggy's connectors with name, logo color and type (`PERSONAL_BANK` → Personal bank, `INVESTMENT` → Brokerage), plus search (`name`) and All / Banks / Investments filters (`types`). `health.status` `UNSTABLE` shows "Unstable right now". `OFFLINE` fades the row and disables it. Banks already connected show Connected.
+- R5: Palette, light/dark mode and English/Portuguese settings apply to all three frames, and no text is clipped at 402 × 874.
 
 ## 4. Constraints
-- Reuse `OrbitCard`, `HorizontalDivider`, `OrbitButton`, `OrbitIconButton` and the Family members list styles (`Family/row`, `Family/avatar`, `Family/note`) with declared theme tokens.
-- New icons are Lucide proposals (`ic_landmark`, `ic_shield_check`, `ic_circle_check`) under `design/assets/proposed`.
+- Reuse `OrbitCard`, `HorizontalDivider`, `OrbitButton`, `OrbitIconButton`, `OrbitOutlineTextField`, `OrbitFilterChip` and the Family members list styles, with declared theme tokens.
+- Institution colors are sample `primaryColor` literals declared as proposals. The app shows the connector's `imageUrl` logo instead of initials.
+- New icons are Lucide proposals (`ic_plug`, `ic_landmark`, `ic_search`, `ic_shield_check`, `ic_circle_check`) under `design/assets/proposed`.
 
 ## 6. Acceptance criteria
 - [x] R1 · manual — Given Home in Play, when the Profile tab is activated, then Connectors opens; when Back is activated, then Home is shown.
-- [x] R2 · manual — Given Connectors, when inspected, then Nubank shows "Synced 5 min ago" in the success color and Itaú shows "Sync paused" in the warning color with Reconnect.
-- [x] R3 · manual — Given Connectors, when inspected, then Inter, Banco do Brasil, Bradesco and "Find another bank" are hotspots with a trailing chevron.
-- [x] R4 · manual — Given Flamingo light and dark in English and Portuguese, when Connectors is viewed at 402 × 874, then no text is clipped and Reconnect/Reconectar stays on one line.
+- [x] R2 · manual — Given Connectors · Not set up, when inspected, then Pluggy shows "Open Finance · not set up" and Set up Pluggy; given Connectors, then Pluggy shows "Connected · 2 banks".
+- [x] R3 · manual — Given Connectors, when Add a bank is activated in Play, then the institutions list opens; Nubank shows "Synced 5 min ago" and Itaú "Sync paused" with Reconnect.
+- [x] R4 · manual — Given the institutions list, when inspected, then nine institutions show; Caixa reads "Unstable right now", Santander is faded without a chevron, and Itaú and Nubank show Connected.
+- [x] R5 · manual — Given Flamingo light and dark in English and Portuguese, when each frame is viewed at 402 × 874, then no text is clipped and the list scrolls to the last institution.
 
 ## 7. Definition of Done (Verification)
 - [x] `node design/check.mjs` passes.
-- [x] Profile → Connectors → Home flow and both languages/themes visually verified.
+- [x] Prototype flow and both languages/themes visually verified.
 - [ ] Gradle token/declaration checks from the Orbit checkout.
 
 ## 8. Open questions
-- Which connector types exist besides banks (Open Finance), e.g. card issuers or e-mail receipts? — product owner — blocks the final Available list.
-- Does Connectors live as a row on the Profile screen or as its own tab? — product owner — does not block this draft.
-- Assumptions: connectors are Brazilian banks reached through Open Finance; bank initials stand in for logos; the timestamps and statuses are sample data.
+- What does the Pluggy setup screen contain (consent, Pluggy Connect widget, choosing banks)? — product owner — next design.
+- Does Add a bank open Orbit's own institutions list or Pluggy Connect directly? — product owner — does not block this draft.
+- Assumptions: Pluggy is the only connector for now; its institutions are filtered to `PERSONAL_BANK` and `INVESTMENT`; statuses, colors and counts are sample data.
