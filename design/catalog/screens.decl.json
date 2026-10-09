@@ -2979,6 +2979,308 @@
         "justify-content": "center",
         "cursor": "pointer"
       }
+    },
+    "Icon/trending_up": {
+      "bind": {
+        "icon": {
+          "resource": "proposed.drawable.ic_trending_up",
+          "proposal": "Lucide trending-up (ISC)"
+        }
+      },
+      "css": {
+        "flex-shrink": "0"
+      }
+    },
+    "Icon/trending_down": {
+      "bind": {
+        "icon": {
+          "resource": "proposed.drawable.ic_trending_down",
+          "proposal": "Lucide trending-down (ISC)"
+        }
+      },
+      "css": {
+        "flex-shrink": "0"
+      }
+    },
+    "Icon/calendar_days": {
+      "bind": {
+        "icon": {
+          "resource": "proposed.drawable.ic_calendar_days",
+          "proposal": "Lucide calendar-days (ISC)"
+        }
+      },
+      "css": {
+        "flex-shrink": "0"
+      }
+    },
+    "Home/grow/13": {
+      "css": {
+        "flex-grow": "13"
+      }
+    },
+    "Home/grow/22": {
+      "css": {
+        "flex-grow": "22"
+      }
+    },
+    "Home/grow/28": {
+      "css": {
+        "flex-grow": "28"
+      }
+    },
+    "Home/grow/37": {
+      "css": {
+        "flex-grow": "37"
+      }
+    },
+    "Charts/periods": {
+      "bind": {
+        "gap": {
+          "token": "spacing.xxSmall"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "flex-shrink": "0"
+      }
+    },
+    "Charts/deltaUp": {
+      "bind": {
+        "font": {
+          "token": "typography.labelSmall"
+        },
+        "color": {
+          "token": "colors.text.error"
+        },
+        "background": {
+          "token": "colors.direction.lossSubtle"
+        },
+        "border": [
+          {
+            "literal": "1dp",
+            "proposal": "hairline border of the delta pill, like the status pill"
+          },
+          {
+            "token": "colors.direction.lossBorder"
+          }
+        ],
+        "border-radius": {
+          "token": "shapes.pill"
+        },
+        "gap": {
+          "token": "spacing.xxxSmall"
+        },
+        "padding-top": {
+          "token": "spacing.xxxSmall"
+        },
+        "padding-bottom": {
+          "token": "spacing.xxxSmall"
+        },
+        "padding-left": {
+          "token": "spacing.xxSmall"
+        },
+        "padding-right": {
+          "token": "spacing.xxSmall"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "align-items": "center",
+        "border-style": "solid",
+        "flex-shrink": "0",
+        "white-space": "nowrap"
+      }
+    },
+    "Charts/stats": {
+      "bind": {
+        "margin-left": {
+          "literal": "-8dp",
+          "proposal": "aligns the first stat with the card text; cancels the stat padding"
+        },
+        "margin-right": {
+          "literal": "-8dp",
+          "proposal": "aligns the last stat with the card text; cancels the stat padding"
+        }
+      }
+    },
+    "Charts/legend": {
+      "bind": {
+        "gap": {
+          "token": "spacing.small"
+        },
+        "padding-top": {
+          "token": "spacing.xxSmall"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "flex-wrap": "wrap",
+        "flex-shrink": "0"
+      }
+    },
+    "Charts/legendItem": {
+      "bind": {
+        "gap": {
+          "token": "spacing.xxSmall"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "align-items": "center"
+      }
+    },
+    "Charts/key": {
+      "bind": {
+        "width": {
+          "token": "sizes.small"
+        },
+        "border-top-width": {
+          "literal": "2dp",
+          "proposal": "chart line width"
+        }
+      },
+      "css": {
+        "height": "0",
+        "border-top-style": "solid",
+        "flex-shrink": "0"
+      }
+    },
+    "Charts/keyDashed": {
+      "css": {
+        "border-top-style": "dashed"
+      }
+    },
+    "Charts/pace": {
+      "bind": {
+        "height": {
+          "literal": "176dp",
+          "proposal": "pace chart plot height; no size token"
+        },
+        "margin-top": {
+          "token": "spacing.xxSmall"
+        }
+      },
+      "css": {
+        "flex-shrink": "0"
+      }
+    },
+    "Charts/columns": {
+      "bind": {
+        "height": {
+          "literal": "176dp",
+          "proposal": "column chart plot height; no size token"
+        }
+      },
+      "css": {
+        "flex-shrink": "0"
+      }
+    },
+    "Charts/split": {
+      "bind": {
+        "background": {
+          "token": "colors.surface.base"
+        },
+        "gap": {
+          "literal": "2dp",
+          "proposal": "surface gap between part-to-whole segments"
+        }
+      }
+    },
+    "Charts/goodBadge": {
+      "bind": {
+        "width": {
+          "token": "sizes.xxxLarge"
+        },
+        "height": {
+          "token": "sizes.xxxLarge"
+        },
+        "border-radius": {
+          "token": "shapes.control"
+        },
+        "background": {
+          "token": "colors.direction.gainSubtle"
+        },
+        "border": [
+          {
+            "literal": "1dp",
+            "proposal": "hairline border of the gain badge, like the warning badge"
+          },
+          {
+            "token": "colors.direction.gainBorder"
+          }
+        ]
+      },
+      "css": {
+        "display": "flex",
+        "align-items": "center",
+        "justify-content": "center",
+        "border-style": "solid",
+        "flex-shrink": "0"
+      }
+    },
+    "Charts/infoBadge": {
+      "bind": {
+        "width": {
+          "token": "sizes.xxxLarge"
+        },
+        "height": {
+          "token": "sizes.xxxLarge"
+        },
+        "border-radius": {
+          "token": "shapes.control"
+        },
+        "background": {
+          "token": "colors.direction.infoSubtle"
+        },
+        "border": [
+          {
+            "literal": "1dp",
+            "proposal": "hairline border of the info badge, like the warning badge"
+          },
+          {
+            "token": "colors.direction.infoBorder"
+          }
+        ]
+      },
+      "css": {
+        "display": "flex",
+        "align-items": "center",
+        "justify-content": "center",
+        "border-style": "solid",
+        "flex-shrink": "0"
+      }
+    },
+    "Charts/titleRow": {
+      "bind": {
+        "gap": {
+          "token": "spacing.xSmall"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "align-items": "center",
+        "flex-shrink": "0"
+      }
+    },
+    "Charts/place": {
+      "bind": {
+        "padding": {
+          "token": "spacing.small"
+        },
+        "gap": {
+          "token": "spacing.xxSmall"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "flex-direction": "column",
+        "flex-shrink": "0"
+      }
+    },
+    "Charts/card": {
+      "css": {
+        "flex-shrink": "0"
+      }
     }
   }
 }
