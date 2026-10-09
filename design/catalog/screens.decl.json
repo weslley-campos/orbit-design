@@ -2351,6 +2351,192 @@
         "flex-shrink": "0"
       }
     },
+    "Icon/search": {
+      "bind": {
+        "icon": {
+          "resource": "proposed.drawable.ic_search",
+          "proposal": "Lucide search (ISC)"
+        }
+      },
+      "css": {
+        "flex-shrink": "0"
+      }
+    },
+    "Institution/logo": {
+      "bind": {
+        "width": {
+          "literal": "36dp",
+          "proposal": "avatar diameter; no size token"
+        },
+        "height": {
+          "literal": "36dp",
+          "proposal": "avatar diameter; no size token"
+        },
+        "border-radius": {
+          "token": "shapes.pill"
+        },
+        "font": {
+          "token": "typography.titleSmall"
+        },
+        "color": {
+          "literal": "#FFFFFF",
+          "proposal": "initials over the institution color; the app shows the connector's imageUrl instead"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "align-items": "center",
+        "justify-content": "center",
+        "flex-shrink": "0"
+      }
+    },
+    "Institution/banco-do-brasil": {
+      "bind": {
+        "background": {
+          "literal": "#0038A8",
+          "proposal": "sample Pluggy primaryColor for Banco do Brasil; real value comes from GET /connectors"
+        }
+      }
+    },
+    "Institution/bradesco": {
+      "bind": {
+        "background": {
+          "literal": "#CC092F",
+          "proposal": "sample Pluggy primaryColor for Bradesco; real value comes from GET /connectors"
+        }
+      }
+    },
+    "Institution/c6-bank": {
+      "bind": {
+        "background": {
+          "literal": "#242424",
+          "proposal": "sample Pluggy primaryColor for C6 Bank; real value comes from GET /connectors"
+        }
+      }
+    },
+    "Institution/caixa": {
+      "bind": {
+        "background": {
+          "literal": "#005CA9",
+          "proposal": "sample Pluggy primaryColor for Caixa; real value comes from GET /connectors"
+        }
+      }
+    },
+    "Institution/inter": {
+      "bind": {
+        "background": {
+          "literal": "#FF7A00",
+          "proposal": "sample Pluggy primaryColor for Inter; real value comes from GET /connectors"
+        }
+      }
+    },
+    "Institution/itau": {
+      "bind": {
+        "background": {
+          "literal": "#EC7000",
+          "proposal": "sample Pluggy primaryColor for Itaú; real value comes from GET /connectors"
+        }
+      }
+    },
+    "Institution/nubank": {
+      "bind": {
+        "background": {
+          "literal": "#820AD1",
+          "proposal": "sample Pluggy primaryColor for Nubank; real value comes from GET /connectors"
+        }
+      }
+    },
+    "Institution/santander": {
+      "bind": {
+        "background": {
+          "literal": "#EC0000",
+          "proposal": "sample Pluggy primaryColor for Santander; real value comes from GET /connectors"
+        }
+      }
+    },
+    "Institution/xp": {
+      "bind": {
+        "background": {
+          "literal": "#111111",
+          "proposal": "sample Pluggy primaryColor for XP Investimentos; real value comes from GET /connectors"
+        }
+      }
+    },
+    "Institutions/chips": {
+      "bind": {
+        "gap": {
+          "token": "spacing.xxSmall"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "flex-shrink": "0",
+        "overflow-x": "auto"
+      }
+    },
+    "Institutions/list": {
+      "css": {
+        "flex-shrink": "0"
+      }
+    },
+    "Institutions/offline": {
+      "bind": {
+        "opacity": {
+          "literal": "0.38",
+          "proposal": "health.status OFFLINE; same fade as a disabled OrbitButton"
+        }
+      }
+    },
+    "Icon/plug": {
+      "bind": {
+        "icon": {
+          "resource": "proposed.drawable.ic_plug",
+          "proposal": "Lucide plug (ISC)"
+        }
+      },
+      "css": {
+        "flex-shrink": "0"
+      }
+    },
+    "Connectors/subhead": {
+      "bind": {
+        "font": {
+          "token": "typography.eyebrow"
+        },
+        "color": {
+          "token": "colors.text.tertiary"
+        },
+        "padding-top": {
+          "token": "spacing.small"
+        },
+        "padding-left": {
+          "token": "spacing.small"
+        },
+        "padding-right": {
+          "token": "spacing.small"
+        }
+      }
+    },
+    "Connectors/body": {
+      "bind": {
+        "gap": {
+          "token": "spacing.small"
+        },
+        "padding-left": {
+          "token": "spacing.small"
+        },
+        "padding-right": {
+          "token": "spacing.small"
+        },
+        "padding-bottom": {
+          "token": "spacing.small"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "flex-direction": "column"
+      }
+    },
     "Icon/chevron_right": {
       "bind": {
         "icon": {

@@ -430,66 +430,179 @@ const status = (ctx, key, glyph, color, textKey, textArgs) => ctx.node({
     ctx.node({ key: `${key}/text`, tag: 'span', textKey, textArgs }),
   ],
 });
-const institution = (ctx, key, initials, name, detail, trailing, { hotspot = false, muted = false } = {}) => ctx.node({
+const row = (ctx, key, logo, name, detail, trailing, hotspot = true) => ctx.node({
   key,
   styles: ['Family/row'],
   hotspot,
   attrs: hotspot ? { role: 'button', tabindex: 0 } : {},
   children: [
-    text(ctx, `${key}/logo`, 'Family/avatar', { text: initials }, muted ? {
-      bind: { background: { token: 'colors.surface.sunken' }, color: { token: 'colors.text.secondary' } },
-    } : {}),
+    logo,
     ctx.node({
       key: `${key}/info`,
       styles: ['Family/info'],
       children: [text(ctx, `${key}/name`, 'Family/name', { text: name }), detail],
     }),
-    trailing ?? icon(ctx, `${key}/chevron`, 'chevron_right', 'medium', 'colors.text.tertiary'),
+    trailing,
   ],
 });
-const AVAILABLE = [['inter', 'In', 'Inter'], ['banco-do-brasil', 'BB', 'Banco do Brasil'], ['bradesco', 'Br', 'Bradesco']];
+const chevron = (ctx, key) => icon(ctx, `${key}/chevron`, 'chevron_right', 'medium', 'colors.text.tertiary');
+const pluggyLogo = (ctx) => ctx.node({
+  key: 'pluggy/logo', styles: ['Family/avatar'], children: [icon(ctx, 'pluggy/logo-icon', 'plug', 'medium', 'colors.text.brand')],
+});
+const bankLogo = (ctx, key, initials) => text(ctx, `${key}/logo`, 'Institution/logo', { text: initials }, {
+  styles: ['Institution/logo', `Institution/${key}`],
+});
+const connectorsHeader = (ctx) => [
+  ...header(ctx, 'connectors_title', 'connectors_guidance'),
+  text(ctx, 'eyebrow', 'Screen/eyebrow', { textKey: 'connectors_eyebrow' }),
+  gap(ctx, 'gap-eyebrow', 'spacing.xxSmall'),
+];
+const connectorsFooter = (ctx) => [
+  gap(ctx, 'gap-card', 'spacing.small'),
+  ctx.node({
+    key: 'more',
+    styles: ['Family/row'],
+    children: [
+      ctx.node({ key: 'more-ring', styles: ['Family/addRing'], children: [icon(ctx, 'more-ring/icon', 'plug', 'small', 'colors.text.tertiary')] }),
+      text(ctx, 'more-label', 'Family/addPlaceholder', { textKey: 'connectors_more_soon' }),
+    ],
+  }),
+  ctx.node({
+    key: 'note',
+    styles: ['Family/note'],
+    children: [
+      icon(ctx, 'note/icon', 'shield_check', 'medium', 'colors.text.tertiary'),
+      ctx.node({ key: 'note/text', textKey: 'connectors_note' }),
+    ],
+  }),
+];
 
+// Pluggy is the only connector for now; once set up it lists the banks it reads transactions from.
 const connectors = frame('connectors', 'Connectors', { status: 'proposed', spec: 'docs/specs/connectors.md' }, (ctx) => screenFrame(ctx, [
   content(ctx, [
-    ...header(ctx, 'connectors_title', 'connectors_guidance'),
-    text(ctx, 'connected-eyebrow', 'Screen/eyebrow', { textKey: 'connectors_connected_eyebrow' }),
-    gap(ctx, 'gap-connected', 'spacing.xxSmall'),
-    OrbitCard(ctx, { key: 'connected', variant: 'Base' }, [
-      institution(ctx, 'nubank', 'Nu', 'Nubank',
-        status(ctx, 'nubank/status', 'circle_check', 'colors.text.success', 'connectors_synced', ['5']), null, { hotspot: true }),
-      HorizontalDivider(ctx, { key: 'connected-divider' }),
-      institution(ctx, 'itau', 'It', 'Itaú',
+    ...connectorsHeader(ctx),
+    OrbitCard(ctx, { key: 'pluggy', variant: 'Base', styles: ['Institutions/list'] }, [
+      row(ctx, 'pluggy-row', pluggyLogo(ctx), 'Pluggy',
+        status(ctx, 'pluggy/status', 'circle_check', 'colors.text.success', 'connectors_connected', ['2']), chevron(ctx, 'pluggy-row')),
+      HorizontalDivider(ctx, { key: 'pluggy-divider' }),
+      text(ctx, 'banks-eyebrow', 'Connectors/subhead', { textKey: 'connectors_banks_eyebrow' }),
+      row(ctx, 'nubank', bankLogo(ctx, 'nubank', 'Nu'), 'Nubank',
+        status(ctx, 'nubank/status', 'circle_check', 'colors.text.success', 'connectors_synced', ['5']), chevron(ctx, 'nubank')),
+      row(ctx, 'itau', bankLogo(ctx, 'itau', 'It'), 'Itaú',
         status(ctx, 'itau/status', 'triangle_alert', 'colors.text.warning', 'connectors_sync_paused'),
-        textButton(ctx, 'reconnect', 'connectors_reconnect', [])),
-    ]),
-    gap(ctx, 'gap-connected-card', 'spacing.large'),
-    text(ctx, 'available-eyebrow', 'Screen/eyebrow', { textKey: 'connectors_available_eyebrow' }),
-    gap(ctx, 'gap-available', 'spacing.xxSmall'),
-    OrbitCard(ctx, { key: 'available', variant: 'Base' }, [
-      ...AVAILABLE.flatMap(([key, initials, name]) => [
-        institution(ctx, key, initials, name,
-          text(ctx, `${key}/detail`, 'Family/pending', { textKey: 'connectors_accounts_cards' }), null, { hotspot: true, muted: true }),
-        HorizontalDivider(ctx, { key: `${key}-divider` }),
-      ]),
+        textButton(ctx, 'reconnect', 'connectors_reconnect', []), false),
       ctx.node({
-        key: 'search',
+        key: 'add-bank',
         styles: ['Family/row'],
         hotspot: true,
         attrs: { role: 'button', tabindex: 0 },
         children: [
-          ctx.node({ key: 'search-ring', styles: ['Family/addRing'], children: [icon(ctx, 'search-ring/icon', 'landmark', 'small', 'colors.text.tertiary')] }),
-          text(ctx, 'search-label', 'Family/addPlaceholder', { textKey: 'connectors_search' }),
-          icon(ctx, 'search/chevron', 'chevron_right', 'medium', 'colors.text.tertiary'),
+          ctx.node({ key: 'add-bank/ring', styles: ['Family/addRing'], children: [icon(ctx, 'add-bank/icon', 'plus', 'small', 'colors.text.tertiary')] }),
+          text(ctx, 'add-bank/label', 'Family/addPlaceholder', { textKey: 'connectors_add_bank' }),
+          chevron(ctx, 'add-bank'),
         ],
       }),
     ]),
-    gap(ctx, 'gap-available-card', 'spacing.small'),
+    ...connectorsFooter(ctx),
+  ]),
+]));
+
+const connectorsEmpty = frame('connectors-empty', 'Connectors · Not set up', { status: 'proposed', spec: 'docs/specs/connectors.md' }, (ctx) => screenFrame(ctx, [
+  content(ctx, [
+    ...connectorsHeader(ctx),
+    OrbitCard(ctx, { key: 'pluggy', variant: 'Base', styles: ['Institutions/list'] }, [
+      row(ctx, 'pluggy-row', pluggyLogo(ctx), 'Pluggy',
+        text(ctx, 'pluggy/detail', 'Family/pending', { textKey: 'connectors_not_connected' }), null, false),
+      ctx.node({
+        key: 'pluggy-body',
+        styles: ['Connectors/body'],
+        children: [
+          text(ctx, 'pluggy-body/text', 'Screen/guidance', { textKey: 'connectors_setup_body' }),
+          OrbitButton(ctx, { key: 'setup', hotspot: true, styles: ['Screen/fill'] }, [label(ctx, 'setup/label', { textKey: 'connectors_setup' })]),
+        ],
+      }),
+    ]),
+    ...connectorsFooter(ctx),
+  ]),
+]));
+
+// Sample of what Pluggy's GET /connectors returns: [key, initials, name, type, health.status, already connected].
+const INSTITUTIONS = [
+  ['banco-do-brasil', 'BB', 'Banco do Brasil', 'PERSONAL_BANK', 'ONLINE'],
+  ['bradesco', 'Br', 'Bradesco', 'PERSONAL_BANK', 'ONLINE'],
+  ['c6-bank', 'C6', 'C6 Bank', 'PERSONAL_BANK', 'ONLINE'],
+  ['caixa', 'Cx', 'Caixa', 'PERSONAL_BANK', 'UNSTABLE'],
+  ['inter', 'In', 'Inter', 'PERSONAL_BANK', 'ONLINE'],
+  ['itau', 'It', 'Itaú', 'PERSONAL_BANK', 'ONLINE', true],
+  ['nubank', 'Nu', 'Nubank', 'PERSONAL_BANK', 'ONLINE', true],
+  ['santander', 'Sa', 'Santander', 'PERSONAL_BANK', 'OFFLINE'],
+  ['xp', 'XP', 'XP Investimentos', 'INVESTMENT', 'ONLINE'],
+];
+const TYPE_KEYS = { PERSONAL_BANK: 'institutions_type_personal_bank', INVESTMENT: 'institutions_type_investment' };
+const FILTERS = ['all', 'banks', 'investments'];
+
+const institutionRow = (ctx, [key, initials, name, type, health, connected]) => {
+  const offline = health === 'OFFLINE';
+  const detail = health === 'ONLINE'
+    ? text(ctx, `${key}/type`, 'Family/pending', { textKey: TYPE_KEYS[type] })
+    : status(ctx, `${key}/health`, 'triangle_alert', offline ? 'colors.text.tertiary' : 'colors.text.warning',
+      offline ? 'institutions_offline' : 'institutions_unstable');
+  return ctx.node({
+    key,
+    styles: ['Family/row', offline && 'Institutions/offline'],
+    hotspot: !offline,
+    attrs: offline ? { 'aria-disabled': 'true' } : { role: 'button', tabindex: 0 },
+    children: [
+      text(ctx, `${key}/logo`, 'Institution/logo', { text: initials }, { styles: ['Institution/logo', `Institution/${key}`] }),
+      ctx.node({
+        key: `${key}/info`,
+        styles: ['Family/info'],
+        children: [text(ctx, `${key}/name`, 'Family/name', { text: name }), detail],
+      }),
+      connected
+        ? text(ctx, `${key}/connected`, 'Family/youPill', { textKey: 'institutions_connected' })
+        : !offline && icon(ctx, `${key}/chevron`, 'chevron_right', 'medium', 'colors.text.tertiary'),
+    ],
+  });
+};
+
+const connectorsInstitutions = frame('connectors-institutions', 'Connectors · Institutions', {
+  status: 'proposed', spec: 'docs/specs/connectors.md',
+}, (ctx) => screenFrame(ctx, [
+  content(ctx, [
+    ...header(ctx, 'institutions_title', 'institutions_guidance'),
+    OrbitOutlineTextField(ctx, {
+      key: 'search-field',
+      placeholderKey: 'institutions_search',
+      leadingIcon: icon(ctx, 'search-field/icon', 'search', 'medium', 'colors.text.tertiary'),
+    }),
+    gap(ctx, 'gap-search', 'spacing.small'),
+    ctx.node({
+      key: 'filters',
+      styles: ['Institutions/chips'],
+      attrs: { role: 'group', 'aria-label': ctx.t('institutions_filters') },
+      children: FILTERS.map((filter, i) => OrbitFilterChip(ctx, {
+        key: `filter-${filter}`,
+        labelKey: `institutions_filter_${filter}`,
+        selected: i === 0,
+        hotspot: true,
+        attrs: { role: 'button', 'aria-pressed': i === 0, tabindex: 0 },
+      })),
+    }),
+    gap(ctx, 'gap-filters', 'spacing.large'),
+    text(ctx, 'eyebrow', 'Screen/eyebrow', { textKey: 'institutions_eyebrow', textArgs: [String(INSTITUTIONS.length)] }),
+    gap(ctx, 'gap-eyebrow', 'spacing.xxSmall'),
+    OrbitCard(ctx, { key: 'institutions', variant: 'Base', styles: ['Institutions/list'] }, INSTITUTIONS.flatMap((row, i) => [
+      i > 0 && HorizontalDivider(ctx, { key: `divider-${row[0]}` }),
+      institutionRow(ctx, row),
+    ])),
+    gap(ctx, 'gap-card', 'spacing.small'),
     ctx.node({
       key: 'note',
       styles: ['Family/note'],
       children: [
         icon(ctx, 'note/icon', 'shield_check', 'medium', 'colors.text.tertiary'),
-        ctx.node({ key: 'note/text', textKey: 'connectors_note' }),
+        ctx.node({ key: 'note/text', textKey: 'institutions_note' }),
       ],
     }),
   ]),
@@ -1294,5 +1407,7 @@ export const frames = [
   homePulse,
   homeBudget,
   homeLeftover,
+  connectorsEmpty,
   connectors,
+  connectorsInstitutions,
 ];
