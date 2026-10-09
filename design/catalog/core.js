@@ -229,12 +229,29 @@ function vectorToSvg(vector) {
   return svg;
 }
 
+// Every palette's logo uses the same gradient ids; prefix them per file so one screen can show several palettes.
+function scopeIds(svg, path) {
+  const prefix = `${path.replace(/\W+/g, '-')}-`;
+  const ids = new Set([...svg.querySelectorAll('[id]')].map((el) => el.id));
+  if (!ids.size) return;
+  const scoped = (id) => (ids.has(id) ? prefix + id : id);
+  for (const el of [svg, ...svg.querySelectorAll('*')]) {
+    for (const attr of [...el.attributes]) {
+      if (attr.name === 'id') attr.value = scoped(attr.value);
+      else if (attr.name === 'aria-labelledby' || attr.name === 'aria-describedby') attr.value = attr.value.split(/\s+/).map(scoped).join(' ');
+      else if (attr.value.startsWith('#')) attr.value = `#${scoped(attr.value.slice(1))}`;
+      else if (attr.value.includes('url(#')) attr.value = attr.value.replace(/url\(#([^)]+)\)/g, (_, id) => `url(#${scoped(id)})`);
+    }
+  }
+}
+
 function parseDrawable(text, path) {
   if (path.endsWith('.xml')) return vectorToSvg(new DOMParser().parseFromString(text, 'application/xml').documentElement);
   const svg = document.importNode(new DOMParser().parseFromString(text, 'image/svg+xml').documentElement, true);
   if (!svg.hasAttribute('viewBox')) {
     svg.setAttribute('viewBox', `0 0 ${parseFloat(svg.getAttribute('width'))} ${parseFloat(svg.getAttribute('height'))}`);
   }
+  scopeIds(svg, path);
   return svg;
 }
 

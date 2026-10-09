@@ -2731,6 +2731,348 @@
         "justify-content": "center",
         "cursor": "pointer"
       }
+    },
+    "Icon/palette": {
+      "bind": {
+        "icon": {
+          "resource": "proposed.drawable.ic_palette",
+          "proposal": "Lucide palette (ISC)"
+        }
+      },
+      "css": {
+        "flex-shrink": "0"
+      }
+    },
+    "Icon/moon": {
+      "bind": {
+        "icon": {
+          "resource": "proposed.drawable.ic_moon",
+          "proposal": "Lucide moon (ISC)"
+        }
+      },
+      "css": {
+        "flex-shrink": "0"
+      }
+    },
+    "Icon/languages": {
+      "bind": {
+        "icon": {
+          "resource": "proposed.drawable.ic_languages",
+          "proposal": "Lucide languages (ISC)"
+        }
+      },
+      "css": {
+        "flex-shrink": "0"
+      }
+    },
+    "Icon/banknote": {
+      "bind": {
+        "icon": {
+          "resource": "proposed.drawable.ic_banknote",
+          "proposal": "Lucide banknote (ISC)"
+        }
+      },
+      "css": {
+        "flex-shrink": "0"
+      }
+    },
+    "Icon/lock": {
+      "bind": {
+        "icon": {
+          "resource": "proposed.drawable.ic_lock",
+          "proposal": "Lucide lock (ISC)"
+        }
+      },
+      "css": {
+        "flex-shrink": "0"
+      }
+    },
+    "Icon/key_round": {
+      "bind": {
+        "icon": {
+          "resource": "proposed.drawable.ic_key_round",
+          "proposal": "Lucide key-round (ISC)"
+        }
+      },
+      "css": {
+        "flex-shrink": "0"
+      }
+    },
+    "Icon/file_text": {
+      "bind": {
+        "icon": {
+          "resource": "proposed.drawable.ic_file_text",
+          "proposal": "Lucide file-text (ISC)"
+        }
+      },
+      "css": {
+        "flex-shrink": "0"
+      }
+    },
+    "Icon/log_out": {
+      "bind": {
+        "icon": {
+          "resource": "proposed.drawable.ic_log_out",
+          "proposal": "Lucide log-out (ISC)"
+        }
+      },
+      "css": {
+        "flex-shrink": "0"
+      }
+    },
+    "Icon/download": {
+      "bind": {
+        "icon": {
+          "resource": "proposed.drawable.ic_download",
+          "proposal": "Lucide download (ISC)"
+        }
+      },
+      "css": {
+        "flex-shrink": "0"
+      }
+    },
+    "Settings/accountRow": {
+      "bind": {
+        "height": {
+          "literal": "72dp",
+          "proposal": "taller row for the account card's larger avatar; no size token"
+        }
+      }
+    },
+    "Settings/avatar": {
+      "bind": {
+        "width": {
+          "token": "sizes.xxxLarge"
+        },
+        "height": {
+          "token": "sizes.xxxLarge"
+        },
+        "font": {
+          "token": "typography.titleMedium"
+        }
+      }
+    },
+    "Settings/stack": {
+      "css": {
+        "display": "flex",
+        "flex-direction": "column",
+        "flex-shrink": "0"
+      }
+    },
+    "Settings/options": {
+      "bind": {
+        "gap": {
+          "token": "spacing.xxSmall"
+        },
+        "padding-left": {
+          "token": "spacing.small"
+        },
+        "padding-right": {
+          "token": "spacing.small"
+        },
+        "padding-bottom": {
+          "token": "spacing.small"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "flex-shrink": "0"
+      }
+    },
+    "Settings/option": {
+      "css": {
+        "flex": "1",
+        "min-width": "0",
+        "justify-content": "center"
+      }
+    },
+    "Settings/trailing": {
+      "bind": {
+        "gap": {
+          "token": "spacing.xxSmall"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "align-items": "center",
+        "flex-shrink": "0"
+      }
+    },
+    "Settings/mark": {
+      "bind": {
+        "width": {
+          "token": "sizes.xxLarge"
+        },
+        "height": {
+          "token": "sizes.xxLarge"
+        }
+      },
+      "css": {
+        "flex-shrink": "0"
+      }
+    },
+    "Settings/mark/spruce": {
+      "bind": {
+        "icon": {
+          "resource": "CoreUiRes.drawable.ic_logo_spruce",
+          "artwork": true
+        }
+      }
+    },
+    "Settings/mark/indigo": {
+      "bind": {
+        "icon": {
+          "resource": "CoreUiRes.drawable.ic_logo_indigo",
+          "artwork": true
+        }
+      }
+    },
+    "Settings/mark/plum": {
+      "bind": {
+        "icon": {
+          "resource": "CoreUiRes.drawable.ic_logo_plum",
+          "artwork": true
+        }
+      }
+    },
+    "Settings/mark/orchid": {
+      "bind": {
+        "icon": {
+          "resource": "CoreUiRes.drawable.ic_logo_orchid",
+          "artwork": true
+        }
+      }
+    },
+    "Settings/mark/flamingo": {
+      "bind": {
+        "icon": {
+          "resource": "CoreUiRes.drawable.ic_logo_flamingo",
+          "artwork": true
+        }
+      }
+    },
+    "Settings/mark/azure": {
+      "bind": {
+        "icon": {
+          "resource": "CoreUiRes.drawable.ic_logo_azure",
+          "artwork": true
+        }
+      }
+    },
+    "Settings/mark/ember": {
+      "bind": {
+        "icon": {
+          "resource": "CoreUiRes.drawable.ic_logo_ember",
+          "artwork": true
+        }
+      }
+    },
+    "Settings/mark/graphite": {
+      "bind": {
+        "icon": {
+          "resource": "CoreUiRes.drawable.ic_logo_graphite",
+          "artwork": true
+        }
+      }
+    },
+    "Settings/palette": {
+      "bind": {
+        "gap": {
+          "token": "spacing.xxSmall"
+        },
+        "padding-top": {
+          "token": "spacing.xSmall"
+        },
+        "padding-bottom": {
+          "token": "spacing.xSmall"
+        },
+        "padding-left": {
+          "token": "spacing.xxSmall"
+        },
+        "padding-right": {
+          "token": "spacing.xxSmall"
+        },
+        "border-radius": {
+          "token": "shapes.control"
+        },
+        "background": {
+          "token": "colors.surface.sunken"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "flex-direction": "column",
+        "align-items": "center",
+        "flex": "1",
+        "min-width": "0",
+        "cursor": "pointer"
+      }
+    },
+    "Settings/paletteSelected": {
+      "bind": {
+        "background": {
+          "token": "colors.brand.subtle"
+        },
+        "outline": [
+          {
+            "literal": "2dp",
+            "proposal": "selected palette ring"
+          },
+          {
+            "token": "colors.border.primary"
+          }
+        ]
+      },
+      "css": {
+        "outline-style": "solid"
+      }
+    },
+    "Settings/paletteName": {
+      "bind": {
+        "font": {
+          "token": "typography.labelMedium"
+        },
+        "color": {
+          "token": "colors.text.secondary"
+        }
+      },
+      "css": {
+        "max-width": "100%"
+      }
+    },
+    "Settings/danger": {
+      "bind": {
+        "font": {
+          "token": "typography.labelLarge"
+        },
+        "color": {
+          "token": "colors.text.error"
+        }
+      }
+    },
+    "Settings/dangerBadge": {
+      "bind": {
+        "background": {
+          "token": "colors.direction.lossSubtle"
+        },
+        "color": {
+          "token": "colors.text.error"
+        }
+      }
+    },
+    "Settings/version": {
+      "bind": {
+        "font": {
+          "token": "typography.bodySmall"
+        },
+        "color": {
+          "token": "colors.text.tertiary"
+        }
+      },
+      "css": {
+        "text-align": "center",
+        "flex-shrink": "0"
+      }
     }
   }
 }

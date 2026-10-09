@@ -1351,6 +1351,24 @@ const addNavItem = (ctx) => ({
   }),
 });
 
+// Home, Charts, Add, Cards and Settings; the destinations other than the selected one are hotspots.
+const MAIN_NAV = { home: 0, settings: 4 };
+const mainNav = (ctx, selectedIndex) => ctx.node({
+  key: 'bottom',
+  styles: ['Home/bottom'],
+  children: [OrbitNavigationBar(ctx, {
+    key: 'nav',
+    selectedIndex,
+    items: [
+      navItem(ctx, 'house', 'home_nav_home', selectedIndex !== MAIN_NAV.home),
+      navItem(ctx, 'chart_no_axes_column', 'home_nav_charts'),
+      addNavItem(ctx),
+      navItem(ctx, 'credit_card', 'home_nav_cards'),
+      navToggleItem(ctx, 'nav-user_round', 'settings', 'home_nav_settings', selectedIndex !== MAIN_NAV.settings),
+    ],
+  })],
+});
+
 const home = frame('home', 'Home', { status: 'proposed' }, (ctx) => screenFrame(ctx, [
   ctx.node({
     key: 'content',
@@ -1407,21 +1425,7 @@ const home = frame('home', 'Home', { status: 'proposed' }, (ctx) => screenFrame(
       gap(ctx, 'gap-goal', 'spacing.large'),
     ],
   }),
-  ctx.node({
-    key: 'bottom',
-    styles: ['Home/bottom'],
-    children: [OrbitNavigationBar(ctx, {
-      key: 'nav',
-      selectedIndex: 0,
-      items: [
-        navItem(ctx, 'house', 'home_nav_home'),
-        navItem(ctx, 'chart_no_axes_column', 'home_nav_charts'),
-        addNavItem(ctx),
-        navItem(ctx, 'credit_card', 'home_nav_cards'),
-        navToggleItem(ctx, 'nav-user_round', 'settings', 'home_nav_profile', true),
-      ],
-    })],
-  }),
+  mainNav(ctx, 0),
 ]));
 
 const homeMonthPicker = frame('home-month-picker', 'Home · Month picker', {
@@ -1494,6 +1498,232 @@ const homeMonthPicker = frame('home-month-picker', 'Home · Month picker', {
   ],
 }));
 
+const PALETTES = ['spruce', 'indigo', 'plum', 'orchid', 'flamingo', 'azure', 'ember', 'graphite'];
+const MODES = ['system', 'light', 'dark'];
+
+// Each Settings row: a neutral icon badge, a title with an optional detail line, and a chevron unless `trailing` says otherwise.
+const settingsRow = (ctx, key, glyph, titleKey, { detail, trailing, hotspot = true } = {}) => ctx.node({
+  key,
+  styles: ['Family/row'],
+  hotspot,
+  attrs: hotspot ? { role: 'button', tabindex: 0 } : {},
+  children: [
+    ctx.node({
+      key: `${key}/badge`,
+      styles: ['Home/badgeSmall'],
+      bind: { background: { token: 'colors.surface.sunken' } },
+      children: [icon(ctx, `${key}/icon`, glyph, 'small', NEUTRAL)],
+    }),
+    ctx.node({
+      key: `${key}/info`,
+      styles: ['Family/info'],
+      children: [
+        text(ctx, `${key}/title`, 'Family/name', { textKey: titleKey }, clipped('Family/name')),
+        detail && text(ctx, `${key}/detail`, 'Screen/tertiary', detail, clipped('Screen/tertiary')),
+      ],
+    }),
+    trailing === undefined ? chevron(ctx, key) : trailing,
+  ],
+});
+const settingsCard = (ctx, key, rows) => OrbitCard(ctx, { key, variant: 'Base' }, rows.flatMap((row, i) => [
+  i > 0 && HorizontalDivider(ctx, { key: `${key}/divider-${i}` }),
+  row,
+]));
+const settingsSection = (ctx, key, eyebrowKey, rows) => [
+  ...section(ctx, key, sectionHeader(ctx, `${key}-header`, eyebrowKey), settingsCard(ctx, key, rows)),
+  gap(ctx, `${key}/gap-after`, 'spacing.large'),
+];
+const paletteMark = (ctx, key, palette) => ctx.node({ key, styles: ['Settings/mark', `Settings/mark/${palette}`] });
+
+const accountCard = (ctx) => OrbitCard(ctx, { key: 'account-card', variant: 'Base' }, [
+  ctx.node({
+    key: 'account',
+    styles: ['Family/row', 'Settings/accountRow'],
+    hotspot: true,
+    attrs: { role: 'button', tabindex: 0, 'aria-label': ctx.t('settings_account') },
+    children: [
+      text(ctx, 'account/avatar', 'Family/avatar', { text: 'A' }, { styles: ['Family/avatar', 'Settings/avatar'] }),
+      ctx.node({
+        key: 'account/info',
+        styles: ['Family/info'],
+        children: [
+          text(ctx, 'account/name', 'Home/cardTitle', { text: 'Ana Souza' }, clipped('Home/cardTitle')),
+          text(ctx, 'account/email', 'Screen/secondary', { text: 'ana@example.com' }, clipped('Screen/secondary')),
+        ],
+      }),
+      chevron(ctx, 'account'),
+    ],
+  }),
+]);
+
+const darkMode = (ctx) => ctx.node({
+  key: 'dark-mode',
+  styles: ['Settings/stack'],
+  children: [
+    settingsRow(ctx, 'dark-mode-row', 'moon', 'settings_dark_mode', { trailing: null, hotspot: false }),
+    ctx.node({
+      key: 'dark-mode-options',
+      styles: ['Settings/options'],
+      attrs: { role: 'group', 'aria-label': ctx.t('settings_dark_mode_options') },
+      children: MODES.map((mode, i) => OrbitFilterChip(ctx, {
+        key: `mode-${mode}`,
+        labelKey: `settings_mode_${mode}`,
+        selected: i === 0,
+        hotspot: true,
+        styles: ['Settings/option'],
+        attrs: { role: 'button', 'aria-pressed': i === 0, tabindex: 0 },
+      })),
+    }),
+  ],
+});
+
+// The tab reached from the navigation bar: everything that supports the app rather than tracking expenses.
+const settings = frame('settings', 'Settings', { status: 'proposed', spec: 'docs/specs/settings.md' }, (ctx) => screenFrame(ctx, [
+  ctx.node({
+    key: 'content',
+    styles: ['Home/scroll'],
+    children: [
+      gap(ctx, 'gap-top', 'spacing.xxLarge'),
+      inset(ctx, 'title/inset', text(ctx, 'title', 'SignIn/title', { textKey: 'settings_title' })),
+      gap(ctx, 'gap-title', 'spacing.medium'),
+      inset(ctx, 'account/inset', accountCard(ctx)),
+      gap(ctx, 'gap-account', 'spacing.large'),
+      ...settingsSection(ctx, 'appearance', 'settings_appearance_eyebrow', [
+        settingsRow(ctx, 'theme', 'palette', 'settings_theme', {
+          detail: { textKey: `settings_palette_${ctx.settings.palette}` },
+          trailing: ctx.node({
+            key: 'theme/trailing',
+            styles: ['Settings/trailing'],
+            children: [paletteMark(ctx, 'theme/mark', ctx.settings.palette), chevron(ctx, 'theme')],
+          }),
+        }),
+        darkMode(ctx),
+      ]),
+      ...settingsSection(ctx, 'family', 'settings_family_eyebrow', [
+        settingsRow(ctx, 'family-members', 'users', 'settings_family_members', {
+          detail: { textKey: 'settings_family_members_detail', textArgs: ['2', '1'] },
+        }),
+        settingsRow(ctx, 'invite', 'share', 'settings_invite', { detail: { textKey: 'settings_invite_detail' } }),
+      ]),
+      ...settingsSection(ctx, 'connections', 'settings_connections_eyebrow', [
+        settingsRow(ctx, 'connectors', 'plug', 'settings_connectors', {
+          detail: { textKey: 'settings_connectors_detail', textArgs: ['2'] },
+        }),
+      ]),
+      ...settingsSection(ctx, 'preferences', 'settings_preferences_eyebrow', [
+        settingsRow(ctx, 'language', 'languages', 'settings_language', { detail: { textKey: 'settings_language_value' } }),
+        settingsRow(ctx, 'currency', 'banknote', 'settings_currency', { detail: { textKey: 'settings_currency_value' } }),
+        settingsRow(ctx, 'notifications', 'bell', 'settings_notifications', { detail: { textKey: 'settings_notifications_detail' } }),
+      ]),
+      ...settingsSection(ctx, 'security', 'settings_security_eyebrow', [
+        settingsRow(ctx, 'app-lock', 'lock', 'settings_app_lock', { detail: { textKey: 'settings_app_lock_detail' } }),
+        settingsRow(ctx, 'password', 'key_round', 'settings_password', { detail: { textKey: 'settings_password_detail' } }),
+        settingsRow(ctx, 'export', 'download', 'settings_export', { detail: { textKey: 'settings_export_detail' } }),
+      ]),
+      ...settingsSection(ctx, 'about', 'settings_about_eyebrow', [
+        settingsRow(ctx, 'help', 'circle_help', 'settings_help'),
+        settingsRow(ctx, 'terms', 'file_text', 'settings_terms'),
+        settingsRow(ctx, 'privacy', 'shield_check', 'sign_in_privacy_policy'),
+      ]),
+      inset(ctx, 'sign-out/inset', OrbitButton(ctx, { key: 'sign-out', variant: 'Outlined', hotspot: true, styles: ['Screen/fill'] }, [
+        icon(ctx, 'sign-out/icon', 'log_out', 'medium', 'colors.text.error', ['Screen/leadingIcon']),
+        label(ctx, 'sign-out/label', { textKey: 'settings_sign_out' }, 'Settings/danger'),
+      ])),
+      gap(ctx, 'gap-sign-out', 'spacing.xxSmall'),
+      inset(ctx, 'delete-account/inset', OrbitButton(ctx, { key: 'delete-account', variant: 'Text', hotspot: true, styles: ['Screen/fill'] }, [
+        label(ctx, 'delete-account/label', { textKey: 'settings_delete_account' }, 'Settings/danger'),
+      ])),
+      gap(ctx, 'gap-delete', 'spacing.xxSmall'),
+      text(ctx, 'version', 'Settings/version', { textKey: 'settings_version', textArgs: ['1.0.0 (42)'] }),
+      gap(ctx, 'gap-bottom', 'spacing.large'),
+    ],
+  }),
+  mainNav(ctx, MAIN_NAV.settings),
+]));
+
+// A bottom sheet over Settings, like the month picker over Home.
+const settingsSheet = (id, name, sheetKey, labelKey, content) => frame(id, name, {
+  status: 'proposed', spec: 'docs/specs/settings.md',
+}, (ctx) => ctx.node({
+  key: `${sheetKey}-frame`,
+  styles: ['OrbitScaffold'],
+  children: [
+    ctx.node({
+      key: `${sheetKey}-background`,
+      styles: ['MonthPicker/background'],
+      attrs: { inert: '', 'aria-hidden': 'true' },
+      children: [settings.render(ctx)],
+    }),
+    OrbitBottomSheet(ctx, {
+      key: sheetKey,
+      attrs: { role: 'dialog', 'aria-modal': 'true', 'aria-label': ctx.t(labelKey) },
+    }, [ctx.node({ key: `${sheetKey}-content`, styles: ['Screen/content'], children: content(ctx) })]),
+  ],
+}));
+
+const paletteOption = (ctx, palette) => {
+  const selected = palette === ctx.settings.palette;
+  return ctx.node({
+    key: `palette-${palette}`,
+    styles: ['Settings/palette', selected && 'Settings/paletteSelected'],
+    hotspot: true,
+    attrs: { role: 'radio', 'aria-checked': String(selected), tabindex: 0 },
+    children: [
+      paletteMark(ctx, `palette-${palette}/mark`, palette),
+      text(ctx, `palette-${palette}/name`, 'Settings/paletteName', { textKey: `settings_palette_${palette}` }, clipped('Settings/paletteName')),
+    ],
+  });
+};
+
+const settingsTheme = settingsSheet('settings-theme', 'Settings · Theme', 'theme-sheet', 'settings_theme', (ctx) => [
+  ctx.node({
+    key: 'theme-header',
+    styles: ['Home/spread'],
+    children: [
+      text(ctx, 'theme-title', 'SignIn/title', { textKey: 'settings_theme' }),
+      OrbitIconButton(ctx, { key: 'theme-close', hotspot: true, contentDescription: ctx.t('home_picker_close') }, [
+        icon(ctx, 'theme-close/icon', 'x', 'medium', 'colors.text.secondary'),
+      ]),
+    ],
+  }),
+  gap(ctx, 'theme-gap-title', 'spacing.xxSmall'),
+  text(ctx, 'theme-guidance', 'Screen/guidance', { textKey: 'settings_theme_guidance' }),
+  gap(ctx, 'theme-gap-guidance', 'spacing.medium'),
+  ctx.node({
+    key: 'palettes',
+    styles: ['MonthPicker/grid'],
+    attrs: { role: 'radiogroup', 'aria-label': ctx.t('settings_theme_palettes') },
+    children: [PALETTES.slice(0, 4), PALETTES.slice(4)].map((row, i) => ctx.node({
+      key: `palettes-row-${i}`,
+      styles: ['Home/gridRow'],
+      children: row.map((palette) => paletteOption(ctx, palette)),
+    })),
+  }),
+  gap(ctx, 'theme-gap-apply', 'spacing.large'),
+  OrbitButton(ctx, { key: 'theme-apply', hotspot: true, styles: ['Screen/fill'] }, [
+    label(ctx, 'theme-apply/label', { textKey: 'settings_theme_apply' }),
+  ]),
+]);
+
+const settingsSignOut = settingsSheet('settings-sign-out', 'Settings · Sign out', 'sign-out-sheet', 'settings_sign_out_title', (ctx) => [
+  ctx.node({
+    key: 'sign-out-badge',
+    styles: ['EmailSent/badge', 'Settings/dangerBadge'],
+    children: [icon(ctx, 'sign-out-badge/icon', 'log_out', 'xLarge', 'colors.text.error')],
+  }),
+  gap(ctx, 'sign-out-gap-badge', 'spacing.medium'),
+  text(ctx, 'sign-out-title', 'SignIn/title', { textKey: 'settings_sign_out_title' }),
+  gap(ctx, 'sign-out-gap-title', 'spacing.xxSmall'),
+  text(ctx, 'sign-out-body', 'Screen/guidance', { textKey: 'settings_sign_out_body' }),
+  gap(ctx, 'sign-out-gap-body', 'spacing.large'),
+  actions(ctx, [
+    OrbitButton(ctx, { key: 'sign-out-confirm', variant: 'Destructive', hotspot: true, styles: ['Screen/fill'] }, [
+      label(ctx, 'sign-out-confirm/label', { textKey: 'settings_sign_out' }),
+    ]),
+    textButton(ctx, 'sign-out-cancel', 'settings_sign_out_cancel'),
+  ]),
+]);
+
 export const frames = [
   splash,
   signIn,
@@ -1511,6 +1741,9 @@ export const frames = [
   homePulse,
   homeBudget,
   homeLeftover,
+  settings,
+  settingsTheme,
+  settingsSignOut,
   connectorsEmpty,
   connectors,
   pluggySetup,

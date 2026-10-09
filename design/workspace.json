@@ -352,6 +352,30 @@
           "y": 1932,
           "width": 402,
           "height": 874
+        },
+        {
+          "id": "mobile-settings",
+          "catalogId": "screens/settings",
+          "x": 3584,
+          "y": 1932,
+          "width": 402,
+          "height": 874
+        },
+        {
+          "id": "mobile-settings-theme",
+          "catalogId": "screens/settings-theme",
+          "x": 4096,
+          "y": 1932,
+          "width": 402,
+          "height": 874
+        },
+        {
+          "id": "mobile-settings-sign-out",
+          "catalogId": "screens/settings-sign-out",
+          "x": 4608,
+          "y": 1932,
+          "width": 402,
+          "height": 874
         }
       ]
     },
@@ -737,13 +761,13 @@
       "trigger": "click"
     },
     {
-      "id": "mobile-home-profile",
+      "id": "mobile-home-settings",
       "from": {
         "frameId": "mobile-home",
         "hotspotId": "nav-user_round"
       },
       "to": {
-        "frameId": "mobile-connectors"
+        "frameId": "mobile-settings"
       },
       "trigger": "click"
     },
@@ -754,7 +778,7 @@
         "hotspotId": "back"
       },
       "to": {
-        "frameId": "mobile-home"
+        "frameId": "mobile-settings"
       },
       "trigger": "click"
     },
@@ -787,7 +811,7 @@
         "hotspotId": "back"
       },
       "to": {
-        "frameId": "mobile-home"
+        "frameId": "mobile-settings"
       },
       "trigger": "click"
     },
@@ -876,6 +900,116 @@
       },
       "to": {
         "frameId": "mobile-pluggy-setup"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-settings-nav-house",
+      "from": {
+        "frameId": "mobile-settings",
+        "hotspotId": "nav-house"
+      },
+      "to": {
+        "frameId": "mobile-home"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-settings-theme",
+      "from": {
+        "frameId": "mobile-settings",
+        "hotspotId": "theme"
+      },
+      "to": {
+        "frameId": "mobile-settings-theme"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-settings-family-members",
+      "from": {
+        "frameId": "mobile-settings",
+        "hotspotId": "family-members"
+      },
+      "to": {
+        "frameId": "mobile-family-members"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-settings-invite",
+      "from": {
+        "frameId": "mobile-settings",
+        "hotspotId": "invite"
+      },
+      "to": {
+        "frameId": "mobile-invite"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-settings-connectors",
+      "from": {
+        "frameId": "mobile-settings",
+        "hotspotId": "connectors"
+      },
+      "to": {
+        "frameId": "mobile-connectors"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-settings-sign-out",
+      "from": {
+        "frameId": "mobile-settings",
+        "hotspotId": "sign-out"
+      },
+      "to": {
+        "frameId": "mobile-settings-sign-out"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-settings-theme-theme-close",
+      "from": {
+        "frameId": "mobile-settings-theme",
+        "hotspotId": "theme-close"
+      },
+      "to": {
+        "frameId": "mobile-settings"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-settings-theme-theme-apply",
+      "from": {
+        "frameId": "mobile-settings-theme",
+        "hotspotId": "theme-apply"
+      },
+      "to": {
+        "frameId": "mobile-settings"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-settings-sign-out-sign-out-confirm",
+      "from": {
+        "frameId": "mobile-settings-sign-out",
+        "hotspotId": "sign-out-confirm"
+      },
+      "to": {
+        "frameId": "mobile-sign-in"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-settings-sign-out-sign-out-cancel",
+      "from": {
+        "frameId": "mobile-settings-sign-out",
+        "hotspotId": "sign-out-cancel"
+      },
+      "to": {
+        "frameId": "mobile-settings"
       },
       "trigger": "click"
     }
