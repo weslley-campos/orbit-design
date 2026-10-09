@@ -324,7 +324,7 @@
         {
           "id": "mobile-connectors-institutions",
           "catalogId": "screens/connectors-institutions",
-          "x": 5120,
+          "x": 5632,
           "y": 966,
           "width": 402,
           "height": 874
@@ -333,6 +333,14 @@
           "id": "mobile-connectors-empty",
           "catalogId": "screens/connectors-empty",
           "x": 4096,
+          "y": 966,
+          "width": 402,
+          "height": 874
+        },
+        {
+          "id": "mobile-pluggy-setup",
+          "catalogId": "screens/pluggy-setup",
+          "x": 5120,
           "y": 966,
           "width": 402,
           "height": 874
@@ -772,6 +780,61 @@
       },
       "to": {
         "frameId": "mobile-home"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-connectors-pluggy",
+      "from": {
+        "frameId": "mobile-connectors",
+        "hotspotId": "pluggy-row"
+      },
+      "to": {
+        "frameId": "mobile-pluggy-setup"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-connectors-empty-setup",
+      "from": {
+        "frameId": "mobile-connectors-empty",
+        "hotspotId": "setup"
+      },
+      "to": {
+        "frameId": "mobile-pluggy-setup"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-pluggy-setup-back",
+      "from": {
+        "frameId": "mobile-pluggy-setup",
+        "hotspotId": "back"
+      },
+      "to": {
+        "frameId": "mobile-connectors"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-pluggy-setup-save",
+      "from": {
+        "frameId": "mobile-pluggy-setup",
+        "hotspotId": "save"
+      },
+      "to": {
+        "frameId": "mobile-connectors"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-pluggy-setup-cancel",
+      "from": {
+        "frameId": "mobile-pluggy-setup",
+        "hotspotId": "cancel"
+      },
+      "to": {
+        "frameId": "mobile-connectors"
       },
       "trigger": "click"
     }

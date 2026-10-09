@@ -526,6 +526,37 @@ const connectorsEmpty = frame('connectors-empty', 'Connectors · Not set up', { 
   ]),
 ]));
 
+// Opened from the Pluggy row: the credentials Orbit needs to call Pluggy's API.
+const pluggySetup = frame('pluggy-setup', 'Connectors · Pluggy setup', { status: 'proposed', spec: 'docs/specs/pluggy-setup.md' }, (ctx) => screenFrame(ctx, [
+  content(ctx, [
+    ...header(ctx, 'pluggy_setup_title', 'pluggy_setup_guidance', ctx.node({
+      key: 'badge', styles: ['EmailSent/badge'], children: [icon(ctx, 'badge/icon', 'plug', 'xLarge', 'colors.text.brand')],
+    })),
+    ...field(ctx, 'client-id', 'pluggy_client_id_label', {
+      value: '8f3c2a71-5d4e-4b9a-a1c6-2e7f90b3d415', placeholderKey: 'pluggy_client_id_placeholder',
+    }),
+    gap(ctx, 'gap-client-id', 'spacing.small'),
+    ...field(ctx, 'client-secret', 'pluggy_client_secret_label', {
+      value: 'pk_live_4K9P27xQ', password: true, placeholderKey: 'pluggy_client_secret_placeholder',
+      supportingTextKey: 'pluggy_client_secret_hint',
+      trailingIcon: OrbitIconButton(ctx, {
+        key: 'show-secret', contentDescription: ctx.t('password_show'),
+      }, [icon(ctx, 'show-secret/icon', 'eye', 'medium', 'colors.text.secondary')]),
+    }),
+    gap(ctx, 'gap-client-secret', 'spacing.small'),
+    ...field(ctx, 'connector-id', 'pluggy_connector_id_label', {
+      value: '201', placeholderKey: 'pluggy_connector_id_placeholder', supportingTextKey: 'pluggy_connector_id_hint',
+    }),
+    gap(ctx, 'gap-connector-id', 'spacing.small'),
+    ctx.node({ key: 'help', styles: ['Screen/guidance', 'Screen/link'], textKey: 'pluggy_setup_help', hotspot: true }),
+    ctx.node({ key: 'spacer', styles: ['Screen/grow'] }),
+    actions(ctx, [
+      primary(ctx, 'save', 'pluggy_setup_save'),
+      textButton(ctx, 'cancel', 'pluggy_setup_cancel'),
+    ]),
+  ]),
+]));
+
 // Sample of what Pluggy's GET /connectors returns: [key, initials, name, type, health.status, already connected].
 const INSTITUTIONS = [
   ['banco-do-brasil', 'BB', 'Banco do Brasil', 'PERSONAL_BANK', 'ONLINE'],
@@ -1409,5 +1440,6 @@ export const frames = [
   homeLeftover,
   connectorsEmpty,
   connectors,
+  pluggySetup,
   connectorsInstitutions,
 ];
