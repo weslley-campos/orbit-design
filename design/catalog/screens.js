@@ -756,9 +756,12 @@ const badge = (ctx, key, category, { small = false, glyph } = {}) => {
   });
 };
 
+// Every expense row opens its transaction.
 const expense = (ctx, [key, merchant, category, dayKey, member, amount, glyph]) => ctx.node({
   key,
   styles: ['Home/row'],
+  hotspot: true,
+  attrs: { role: 'button', tabindex: 0 },
   children: [
     badge(ctx, `${key}/badge`, category, { glyph }),
     ctx.node({
@@ -1522,7 +1525,7 @@ const legendKey = (ctx, key, labelKey, color, dashed) => ctx.node({
 
 // Columns with 4dp rounded caps, square at the baseline; `selected` adds the tooltip a tap shows.
 const COLUMNS_HEIGHT = 176;
-const columnChart = (ctx, key, { months, max, budget, budgetLabel, accent, labelled = [], tooltip, label }) => {
+const columnChart = (ctx, key, { months, max, budget, budgetLabel, budgetEnd = false, accent, labelled = [], tooltip, label }) => {
   const top = 28;
   const bottom = COLUMNS_HEIGHT - 24;
   const band = PLOT_WIDTH / months.length;
@@ -1537,18 +1540,18 @@ const columnChart = (ctx, key, { months, max, budget, budgetLabel, accent, label
   return plot(ctx, `${key}-plot`, 'Charts/columns', COLUMNS_HEIGHT, label, [
     svgLine(ctx, `${key}-baseline`, [0, bottom, PLOT_WIDTH, bottom], 'colors.border.base'),
     ...months.flatMap(({ month, value, caption }, i) => [
-      svgPath(ctx, `${key}-month-${month}`, column(i, value), {
+      value > 0 && svgPath(ctx, `${key}-month-${month}`, column(i, value), {
         fill: i === accent ? { token: 'colors.brand.primary' } : { token: 'colors.text.tertiary', alpha: 0.28 },
       }),
       labelled.includes(i) && svgText(ctx, `${key}-month-${month}/value`, caption, {
         x: center(i), y: y(value) - 6, anchor: 'middle', font: 'typography.labelMedium', color: 'colors.text.primary',
       }),
-      svgText(ctx, `${key}-month-${month}/label`, ctx.t(`charts_month_short_${month}`), {
+      svgText(ctx, `${key}-month-${month}/label`, months[i].label ?? ctx.t(`charts_month_short_${month}`), {
         x: center(i), y: COLUMNS_HEIGHT - 6, anchor: 'middle', color: i === accent ? 'colors.text.primary' : 'colors.text.tertiary',
       }),
     ]),
-    svgLine(ctx, `${key}-budget`, [0, y(budget), PLOT_WIDTH, y(budget)], 'colors.text.tertiary'),
-    svgText(ctx, `${key}-budget/label`, budgetLabel, { x: 0, y: y(budget) - 5, color: 'colors.text.secondary' }),
+    budget && svgLine(ctx, `${key}-budget`, [0, y(budget), PLOT_WIDTH, y(budget)], 'colors.text.tertiary'),
+    budget && svgText(ctx, `${key}-budget/label`, budgetLabel, { x: budgetEnd ? PLOT_WIDTH : 0, y: y(budget) - 5, anchor: budgetEnd ? 'end' : 'start', color: 'colors.text.secondary' }),
     tooltip && (() => {
       const boxWidth = 120;
       const left = Math.min(Math.max(center(accent) - boxWidth / 2, 0), PLOT_WIDTH - boxWidth);
@@ -1920,7 +1923,7 @@ const settingsRow = (ctx, key, glyph, titleKey, { detail, trailing, hotspot = tr
       key: `${key}/info`,
       styles: ['Family/info'],
       children: [
-        text(ctx, `${key}/title`, 'Family/name', { textKey: titleKey }, clipped('Family/name')),
+        text(ctx, `${key}/title`, 'Family/name', typeof titleKey === 'string' ? { textKey: titleKey } : titleKey, clipped('Family/name')),
         detail && text(ctx, `${key}/detail`, 'Screen/tertiary', detail, clipped('Screen/tertiary')),
       ],
     }),
@@ -2129,10 +2132,10 @@ const settingsSignOut = settingsSheet('settings-sign-out', 'Settings · Sign out
 // the app would use the issuer's card image from Pluggy or a generated card.
 const WALLET_SPEC = 'docs/specs/wallet.md';
 const CARDS = [
-  { key: 'azul', name: 'Azul Itaú', art: 'azul', network: 'Mastercard', last4: '4821', bill: 'R$ 2.140,20', closes: ['oct', 12], due: ['oct', 20], used: 0.18, limit: 'R$ 12.000,00', available: 'R$ 9.859,80' },
-  { key: 'amazon', name: 'Amazon Mastercard', art: 'amazon', network: 'Mastercard', last4: '1093', bill: 'R$ 486,90', closes: ['oct', 8], due: ['oct', 15] },
-  { key: 'bradesco', name: 'Bradesco Diners', art: 'bradesco-diners', network: 'Elo', last4: '7712', bill: 'R$ 1.315,00', closes: ['oct', 18], due: ['oct', 25] },
-  { key: 'amex', name: 'Amex Green', art: 'amex-green', network: 'Amex', last4: '3005', bill: 'R$ 870,30', closes: ['oct', 26], due: ['nov', 2] },
+  { key: 'azul', name: 'Azul Itaú', short: 'Azul', art: 'azul', network: 'Mastercard', last4: '4821', bill: 'R$ 2.140,20', closes: ['oct', 12], due: ['oct', 20], used: 0.18, limit: 'R$ 12.000,00', available: 'R$ 9.859,80' },
+  { key: 'amazon', name: 'Amazon Mastercard', short: 'Amazon', art: 'amazon', network: 'Mastercard', last4: '1093', bill: 'R$ 486,90', closes: ['oct', 8], due: ['oct', 15] },
+  { key: 'bradesco', name: 'Bradesco Diners', short: 'Diners', art: 'bradesco-diners', network: 'Elo', last4: '7712', bill: 'R$ 1.315,00', closes: ['oct', 18], due: ['oct', 25] },
+  { key: 'amex', name: 'Amex Green', short: 'Amex', art: 'amex-green', network: 'Amex', last4: '3005', bill: 'R$ 870,30', closes: ['oct', 26], due: ['nov', 2] },
 ];
 const card = (key) => CARDS.find((c) => c.key === key);
 const day = (ctx, [month, n]) => ctx.t(`wallet_date_${month}`, n);
@@ -2445,6 +2448,350 @@ const walletRemove = sheetFrame('wallet-remove', 'Wallet · Remove card', WALLET
     ]),
   ]);
 
+// Transactions: one list for a day, week, month or year. The period picks the grouping: by time for a day, by day for a week
+// or month, by month for a year. Search and the filter chips keep applying when the period changes.
+const TX_SPEC = 'docs/specs/transactions.md';
+// [key, merchant, category, card, family member, amount, time, glyph]
+const TX_DAYS = [
+  { key: 'oct-7', weekday: 3, date: 7, labelKey: 'home_today', total: 'R$ 230,70', rows: [
+    ['pao-de-acucar', 'Pão de Açúcar', 'groceries', 'azul', null, 'R$ 182,40', '18:42'],
+    ['uber', 'Uber', 'transport', 'azul', 'Marina', 'R$ 24,90', '08:15'],
+    ['padaria', 'Padaria Real', 'restaurants', 'amazon', null, 'R$ 23,40', '07:50'],
+  ] },
+  { key: 'oct-6', weekday: 2, date: 6, labelKey: 'home_yesterday', total: 'R$ 522,70', rows: [
+    ['ifood', 'iFood', 'restaurants', 'azul', null, 'R$ 68,50', '20:14'],
+    ['outback', 'Outback', 'restaurants', 'bradesco', 'Marina', 'R$ 186,90', '13:05'],
+    ['ipiranga', 'Posto Ipiranga', 'transport', 'azul', null, 'R$ 210,00', '09:30', 'fuel'],
+    ['drogasil', 'Drogasil', 'health', 'amex', 'Marina', 'R$ 57,30', '08:47'],
+  ] },
+  { key: 'oct-5', weekday: 1, date: 5, total: 'R$ 361,80', rows: [
+    ['cinemark', 'Cinemark', 'leisure', 'bradesco', 'Marina', 'R$ 86,00', '21:10'],
+    ['sabesp', 'Sabesp', 'bills', 'azul', null, 'R$ 155,90', '10:00'],
+    ['smart-fit', 'Smart Fit', 'health', 'amex', null, 'R$ 119,90', '07:00'],
+  ] },
+];
+const weekdayDate = (ctx, { weekday, date }) => ctx.t('tx_weekday_date', ctx.t(`tx_weekday_${weekday}`), day(ctx, ['oct', date]));
+
+const txRow = (ctx, [key, merchant, category, cardKey, member, amount, time, glyph], { timed = false } = {}) => ctx.node({
+  key,
+  styles: ['Home/row'],
+  hotspot: true,
+  attrs: { role: 'button', tabindex: 0 },
+  children: [
+    badge(ctx, `${key}/badge`, category, { glyph }),
+    ctx.node({
+      key: `${key}/info`,
+      styles: ['Family/info'],
+      children: [
+        text(ctx, `${key}/merchant`, 'Family/name', { text: merchant }, clipped('Family/name')),
+        text(ctx, `${key}/detail`, 'Screen/tertiary', {
+          text: [timed && time, ctx.t(`home_category_${category}`), card(cardKey).short, member].filter(Boolean).join(' · '),
+        }, clipped('Screen/tertiary')),
+      ],
+    }),
+    text(ctx, `${key}/amount`, 'Home/amount', { text: amount }),
+  ],
+});
+const txCard = (ctx, key, rows, options) => OrbitCard(ctx, { key, variant: 'Base' }, rows.flatMap((row, i) => [
+  i > 0 && HorizontalDivider(ctx, { key: `${key}/divider-${i}` }),
+  txRow(ctx, row, options),
+]));
+const dayGroup = (ctx, group) => {
+  const title = [group.labelKey && ctx.t(group.labelKey), weekdayDate(ctx, group)].filter(Boolean).join(' · ').toLocaleUpperCase(ctx.settings.language);
+  return [
+    ctx.node({
+      key: `${group.key}-header`,
+      styles: ['Home/spread', 'Home/inset'],
+      children: [
+        text(ctx, `${group.key}-header/date`, 'Screen/eyebrow', { text: title }),
+        text(ctx, `${group.key}-header/total`, 'Screen/eyebrow', { text: group.total }, { bind: { color: { token: 'colors.text.tertiary' } } }),
+      ],
+    }),
+    gap(ctx, `${group.key}-gap`, 'spacing.xxSmall'),
+    inset(ctx, `${group.key}/inset`, txCard(ctx, group.key, group.rows)),
+    gap(ctx, `${group.key}-gap-after`, 'spacing.medium'),
+  ];
+};
+const txSummary = (ctx, eyebrowKey, amount, count, average, chart) => inset(ctx, 'summary/inset', OrbitCard(ctx, { key: 'summary', variant: 'Base' }, [
+  ctx.node({
+    key: 'summary/body',
+    styles: ['Home/cardBody'],
+    children: [
+      text(ctx, 'summary/eyebrow', 'Screen/eyebrow', { textKey: eyebrowKey }),
+      ctx.node({
+        key: 'summary/amounts',
+        styles: ['Home/goalAmounts'],
+        children: [
+          text(ctx, 'summary/amount', 'Home/cardTitle', { text: amount }),
+          text(ctx, 'summary/count', 'Screen/secondary', { textKey: 'tx_count', textArgs: [count, average] }),
+        ],
+      }),
+      chart,
+    ],
+  }),
+]));
+const txFilters = (ctx) => inset(ctx, 'filters/inset', ctx.node({
+  key: 'filters',
+  styles: ['Institutions/chips'],
+  attrs: { role: 'group', 'aria-label': ctx.t('tx_filters') },
+  children: ['categories', 'cards', 'people'].map((filter) => OrbitFilterChip(ctx, {
+    key: `filter-${filter}`, labelKey: `tx_filter_${filter}`, hotspot: true, attrs: { role: 'button', tabindex: 0 },
+  })),
+}));
+
+const txFrame = (id, name, period, stepper, body) => frame(id, name, { status: 'proposed', spec: TX_SPEC }, (ctx) => screenFrame(ctx, [
+  ctx.node({
+    key: 'content',
+    styles: ['Home/scroll'],
+    children: [
+      gap(ctx, 'gap-top', 'spacing.xLarge'),
+      inset(ctx, 'toolbar/inset', ctx.node({
+        key: 'toolbar',
+        styles: ['Home/spread', 'Screen/toolbar'],
+        children: [
+          backButton(ctx),
+          ctx.node({ key: 'actions', styles: ['Home/actions'], children: [iconAction(ctx, 'search', 'search', 'tx_search'), iconAction(ctx, 'filters-button', 'sliders_horizontal', 'tx_filters')] }),
+        ],
+      })),
+      inset(ctx, 'title/inset', text(ctx, 'title', 'SignIn/title', { textKey: 'tx_title' })),
+      gap(ctx, 'gap-title', 'spacing.small'),
+      inset(ctx, 'periods/inset', ctx.node({
+        key: 'periods',
+        styles: ['Charts/periods'],
+        attrs: { role: 'group', 'aria-label': ctx.t('tx_periods') },
+        children: ['day', 'week', 'month', 'year'].map((option) => OrbitFilterChip(ctx, {
+          key: `period-${option}`,
+          labelKey: `tx_period_${option}`,
+          selected: option === period,
+          hotspot: true,
+          styles: ['Settings/option'],
+          attrs: { role: 'button', 'aria-pressed': option === period, tabindex: 0 },
+        })),
+      })),
+      gap(ctx, 'gap-periods', 'spacing.small'),
+      inset(ctx, 'stepper/inset', ctx.node({
+        key: 'stepper',
+        styles: ['Home/switcher'],
+        children: [
+          OrbitIconButton(ctx, { key: 'period-previous', hotspot: true, styles: ['Home/switcherButton'], contentDescription: ctx.t('tx_previous') }, [
+            icon(ctx, 'period-previous/icon', 'chevron_left', 'medium', 'colors.text.secondary'),
+          ]),
+          text(ctx, 'stepper/label', 'Family/name', stepper(ctx), { styles: ['Family/name', 'Home/switcherLabel'], hotspot: true }),
+          OrbitIconButton(ctx, { key: 'period-next', hotspot: true, styles: ['Home/switcherButton'], contentDescription: ctx.t('tx_next') }, [
+            icon(ctx, 'period-next/icon', 'chevron_right', 'medium', 'colors.text.secondary'),
+          ]),
+        ],
+      })),
+      gap(ctx, 'gap-stepper', 'spacing.medium'),
+      ...body(ctx),
+      gap(ctx, 'gap-bottom', 'spacing.large'),
+    ],
+  }),
+]));
+
+const transactions = txFrame('transactions', 'Transactions · Month', 'month', () => ({ textKey: 'home_month' }), (ctx) => [
+  txSummary(ctx, 'tx_spent_month', 'R$ 3.450,00', 48, 'R$ 71,88'),
+  gap(ctx, 'gap-summary', 'spacing.small'),
+  txFilters(ctx),
+  gap(ctx, 'gap-filters', 'spacing.medium'),
+  ...TX_DAYS.flatMap((group) => dayGroup(ctx, group)),
+]);
+
+// The week's days as columns against an even daily budget; days still to come stay empty.
+const WEEK_TOTALS = [361.8, 522.7, 230.7, 0, 0, 0, 0];
+const transactionsWeek = txFrame('transactions-week', 'Transactions · Week', 'week', () => ({ textKey: 'tx_week_range' }), (ctx) => [
+  txSummary(ctx, 'tx_spent_week', 'R$ 1.115,20', 10, 'R$ 111,52', columnChart(ctx, 'week', {
+    months: WEEK_TOTALS.map((value, i) => ({ month: i + 1, value, label: ctx.t(`tx_weekday_${i + 1}`), caption: `R$ ${Math.round(value)}` })),
+    max: 640,
+    budget: 161,
+    budgetLabel: ctx.t('tx_daily_budget', '161'),
+    budgetEnd: true,
+    accent: 2,
+    labelled: [0, 1, 2],
+    label: ctx.t('tx_week_label'),
+  })),
+  gap(ctx, 'gap-summary', 'spacing.small'),
+  txFilters(ctx),
+  gap(ctx, 'gap-filters', 'spacing.medium'),
+  ...TX_DAYS.flatMap((group) => dayGroup(ctx, group)),
+]);
+
+const transactionsDay = txFrame('transactions-day', 'Transactions · Day', 'day', () => ({ textKey: 'tx_today_label' }), (ctx) => [
+  txSummary(ctx, 'tx_spent_day', TX_DAYS[0].total, TX_DAYS[0].rows.length, 'R$ 76,90'),
+  gap(ctx, 'gap-summary', 'spacing.small'),
+  txFilters(ctx),
+  gap(ctx, 'gap-filters', 'spacing.medium'),
+  inset(ctx, 'day/inset', txCard(ctx, 'day', TX_DAYS[0].rows, { timed: true })),
+]);
+
+// A year groups by month: each row is the month's total against the budget and opens that month.
+const YEAR = [4380, 4120, 4650, 4290, 4210, 4890, 5320, 4450, 4760, 3450, 0, 0];
+const YEAR_ROWS = [
+  [10, 'R$ 3.450,00', 48, null, 0.69],
+  [9, 'R$ 4.760,00', 61, '95%', 0.952],
+  [8, 'R$ 4.450,00', 57, '89%', 0.89],
+  [7, 'R$ 5.320,00', 64, '106%', 1.064],
+  [6, 'R$ 4.890,00', 59, '98%', 0.978],
+];
+const monthRow = (ctx, [month, amount, count, share, used]) => ctx.node({
+  key: `month-${month}`,
+  styles: ['Charts/place'],
+  hotspot: true,
+  attrs: { role: 'button', tabindex: 0 },
+  children: [
+    ctx.node({
+      key: `month-${month}/top`,
+      styles: ['Home/spread'],
+      children: [
+        ctx.node({
+          key: `month-${month}/info`,
+          styles: ['Family/info'],
+          children: [
+            text(ctx, `month-${month}/name`, 'Family/name', { textKey: `home_picker_month_${month}` }),
+            text(ctx, `month-${month}/detail`, 'Screen/tertiary', share ? { textKey: 'tx_month_detail', textArgs: [count, share] } : { textKey: 'tx_month_so_far', textArgs: [count] }),
+          ],
+        }),
+        text(ctx, `month-${month}/amount`, 'Home/amount', { text: amount }),
+        chevron(ctx, `month-${month}`),
+      ],
+    }),
+    OrbitLinearProgressIndicator(ctx, { key: `month-${month}/bar`, progress: Math.min(used, 1), status: statusOf(used), styles: ['Home/track'] }),
+  ],
+});
+const transactionsYear = txFrame('transactions-year', 'Transactions · Year', 'year', () => ({ text: '2026' }), (ctx) => [
+  txSummary(ctx, 'tx_spent_year', 'R$ 44.520,00', 548, 'R$ 81,24', columnChart(ctx, 'year', {
+    months: YEAR.map((value, i) => ({ month: i + 1, value, label: ctx.t(`charts_month_short_${i + 1}`).slice(0, 1), caption: thousands(ctx, String(value / 1000)) })),
+    max: 6000,
+    budget: 5000,
+    budgetLabel: `${ctx.t('charts_budget')} ${thousands(ctx, '5')}`,
+    accent: 9,
+    labelled: [6, 9],
+    label: ctx.t('tx_year_label'),
+  })),
+  gap(ctx, 'gap-summary', 'spacing.small'),
+  txFilters(ctx),
+  gap(ctx, 'gap-filters', 'spacing.medium'),
+  ...section(ctx, 'months', sectionHeader(ctx, 'months-header', 'tx_months_eyebrow'), OrbitCard(ctx, { key: 'months', variant: 'Base' }, YEAR_ROWS.flatMap((row, i) => [
+    i > 0 && HorizontalDivider(ctx, { key: `months/divider-${i}` }),
+    monthRow(ctx, row),
+  ]))),
+]);
+
+// One transaction: what, when, how it was paid, where it came from, and what it did to the budget.
+const detailRow = (ctx, key, leading, labelKey, value, hotspot = false) => ctx.node({
+  key,
+  styles: ['Family/row'],
+  hotspot,
+  attrs: hotspot ? { role: 'button', tabindex: 0 } : {},
+  children: [
+    leading,
+    ctx.node({
+      key: `${key}/info`,
+      styles: ['Family/info'],
+      children: [text(ctx, `${key}/label`, 'Screen/tertiary', { textKey: labelKey }), text(ctx, `${key}/value`, 'Family/name', value, clipped('Family/name'))],
+    }),
+    hotspot && chevron(ctx, key),
+  ],
+});
+const neutralBadge = (ctx, key, glyph) => ctx.node({
+  key, styles: ['Home/badgeSmall'], bind: { background: { token: 'colors.surface.sunken' } }, children: [icon(ctx, `${key}/icon`, glyph, 'small', NEUTRAL)],
+});
+const transactionDetail = frame('transaction-detail', 'Transaction', { status: 'proposed', spec: TX_SPEC }, (ctx) => {
+  const c = card('azul');
+  const when = `${weekdayDate(ctx, TX_DAYS[1])} · 20:14`;
+  return screenFrame(ctx, [
+    content(ctx, [
+      ctx.node({
+        key: 'toolbar',
+        styles: ['Home/spread', 'Screen/toolbar'],
+        children: [backButton(ctx), iconAction(ctx, 'more', 'ellipsis', 'tx_more')],
+      }),
+      gap(ctx, 'gap-toolbar', 'spacing.xxSmall'),
+      ctx.node({
+        key: 'hero',
+        styles: ['Tx/hero'],
+        children: [
+          badge(ctx, 'hero/badge', 'restaurants'),
+          text(ctx, 'hero/merchant', 'Home/cardTitle', { text: 'iFood' }),
+          text(ctx, 'hero/amount', 'OrbitCard/amount', { text: 'R$ 68,50' }),
+          text(ctx, 'hero/when', 'Screen/secondary', { textKey: 'tx_when', textArgs: [ctx.t('home_yesterday'), when] }),
+        ],
+      }),
+      gap(ctx, 'gap-hero', 'spacing.large'),
+      OrbitCard(ctx, { key: 'details', variant: 'Base', styles: ['Charts/card'] }, [
+        detailRow(ctx, 'category', badge(ctx, 'category/badge', 'restaurants', { small: true }), 'tx_category', { textKey: 'home_category_restaurants' }, true),
+        HorizontalDivider(ctx, { key: 'details/divider-1' }),
+        detailRow(ctx, 'card', thumb(ctx, 'card/thumb', c), 'tx_card', { textKey: 'wallet_number', textArgs: [c.name, c.last4] }, true),
+        HorizontalDivider(ctx, { key: 'details/divider-2' }),
+        detailRow(ctx, 'paid-by', text(ctx, 'paid-by/avatar', 'Family/avatar', { text: 'A' }), 'tx_paid_by', { textKey: 'tx_you', textArgs: ['Ana'] }, true),
+        HorizontalDivider(ctx, { key: 'details/divider-3' }),
+        detailRow(ctx, 'payment', neutralBadge(ctx, 'payment/badge', 'credit_card'), 'tx_payment', { textKey: 'tx_payment_single' }),
+        HorizontalDivider(ctx, { key: 'details/divider-4' }),
+        detailRow(ctx, 'source', neutralBadge(ctx, 'source/badge', 'plug'), 'tx_source', { textKey: 'tx_source_pluggy' }),
+      ]),
+      gap(ctx, 'gap-details', 'spacing.small'),
+      OrbitCard(ctx, { key: 'statement', variant: 'Base', styles: ['Charts/card'] }, [
+        ctx.node({
+          key: 'statement/body',
+          styles: ['Home/cardBody'],
+          children: [
+            text(ctx, 'statement/eyebrow', 'Screen/eyebrow', { textKey: 'tx_statement_eyebrow' }, { bind: { color: { token: 'colors.text.tertiary' } } }),
+            text(ctx, 'statement/text', 'Tx/statement', { text: 'IFD*IFOOD.COM AGENCIA DE SAO PAULO BR' }),
+          ],
+        }),
+      ]),
+      gap(ctx, 'gap-statement', 'spacing.small'),
+      OrbitCard(ctx, { key: 'note-card', variant: 'Base', styles: ['Charts/card'] }, [
+        settingsRow(ctx, 'note', 'pencil', 'tx_note', { detail: { textKey: 'tx_note_detail' } }),
+      ]),
+      gap(ctx, 'gap-note', 'spacing.large'),
+      text(ctx, 'budget-eyebrow', 'Screen/eyebrow', { textKey: 'tx_budget_eyebrow' }),
+      gap(ctx, 'gap-budget-eyebrow', 'spacing.xxSmall'),
+      OrbitCard(ctx, { key: 'budget', variant: 'Base', styles: ['Charts/card'], hotspot: true }, [
+        ctx.node({
+          key: 'budget/body',
+          styles: ['Home/cardBody'],
+          children: [
+            ctx.node({
+              key: 'budget/amounts',
+              styles: ['Home/goalAmounts'],
+              children: [
+                text(ctx, 'budget/spent', 'Home/goalValue', { text: 'R$ 767,60' }),
+                text(ctx, 'budget/of', 'Screen/secondary', { textKey: 'home_of', textArgs: ['R$ 700,00'] }),
+                ctx.node({ key: 'budget/spacer', styles: ['Screen/grow'] }),
+                status(ctx, 'budget/over', 'triangle_alert', 'colors.text.error', 'home_over', ['R$ 67,60']),
+              ],
+            }),
+            OrbitLinearProgressIndicator(ctx, { key: 'budget/progress', progress: 1, status: 'Error', styles: ['Home/track'] }),
+            text(ctx, 'budget/share', 'Screen/tertiary', { textKey: 'tx_budget_share', textArgs: ['10%'] }),
+          ],
+        }),
+      ]),
+      gap(ctx, 'gap-budget', 'spacing.large'),
+      text(ctx, 'merchant-eyebrow', 'Screen/eyebrow', { textKey: 'tx_merchant_eyebrow', textArgs: ['IFOOD'] }),
+      gap(ctx, 'gap-merchant-eyebrow', 'spacing.xxSmall'),
+      OrbitCard(ctx, { key: 'merchant-card', variant: 'Base', styles: ['Charts/card'] }, [
+        settingsRow(ctx, 'merchant', 'store', { textKey: 'tx_merchant_summary', textArgs: [9] }, { detail: { text: 'R$ 312,40' } }),
+      ]),
+      gap(ctx, 'gap-merchant', 'spacing.large'),
+      ctx.node({
+        key: 'tx-actions',
+        styles: ['Home/gridRow'],
+        children: [
+          OrbitButton(ctx, { key: 'edit', variant: 'Outlined', hotspot: true, styles: ['Wallet/half'] }, [
+            icon(ctx, 'edit/icon', 'pencil', 'medium', 'colors.text.primary', ['Screen/leadingIcon']),
+            label(ctx, 'edit/label', { textKey: 'tx_edit' }),
+          ]),
+          OrbitButton(ctx, { key: 'delete', variant: 'Outlined', hotspot: true, styles: ['Wallet/half'] }, [
+            icon(ctx, 'delete/icon', 'trash', 'medium', 'colors.text.error', ['Screen/leadingIcon']),
+            label(ctx, 'delete/label', { textKey: 'tx_delete' }, 'Settings/danger'),
+          ]),
+        ],
+      }),
+    ]),
+  ]);
+});
+
 export const frames = [
   splash,
   signIn,
@@ -2470,6 +2817,11 @@ export const frames = [
   walletEdit,
   walletAdd,
   walletRemove,
+  transactions,
+  transactionsWeek,
+  transactionsDay,
+  transactionsYear,
+  transactionDetail,
   settings,
   settingsTheme,
   settingsSignOut,
