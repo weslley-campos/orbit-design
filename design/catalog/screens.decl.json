@@ -3281,6 +3281,279 @@
       "css": {
         "flex-shrink": "0"
       }
+    },
+    "Icon/arrow_up_down": {
+      "bind": {
+        "icon": {
+          "resource": "proposed.drawable.ic_arrow_up_down",
+          "proposal": "Lucide arrow-up-down (ISC)"
+        }
+      },
+      "css": {
+        "flex-shrink": "0"
+      }
+    },
+    "Icon/grip_vertical": {
+      "bind": {
+        "icon": {
+          "resource": "proposed.drawable.ic_grip_vertical",
+          "proposal": "Lucide grip-vertical (ISC)"
+        }
+      },
+      "css": {
+        "flex-shrink": "0"
+      }
+    },
+    "Icon/circle_minus": {
+      "bind": {
+        "icon": {
+          "resource": "proposed.drawable.ic_circle_minus",
+          "proposal": "Lucide circle-minus (ISC)"
+        }
+      },
+      "css": {
+        "flex-shrink": "0"
+      }
+    },
+    "Icon/pencil": {
+      "bind": {
+        "icon": {
+          "resource": "proposed.drawable.ic_pencil",
+          "proposal": "Lucide pencil (ISC)"
+        }
+      },
+      "css": {
+        "flex-shrink": "0"
+      }
+    },
+    "Icon/check": {
+      "bind": {
+        "icon": {
+          "resource": "proposed.drawable.ic_check",
+          "proposal": "Lucide check (ISC)"
+        }
+      },
+      "css": {
+        "flex-shrink": "0"
+      }
+    },
+    "Wallet/stack": {
+      "css": {
+        "display": "flex",
+        "flex-direction": "column",
+        "flex-shrink": "0"
+      }
+    },
+    "Wallet/art": {
+      "css": {
+        "display": "block",
+        "width": "100%",
+        "height": "100%",
+        "object-fit": "cover"
+      }
+    },
+    "Wallet/stacked": {
+      "bind": {
+        "margin-top": {
+          "literal": "-169dp",
+          "proposal": "card stack overlap: each card behind the last shows a 64dp strip, like Apple Wallet"
+        }
+      }
+    },
+    "Wallet/thumb": {
+      "bind": {
+        "width": {
+          "token": "sizes.xxxLarge"
+        },
+        "border-radius": {
+          "token": "shapes.hairline"
+        },
+        "box-shadow": {
+          "token": "elevation.flatShadow"
+        }
+      }
+    },
+    "Wallet/raised": {
+      "bind": {
+        "box-shadow": {
+          "token": "elevation.raisedShadow"
+        }
+      }
+    },
+    "Wallet/deck": {
+      "bind": {
+        "padding-left": {
+          "token": "spacing.medium"
+        },
+        "padding-right": {
+          "token": "spacing.medium"
+        },
+        "padding-top": {
+          "token": "spacing.xxSmall"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "flex-direction": "column",
+        "flex-shrink": "0",
+        "cursor": "pointer"
+      }
+    },
+    "Wallet/sliver": {
+      "bind": {
+        "height": {
+          "literal": "14dp",
+          "proposal": "visible strip of each card waiting in the deck"
+        }
+      },
+      "css": {
+        "overflow": "hidden",
+        "flex-shrink": "0"
+      }
+    },
+    "Wallet/sliverStacked": {
+      "bind": {
+        "margin-top": {
+          "literal": "-4dp",
+          "proposal": "each waiting card overlaps the strip above it"
+        }
+      }
+    },
+    "Wallet/half": {
+      "css": {
+        "flex": "1",
+        "min-width": "0"
+      }
+    },
+    "Wallet/dragging": {
+      "bind": {
+        "background": {
+          "token": "colors.surface.raised"
+        },
+        "box-shadow": {
+          "token": "elevation.raisedShadow"
+        },
+        "border-radius": {
+          "token": "shapes.control"
+        }
+      },
+      "css": {
+        "position": "relative",
+        "z-index": "1"
+      }
+    },
+    "Wallet/handle": {
+      "bind": {
+        "width": {
+          "token": "sizes.xxxLarge"
+        },
+        "height": {
+          "token": "sizes.xxxLarge"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "align-items": "center",
+        "justify-content": "center",
+        "flex-shrink": "0",
+        "cursor": "grab"
+      }
+    },
+    "Wallet/fieldColumn": {
+      "css": {
+        "display": "flex",
+        "flex-direction": "column",
+        "flex": "1",
+        "min-width": "0"
+      }
+    },
+    "Wallet/preview": {
+      "bind": {
+        "width": {
+          "literal": "220dp",
+          "proposal": "card preview width; no size token"
+        },
+        "background": {
+          "token": "gradients.primary"
+        },
+        "border-radius": {
+          "token": "shapes.button"
+        },
+        "padding": {
+          "token": "spacing.small"
+        },
+        "box-shadow": {
+          "token": "elevation.raisedShadow"
+        }
+      },
+      "css": {
+        "aspect-ratio": "1.586",
+        "display": "flex",
+        "flex-direction": "column",
+        "align-self": "center",
+        "flex-shrink": "0"
+      }
+    },
+    "Wallet/previewName": {
+      "bind": {
+        "font": {
+          "token": "typography.labelLarge"
+        },
+        "color": {
+          "token": "colors.text.onInk"
+        }
+      }
+    },
+    "Wallet/previewNumber": {
+      "bind": {
+        "font": {
+          "token": "typography.money"
+        },
+        "color": {
+          "token": "colors.text.onInk"
+        }
+      }
+    },
+    "Wallet/card": {
+      "bind": {
+        "border-radius": {
+          "token": "shapes.button"
+        },
+        "border": [
+          {
+            "literal": "1dp",
+            "proposal": "hairline edge so light card art stays visible on light surfaces"
+          },
+          {
+            "token": "colors.border.base"
+          }
+        ],
+        "background": {
+          "token": "colors.surface.sunken"
+        },
+        "box-shadow": {
+          "token": "elevation.cardShadow"
+        }
+      },
+      "css": {
+        "position": "relative",
+        "overflow": "hidden",
+        "aspect-ratio": "1.586",
+        "flex-shrink": "0",
+        "border-style": "solid"
+      }
+    },
+    "Wallet/chips": {
+      "bind": {
+        "gap": {
+          "token": "spacing.xxSmall"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "flex-wrap": "wrap",
+        "flex-shrink": "0"
+      }
     }
   }
 }

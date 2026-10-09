@@ -392,6 +392,54 @@
           "y": 2898,
           "width": 402,
           "height": 874
+        },
+        {
+          "id": "mobile-wallet",
+          "catalogId": "screens/wallet",
+          "x": 3584,
+          "y": 3864,
+          "width": 402,
+          "height": 874
+        },
+        {
+          "id": "mobile-wallet-card",
+          "catalogId": "screens/wallet-card",
+          "x": 4096,
+          "y": 3864,
+          "width": 402,
+          "height": 874
+        },
+        {
+          "id": "mobile-wallet-sort",
+          "catalogId": "screens/wallet-sort",
+          "x": 4608,
+          "y": 3864,
+          "width": 402,
+          "height": 874
+        },
+        {
+          "id": "mobile-wallet-edit",
+          "catalogId": "screens/wallet-edit",
+          "x": 5120,
+          "y": 3864,
+          "width": 402,
+          "height": 874
+        },
+        {
+          "id": "mobile-wallet-add",
+          "catalogId": "screens/wallet-add",
+          "x": 5632,
+          "y": 3864,
+          "width": 402,
+          "height": 874
+        },
+        {
+          "id": "mobile-wallet-remove",
+          "catalogId": "screens/wallet-remove",
+          "x": 6144,
+          "y": 3864,
+          "width": 402,
+          "height": 874
         }
       ]
     },
@@ -1103,6 +1151,369 @@
       },
       "to": {
         "frameId": "mobile-charts"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-home-nav-wallet",
+      "from": {
+        "frameId": "mobile-home",
+        "hotspotId": "nav-wallet"
+      },
+      "to": {
+        "frameId": "mobile-wallet"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-settings-nav-wallet",
+      "from": {
+        "frameId": "mobile-settings",
+        "hotspotId": "nav-wallet"
+      },
+      "to": {
+        "frameId": "mobile-wallet"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-charts-nav-wallet",
+      "from": {
+        "frameId": "mobile-charts",
+        "hotspotId": "nav-wallet"
+      },
+      "to": {
+        "frameId": "mobile-wallet"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-nav-house",
+      "from": {
+        "frameId": "mobile-wallet",
+        "hotspotId": "nav-house"
+      },
+      "to": {
+        "frameId": "mobile-home"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-nav-charts",
+      "from": {
+        "frameId": "mobile-wallet",
+        "hotspotId": "nav-charts"
+      },
+      "to": {
+        "frameId": "mobile-charts"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-nav-user_round",
+      "from": {
+        "frameId": "mobile-wallet",
+        "hotspotId": "nav-user_round"
+      },
+      "to": {
+        "frameId": "mobile-settings"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-card-azul",
+      "from": {
+        "frameId": "mobile-wallet",
+        "hotspotId": "card-azul"
+      },
+      "to": {
+        "frameId": "mobile-wallet-card"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-bill-azul",
+      "from": {
+        "frameId": "mobile-wallet",
+        "hotspotId": "bill-azul"
+      },
+      "to": {
+        "frameId": "mobile-wallet-card"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-sort",
+      "from": {
+        "frameId": "mobile-wallet",
+        "hotspotId": "sort"
+      },
+      "to": {
+        "frameId": "mobile-wallet-sort"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-bills-header/link",
+      "from": {
+        "frameId": "mobile-wallet",
+        "hotspotId": "bills-header/link"
+      },
+      "to": {
+        "frameId": "mobile-wallet-sort"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-add",
+      "from": {
+        "frameId": "mobile-wallet",
+        "hotspotId": "add"
+      },
+      "to": {
+        "frameId": "mobile-wallet-add"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-card-back",
+      "from": {
+        "frameId": "mobile-wallet-card",
+        "hotspotId": "back"
+      },
+      "to": {
+        "frameId": "mobile-wallet"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-card-deck",
+      "from": {
+        "frameId": "mobile-wallet-card",
+        "hotspotId": "deck"
+      },
+      "to": {
+        "frameId": "mobile-wallet"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-card-edit-card",
+      "from": {
+        "frameId": "mobile-wallet-card",
+        "hotspotId": "edit-card"
+      },
+      "to": {
+        "frameId": "mobile-wallet-edit"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-card-remove-card",
+      "from": {
+        "frameId": "mobile-wallet-card",
+        "hotspotId": "remove-card"
+      },
+      "to": {
+        "frameId": "mobile-wallet-remove"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-card-nav-house",
+      "from": {
+        "frameId": "mobile-wallet-card",
+        "hotspotId": "nav-house"
+      },
+      "to": {
+        "frameId": "mobile-home"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-card-nav-charts",
+      "from": {
+        "frameId": "mobile-wallet-card",
+        "hotspotId": "nav-charts"
+      },
+      "to": {
+        "frameId": "mobile-charts"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-card-nav-user_round",
+      "from": {
+        "frameId": "mobile-wallet-card",
+        "hotspotId": "nav-user_round"
+      },
+      "to": {
+        "frameId": "mobile-settings"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-sort-sort-close",
+      "from": {
+        "frameId": "mobile-wallet-sort",
+        "hotspotId": "sort-close"
+      },
+      "to": {
+        "frameId": "mobile-wallet"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-sort-sort-manual",
+      "from": {
+        "frameId": "mobile-wallet-sort",
+        "hotspotId": "sort-manual"
+      },
+      "to": {
+        "frameId": "mobile-wallet"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-sort-sort-bill",
+      "from": {
+        "frameId": "mobile-wallet-sort",
+        "hotspotId": "sort-bill"
+      },
+      "to": {
+        "frameId": "mobile-wallet"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-sort-sort-due",
+      "from": {
+        "frameId": "mobile-wallet-sort",
+        "hotspotId": "sort-due"
+      },
+      "to": {
+        "frameId": "mobile-wallet"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-sort-sort-name",
+      "from": {
+        "frameId": "mobile-wallet-sort",
+        "hotspotId": "sort-name"
+      },
+      "to": {
+        "frameId": "mobile-wallet"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-sort-edit-order",
+      "from": {
+        "frameId": "mobile-wallet-sort",
+        "hotspotId": "edit-order"
+      },
+      "to": {
+        "frameId": "mobile-wallet-edit"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-edit-back",
+      "from": {
+        "frameId": "mobile-wallet-edit",
+        "hotspotId": "back"
+      },
+      "to": {
+        "frameId": "mobile-wallet"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-edit-done",
+      "from": {
+        "frameId": "mobile-wallet-edit",
+        "hotspotId": "done"
+      },
+      "to": {
+        "frameId": "mobile-wallet"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-edit-add-card",
+      "from": {
+        "frameId": "mobile-wallet-edit",
+        "hotspotId": "add-card"
+      },
+      "to": {
+        "frameId": "mobile-wallet-add"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-add-back",
+      "from": {
+        "frameId": "mobile-wallet-add",
+        "hotspotId": "back"
+      },
+      "to": {
+        "frameId": "mobile-wallet"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-add-save",
+      "from": {
+        "frameId": "mobile-wallet-add",
+        "hotspotId": "save"
+      },
+      "to": {
+        "frameId": "mobile-wallet"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-add-cancel",
+      "from": {
+        "frameId": "mobile-wallet-add",
+        "hotspotId": "cancel"
+      },
+      "to": {
+        "frameId": "mobile-wallet"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-add-import",
+      "from": {
+        "frameId": "mobile-wallet-add",
+        "hotspotId": "import"
+      },
+      "to": {
+        "frameId": "mobile-connectors"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-remove-remove-confirm",
+      "from": {
+        "frameId": "mobile-wallet-remove",
+        "hotspotId": "remove-confirm"
+      },
+      "to": {
+        "frameId": "mobile-wallet"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-remove-remove-cancel",
+      "from": {
+        "frameId": "mobile-wallet-remove",
+        "hotspotId": "remove-cancel"
+      },
+      "to": {
+        "frameId": "mobile-wallet-card"
       },
       "trigger": "click"
     }
