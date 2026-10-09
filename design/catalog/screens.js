@@ -1450,6 +1450,456 @@ const homeMonthPicker = frame('home-month-picker', 'Home · Month picker', {
   ],
 }));
 
+// Charts: SVG marks bound to theme tokens. The plot width is the frame minus the screen inset and the card padding.
+const PLOT_WIDTH = 338;
+const decimal = (ctx, value) => (ctx.settings.language === 'pt' ? value.replace('.', ',') : value);
+const thousands = (ctx, value) => ctx.t('charts_axis_thousands', decimal(ctx, value));
+const svgText = (ctx, key, text, { x, y, anchor = 'start', font = 'typography.labelSmall', color = 'colors.text.tertiary' }) => ctx.node({
+  key, tag: 'text', text, bind: { font: { token: font }, fill: { token: color } }, attrs: { x, y, 'text-anchor': anchor },
+});
+const svgLine = (ctx, key, [x1, y1, x2, y2], color, width = 1, dash) => ctx.node({
+  key, tag: 'line', bind: { stroke: { token: color } }, attrs: { x1, y1, x2, y2, 'stroke-width': width, ...(dash ? { 'stroke-dasharray': dash } : {}) },
+});
+const svgPath = (ctx, key, d, bind, attrs = {}) => ctx.node({ key, tag: 'path', bind, attrs: { d, ...attrs } });
+const plot = (ctx, key, style, height, label, children) => ctx.node({
+  key,
+  styles: [style],
+  children: [ctx.node({
+    key: `${key}/svg`, tag: 'svg', attrs: { viewBox: `0 0 ${PLOT_WIDTH} ${height}`, role: 'img', 'aria-label': label }, children,
+  })],
+});
+
+// Cumulative spending by day: October so far against September and an even pace to the budget.
+const PACE = {
+  budget: 5000,
+  days: 31,
+  today: 7,
+  current: [[0, 0], [1, 620], [2, 980], [3, 1392], [4, 1705], [5, 2310], [6, 2880], [7, 3450]],
+  previous: [[0, 0], [1, 310], [3, 720], [5, 1180], [7, 1540], [10, 2120], [14, 2860], [18, 3420], [21, 3780], [25, 4260], [28, 4540], [30, 4760]],
+};
+const PACE_HEIGHT = 176;
+const paceChart = (ctx) => {
+  const top = 8;
+  const bottom = PACE_HEIGHT - 24;
+  const x = (day) => Math.round((day / PACE.days) * PLOT_WIDTH * 10) / 10;
+  const y = (value) => Math.round((bottom - (value / PACE.budget) * (bottom - top)) * 10) / 10;
+  const line = (points) => points.map(([day, value], i) => `${i ? 'L' : 'M'}${x(day)},${y(value)}`).join(' ');
+  const [todayDay, todayValue] = PACE.current.at(-1);
+  return plot(ctx, 'pace-plot', 'Charts/pace', PACE_HEIGHT, ctx.t('charts_pace_label'), [
+    ...[[0, '0'], [2500, '2.5'], [5000, '5']].flatMap(([value, label]) => [
+      svgLine(ctx, `pace-grid-${value}`, [0, y(value), PLOT_WIDTH, y(value)], 'colors.border.base'),
+      svgText(ctx, `pace-grid-${value}/label`, value ? thousands(ctx, label) : label, { x: 0, y: y(value) - 4 }),
+    ]),
+    svgLine(ctx, 'pace-even', [x(0), y(0), x(PACE.days), y(PACE.budget)], 'colors.text.tertiary', 1.5, '4 4'),
+    svgPath(ctx, 'pace-previous', line(PACE.previous), { stroke: { token: 'colors.border.strong' } }, {
+      fill: 'none', 'stroke-width': 2, 'stroke-linecap': 'round', 'stroke-linejoin': 'round',
+    }),
+    svgPath(ctx, 'pace-area', `${line(PACE.current)} L${x(todayDay)},${y(0)} Z`, { fill: { token: 'colors.brand.primary', alpha: 0.1 } }),
+    svgPath(ctx, 'pace-current', line(PACE.current), { stroke: { token: 'colors.brand.primary' } }, {
+      fill: 'none', 'stroke-width': 2, 'stroke-linecap': 'round', 'stroke-linejoin': 'round',
+    }),
+    ctx.node({
+      key: 'pace-today', tag: 'circle', bind: { fill: { token: 'colors.brand.primary' }, stroke: { token: 'colors.surface.base' } },
+      attrs: { cx: x(todayDay), cy: y(todayValue), r: 5, 'stroke-width': 2 },
+    }),
+    svgText(ctx, 'pace-today/value', 'R$ 3.450', { x: x(todayDay) + 10, y: y(todayValue) - 2, font: 'typography.labelMedium', color: 'colors.text.primary' }),
+    svgText(ctx, 'pace-axis-1', '1', { x: x(1), y: PACE_HEIGHT - 6, anchor: 'middle' }),
+    svgText(ctx, 'pace-axis-today', ctx.t('charts_today'), { x: x(todayDay), y: PACE_HEIGHT - 6, anchor: 'middle', color: 'colors.text.primary' }),
+    svgText(ctx, 'pace-axis-15', '15', { x: x(15), y: PACE_HEIGHT - 6, anchor: 'middle' }),
+    svgText(ctx, 'pace-axis-31', '31', { x: PLOT_WIDTH, y: PACE_HEIGHT - 6, anchor: 'end' }),
+  ]);
+};
+
+// Legend keys draw the series' own mark: a solid or dashed line in its color.
+const legendKey = (ctx, key, labelKey, color, dashed) => ctx.node({
+  key,
+  styles: ['Charts/legendItem'],
+  children: [
+    ctx.node({ key: `${key}/mark`, styles: ['Charts/key', dashed && 'Charts/keyDashed'], bind: { 'border-color': { token: color } } }),
+    text(ctx, `${key}/label`, 'Screen/tertiary', { textKey: labelKey }),
+  ],
+});
+
+// Columns with 4dp rounded caps, square at the baseline; `selected` adds the tooltip a tap shows.
+const COLUMNS_HEIGHT = 176;
+const columnChart = (ctx, key, { months, max, budget, budgetLabel, accent, labelled = [], tooltip, label }) => {
+  const top = 28;
+  const bottom = COLUMNS_HEIGHT - 24;
+  const band = PLOT_WIDTH / months.length;
+  const width = 24;
+  const y = (value) => Math.round((bottom - (value / max) * (bottom - top)) * 10) / 10;
+  const center = (i) => Math.round((band * i + band / 2) * 10) / 10;
+  const column = (i, value) => {
+    const left = center(i) - width / 2;
+    const cap = y(value);
+    return `M${left},${bottom} V${cap + 4} Q${left},${cap} ${left + 4},${cap} H${left + width - 4} Q${left + width},${cap} ${left + width},${cap + 4} V${bottom} Z`;
+  };
+  return plot(ctx, `${key}-plot`, 'Charts/columns', COLUMNS_HEIGHT, label, [
+    svgLine(ctx, `${key}-baseline`, [0, bottom, PLOT_WIDTH, bottom], 'colors.border.base'),
+    ...months.flatMap(({ month, value, caption }, i) => [
+      svgPath(ctx, `${key}-month-${month}`, column(i, value), {
+        fill: i === accent ? { token: 'colors.brand.primary' } : { token: 'colors.text.tertiary', alpha: 0.28 },
+      }),
+      labelled.includes(i) && svgText(ctx, `${key}-month-${month}/value`, caption, {
+        x: center(i), y: y(value) - 6, anchor: 'middle', font: 'typography.labelMedium', color: 'colors.text.primary',
+      }),
+      svgText(ctx, `${key}-month-${month}/label`, ctx.t(`charts_month_short_${month}`), {
+        x: center(i), y: COLUMNS_HEIGHT - 6, anchor: 'middle', color: i === accent ? 'colors.text.primary' : 'colors.text.tertiary',
+      }),
+    ]),
+    svgLine(ctx, `${key}-budget`, [0, y(budget), PLOT_WIDTH, y(budget)], 'colors.text.tertiary'),
+    svgText(ctx, `${key}-budget/label`, budgetLabel, { x: 0, y: y(budget) - 5, color: 'colors.text.secondary' }),
+    tooltip && (() => {
+      const boxWidth = 120;
+      const left = Math.min(Math.max(center(accent) - boxWidth / 2, 0), PLOT_WIDTH - boxWidth);
+      const boxTop = Math.max(y(months[accent].value) - 52, 0);
+      return ctx.node({
+        key: `${key}-tooltip`,
+        tag: 'g',
+        children: [
+          ctx.node({ key: `${key}-tooltip/box`, tag: 'rect', bind: { fill: { token: 'colors.text.primary' } }, attrs: { x: left, y: boxTop, width: boxWidth, height: 42, rx: 8 } }),
+          svgText(ctx, `${key}-tooltip/title`, tooltip[0], { x: left + 10, y: boxTop + 18, font: 'typography.labelMedium', color: 'colors.surface.base' }),
+          svgText(ctx, `${key}-tooltip/detail`, tooltip[1], { x: left + 10, y: boxTop + 34, color: 'colors.surface.base' }),
+        ],
+      });
+    })(),
+  ]);
+};
+
+const SHARES = [
+  ['groceries', 'R$ 1.284,40', '37%', 'up', '4%'],
+  ['restaurants', 'R$ 767,60', '22%', 'up', '18%'],
+  ['transport', 'R$ 440,00', '13%', 'down', '18%'],
+  ['health', 'R$ 388,00', '11%', 'up', '2%'],
+  ['leisure', 'R$ 320,00', '9%', 'down', '6%'],
+  ['bills', 'R$ 250,00', '7%', 'down', '1%'],
+];
+// Spending more than usual is the bad direction, so up reads as error and down as success; the arrow keeps it from being color alone.
+const trend = (ctx, key, direction, value) => ctx.node({
+  key,
+  styles: ['Family/pending'],
+  children: [
+    icon(ctx, `${key}/icon`, `trending_${direction}`, 'xSmall', direction === 'up' ? 'colors.text.error' : 'colors.text.success'),
+    ctx.node({ key: `${key}/text`, tag: 'span', textKey: 'charts_vs_average', textArgs: [`${direction === 'up' ? '+' : '−'}${value}`] }),
+  ],
+});
+const shareRow = (ctx, [category, amount, share, direction, change]) => ctx.node({
+  key: `share-${category}`,
+  styles: ['Family/row'],
+  hotspot: true,
+  attrs: { role: 'button', tabindex: 0 },
+  children: [
+    badge(ctx, `share-${category}/badge`, category, { small: true }),
+    ctx.node({
+      key: `share-${category}/info`,
+      styles: ['Family/info'],
+      children: [
+        text(ctx, `share-${category}/name`, 'Family/name', { textKey: `home_category_${category}` }, clipped('Family/name')),
+        trend(ctx, `share-${category}/trend`, direction, change),
+      ],
+    }),
+    ctx.node({
+      key: `share-${category}/trailing`,
+      styles: ['Home/trailing'],
+      children: [
+        text(ctx, `share-${category}/amount`, 'Home/amount', { text: amount }),
+        text(ctx, `share-${category}/share`, 'Screen/tertiary', { text: share }),
+      ],
+    }),
+  ],
+});
+const categoriesCard = (ctx) => OrbitCard(ctx, { key: 'shares', variant: 'Base' }, [
+  ctx.node({
+    key: 'shares/bar-row',
+    styles: ['Home/cardBody'],
+    children: [ctx.node({
+      key: 'shares/bar',
+      styles: ['Home/split', 'Charts/split'],
+      children: [['groceries', 37], ['restaurants', 22], ['transport', 13], ['other', 28]].map(([category, share]) => ctx.node({
+        key: `shares/bar/${category}`,
+        styles: [`Home/grow/${share}`],
+        bind: { background: { token: CATEGORIES[category].color ?? OTHER_ARC } },
+      })),
+    })],
+  }),
+  ...SHARES.flatMap((row, i) => [i > 0 && HorizontalDivider(ctx, { key: `shares/divider-${i}` }), shareRow(ctx, row)]),
+]);
+
+const MONTHS = [[5, 4210], [6, 4890], [7, 5320], [8, 4450], [9, 4760], [10, 3450]];
+const monthsCard = (ctx) => OrbitCard(ctx, { key: 'months', variant: 'Base' }, [
+  ctx.node({
+    key: 'months/body',
+    styles: ['Home/cardBody'],
+    children: [
+      columnChart(ctx, 'months', {
+        months: MONTHS.map(([month, value]) => ({ month, value, caption: thousands(ctx, String(value / 1000)) })),
+        max: 6000,
+        budget: 5000,
+        budgetLabel: `${ctx.t('charts_budget')} ${thousands(ctx, '5')}`,
+        accent: MONTHS.length - 1,
+        labelled: [2, MONTHS.length - 1],
+        label: ctx.t('charts_months_label'),
+      }),
+      ctx.node({
+        key: 'months/footer',
+        styles: ['Home/spread'],
+        children: [
+          text(ctx, 'months/average', 'Screen/secondary', { textKey: 'charts_average_month', textArgs: ['R$ 4.726'] }),
+          status(ctx, 'months/over', 'triangle_alert', 'colors.text.warning', 'charts_over_months', ['1']),
+        ],
+      }),
+    ],
+  }),
+]);
+
+const insightRow = (ctx, key, glyph, tone, title, detail) => ctx.node({
+  key,
+  styles: ['Home/attentionRow'],
+  hotspot: true,
+  children: [
+    ctx.node({ key: `${key}/badge`, styles: [`Charts/${tone}Badge`], children: [icon(ctx, `${key}/icon`, glyph, 'medium', `colors.direction.${tone === 'good' ? 'gain' : tone}`)] }),
+    ctx.node({
+      key: `${key}/info`,
+      styles: ['Family/info'],
+      children: [text(ctx, `${key}/title`, 'Family/name', title), text(ctx, `${key}/detail`, 'Screen/tertiary', detail, clipped('Screen/tertiary'))],
+    }),
+    chevron(ctx, key),
+  ],
+});
+const insightsCard = (ctx) => OrbitCard(ctx, { key: 'insights', variant: 'Base' }, [
+  attentionRow(
+    ctx, 'insight-restaurants', 'triangle_alert',
+    { textKey: 'home_attention_over', textArgs: [ctx.t('home_category_restaurants'), 'R$ 67,60'] },
+    { textKey: 'home_attention_budgeted', textArgs: ['R$ 767,60', 'R$ 700,00'] },
+  ),
+  HorizontalDivider(ctx, { key: 'insights/divider-1' }),
+  insightRow(ctx, 'insight-transport', 'trending_down', 'good', { textKey: 'charts_insight_transport' }, { textKey: 'charts_insight_transport_detail' }),
+  HorizontalDivider(ctx, { key: 'insights/divider-2' }),
+  insightRow(ctx, 'insight-day', 'calendar_days', 'info', { textKey: 'charts_insight_day' }, { textKey: 'charts_insight_day_detail' }),
+]);
+
+const paceCard = (ctx) => OrbitCard(ctx, { key: 'hero', variant: 'Base' }, [
+  ctx.node({
+    key: 'hero/content',
+    styles: ['Home/hero'],
+    children: [
+      ctx.node({
+        key: 'hero/top',
+        styles: ['Home/spread'],
+        children: [
+          text(ctx, 'hero/eyebrow', 'Screen/eyebrow', { textKey: 'charts_spent_eyebrow' }),
+          ctx.node({
+            key: 'hero/delta',
+            styles: ['Charts/deltaUp'],
+            children: [
+              icon(ctx, 'hero/delta/icon', 'trending_up', 'xSmall', 'colors.text.error'),
+              ctx.node({ key: 'hero/delta/text', tag: 'span', textKey: 'charts_vs_last', textArgs: ['R$ 1.910'] }),
+            ],
+          }),
+        ],
+      }),
+      text(ctx, 'hero/amount', 'OrbitCard/amount', { text: 'R$ 3.450,00' }),
+      ctx.node({
+        key: 'stats',
+        styles: ['Home/stats', 'Charts/stats'],
+        children: [
+          stat(ctx, 'stat-daily', 'charts_daily_average', { text: 'R$ 492,86' }),
+          stat(ctx, 'stat-biggest', 'charts_biggest_day', { text: 'R$ 412,30' }),
+          stat(ctx, 'stat-purchases', 'charts_purchases', { text: '48' }),
+        ],
+      }),
+      HorizontalDivider(ctx, { key: 'hero/divider' }),
+      gap(ctx, 'hero/gap-pace', 'spacing.xxSmall'),
+      ctx.node({
+        key: 'pace-header',
+        styles: ['Home/spread'],
+        children: [
+          text(ctx, 'pace-title', 'Family/name', { textKey: 'charts_pace_title' }),
+          text(ctx, 'pace-caption', 'Screen/tertiary', { textKey: 'charts_pace_caption', textArgs: ['R$ 2.321'] }),
+        ],
+      }),
+      ctx.node({
+        key: 'pace-legend',
+        styles: ['Charts/legend'],
+        children: [
+          legendKey(ctx, 'legend-current', 'charts_legend_this_month', 'colors.brand.primary'),
+          legendKey(ctx, 'legend-previous', 'charts_legend_last_month', 'colors.border.strong'),
+          legendKey(ctx, 'legend-even', 'charts_legend_even', 'colors.text.tertiary', true),
+        ],
+      }),
+      paceChart(ctx),
+    ],
+  }),
+]);
+
+const charts = frame('charts', 'Charts', { status: 'proposed', spec: 'docs/specs/charts.md' }, (ctx) => screenFrame(ctx, [
+  ctx.node({
+    key: 'content',
+    styles: ['Home/scroll'],
+    children: [
+      gap(ctx, 'gap-top', 'spacing.xxLarge'),
+      ctx.node({
+        key: 'header',
+        styles: ['Home/spread', 'Home/inset'],
+        children: [ctx.node({
+          key: 'header/text',
+          styles: ['Home/headerText'],
+          children: [
+            ctx.node({
+              key: 'month',
+              tag: 'button',
+              styles: ['Home/monthRow'],
+              hotspot: true,
+              children: [
+                text(ctx, 'month/title', 'Screen/eyebrow', { textKey: 'home_month_eyebrow' }),
+                icon(ctx, 'month/chevron', 'chevron_down', 'xSmall', 'colors.text.secondary'),
+              ],
+            }),
+            gap(ctx, 'gap-month', 'spacing.xxxSmall'),
+            text(ctx, 'title', 'SignIn/title', { textKey: 'charts_title' }),
+          ],
+        })],
+      }),
+      gap(ctx, 'gap-header', 'spacing.small'),
+      inset(ctx, 'periods/inset', ctx.node({
+        key: 'periods',
+        styles: ['Charts/periods'],
+        attrs: { role: 'group', 'aria-label': ctx.t('charts_periods') },
+        children: ['week', 'month', 'year'].map((period) => OrbitFilterChip(ctx, {
+          key: `period-${period}`,
+          labelKey: `charts_period_${period}`,
+          selected: period === 'month',
+          hotspot: true,
+          styles: ['Settings/option'],
+          attrs: { role: 'button', 'aria-pressed': period === 'month', tabindex: 0 },
+        })),
+      })),
+      gap(ctx, 'gap-periods', 'spacing.medium'),
+      inset(ctx, 'hero/inset', paceCard(ctx)),
+      gap(ctx, 'gap-hero', 'spacing.large'),
+      ...section(ctx, 'categories', sectionHeader(ctx, 'categories-header', 'charts_categories_eyebrow'), categoriesCard(ctx)),
+      gap(ctx, 'gap-categories', 'spacing.large'),
+      ...section(ctx, 'months', sectionHeader(ctx, 'months-header', 'charts_months_eyebrow'), monthsCard(ctx)),
+      gap(ctx, 'gap-months', 'spacing.large'),
+      ...section(ctx, 'family', sectionHeader(ctx, 'family-header', 'home_family_eyebrow'), familyCard(ctx)),
+      gap(ctx, 'gap-family', 'spacing.large'),
+      ...section(ctx, 'insights', sectionHeader(ctx, 'insights-header', 'charts_insights_eyebrow'), insightsCard(ctx)),
+      gap(ctx, 'gap-bottom', 'spacing.large'),
+    ],
+  }),
+  mainNav(ctx, MAIN_NAV.charts),
+]));
+
+// Opened from a category on Charts: Restaurants with its months, places and expenses; August is tapped to show its tooltip.
+const RESTAURANT_MONTHS = [[5, 540], [6, 620], [7, 810], [8, 612.3], [9, 690], [10, 767.6]];
+const PLACES = [
+  ['ifood', 'iFood', 9, 'R$ 312,40', 1],
+  ['outback', 'Outback', 2, 'R$ 186,90', 0.6],
+  ['padaria', 'Padaria Real', 6, 'R$ 142,30', 0.46],
+  ['others', null, 5, 'R$ 126,00', 0.4],
+];
+const RESTAURANT_EXPENSES = [
+  ['ifood', 'iFood', 'restaurants', 'home_yesterday', null, 'R$ 68,50'],
+  ['outback', 'Outback', 'restaurants', 'home_yesterday', 'Marina', 'R$ 186,90'],
+  ['padaria', 'Padaria Real', 'restaurants', 'home_today', null, 'R$ 23,40'],
+];
+const placeRow = (ctx, [key, name, count, amount, share]) => ctx.node({
+  key: `place-${key}`,
+  styles: ['Charts/place'],
+  children: [
+    ctx.node({
+      key: `place-${key}/top`,
+      styles: ['Home/spread'],
+      children: [
+        ctx.node({
+          key: `place-${key}/info`,
+          styles: ['Family/info'],
+          children: [
+            text(ctx, `place-${key}/name`, 'Family/name', name ? { text: name } : { textKey: 'home_category_other' }, clipped('Family/name')),
+            text(ctx, `place-${key}/count`, 'Screen/tertiary', { textKey: 'charts_tooltip_purchases', textArgs: [count] }),
+          ],
+        }),
+        text(ctx, `place-${key}/amount`, 'Home/amount', { text: amount }),
+      ],
+    }),
+    OrbitLinearProgressIndicator(ctx, { key: `place-${key}/bar`, progress: share, status: 'Primary', styles: ['Home/track'] }),
+  ],
+});
+
+const chartsCategory = frame('charts-category', 'Charts · Restaurants', { status: 'proposed', spec: 'docs/specs/charts.md' }, (ctx) => screenFrame(ctx, [
+  content(ctx, [
+    ctx.node({ key: 'toolbar', styles: ['Screen/toolbar'], children: [backButton(ctx)] }),
+    gap(ctx, 'gap-toolbar', 'spacing.xxSmall'),
+    ctx.node({
+      key: 'title-row',
+      styles: ['Charts/titleRow'],
+      children: [
+        badge(ctx, 'title/badge', 'restaurants'),
+        ctx.node({
+          key: 'title/text',
+          styles: ['Family/info'],
+          children: [
+            text(ctx, 'title', 'SignIn/title', { textKey: 'home_category_restaurants' }),
+            text(ctx, 'subtitle', 'Screen/secondary', { textKey: 'home_month' }),
+          ],
+        }),
+      ],
+    }),
+    gap(ctx, 'gap-title', 'spacing.medium'),
+    OrbitCard(ctx, { key: 'summary', variant: 'Base', styles: ['Charts/card'] }, [
+      ctx.node({
+        key: 'summary/body',
+        styles: ['Home/cardBody'],
+        children: [
+          ctx.node({
+            key: 'summary/amounts',
+            styles: ['Home/goalAmounts'],
+            children: [
+              text(ctx, 'summary/spent', 'OrbitCard/amount', { text: 'R$ 767,60' }),
+              text(ctx, 'summary/budget', 'Screen/secondary', { textKey: 'home_of', textArgs: ['R$ 700,00'] }),
+            ],
+          }),
+          OrbitLinearProgressIndicator(ctx, { key: 'summary/progress', progress: 1, status: 'Error', styles: ['Home/track'] }),
+          ctx.node({
+            key: 'summary/footer',
+            styles: ['Home/spread'],
+            children: [
+              status(ctx, 'summary/over', 'triangle_alert', 'colors.text.error', 'home_over', ['R$ 67,60']),
+              trend(ctx, 'summary/trend', 'up', '18%'),
+            ],
+          }),
+        ],
+      }),
+    ]),
+    gap(ctx, 'gap-summary', 'spacing.large'),
+    text(ctx, 'months-eyebrow', 'Screen/eyebrow', { textKey: 'charts_restaurants_eyebrow' }),
+    gap(ctx, 'gap-months-eyebrow', 'spacing.xxSmall'),
+    OrbitCard(ctx, { key: 'months', variant: 'Base', styles: ['Charts/card'] }, [
+      ctx.node({
+        key: 'months/body',
+        styles: ['Home/cardBody'],
+        children: [columnChart(ctx, 'restaurant-months', {
+          months: RESTAURANT_MONTHS.map(([month, value]) => ({ month, value })),
+          max: 900,
+          budget: 700,
+          budgetLabel: ctx.t('charts_category_budget', 'R$ 700'),
+          accent: 3,
+          tooltip: [`${ctx.t('charts_month_short_8')} · R$ 612,30`, ctx.t('charts_tooltip_purchases', 14)],
+          label: ctx.t('charts_months_label'),
+        })],
+      }),
+    ]),
+    gap(ctx, 'gap-months', 'spacing.large'),
+    text(ctx, 'places-eyebrow', 'Screen/eyebrow', { textKey: 'charts_top_places_eyebrow' }),
+    gap(ctx, 'gap-places-eyebrow', 'spacing.xxSmall'),
+    OrbitCard(ctx, { key: 'places', variant: 'Base', styles: ['Charts/card'] }, PLACES.flatMap((row, i) => [i > 0 && HorizontalDivider(ctx, { key: `places/divider-${i}` }), placeRow(ctx, row)])),
+    gap(ctx, 'gap-places', 'spacing.large'),
+    text(ctx, 'recent-eyebrow', 'Screen/eyebrow', { textKey: 'home_recent_eyebrow' }),
+    gap(ctx, 'gap-recent-eyebrow', 'spacing.xxSmall'),
+    OrbitCard(ctx, { key: 'recent', variant: 'Base', styles: ['Charts/card'] }, RESTAURANT_EXPENSES.flatMap((row, i) => [i > 0 && HorizontalDivider(ctx, { key: `recent/divider-${i}` }), expense(ctx, row)])),
+  ]),
+]));
+
 const PALETTES = ['spruce', 'indigo', 'plum', 'orchid', 'flamingo', 'azure', 'ember', 'graphite'];
 const MODES = ['system', 'light', 'dark'];
 
@@ -1693,6 +2143,8 @@ export const frames = [
   homePulse,
   homeBudget,
   homeLeftover,
+  charts,
+  chartsCategory,
   settings,
   settingsTheme,
   settingsSignOut,

@@ -376,6 +376,22 @@
           "y": 1932,
           "width": 402,
           "height": 874
+        },
+        {
+          "id": "mobile-charts",
+          "catalogId": "screens/charts",
+          "x": 3584,
+          "y": 2898,
+          "width": 402,
+          "height": 874
+        },
+        {
+          "id": "mobile-charts-category",
+          "catalogId": "screens/charts-category",
+          "x": 4096,
+          "y": 2898,
+          "width": 402,
+          "height": 874
         }
       ]
     },
@@ -1010,6 +1026,83 @@
       },
       "to": {
         "frameId": "mobile-settings"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-home-nav-charts",
+      "from": {
+        "frameId": "mobile-home",
+        "hotspotId": "nav-charts"
+      },
+      "to": {
+        "frameId": "mobile-charts"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-settings-nav-charts",
+      "from": {
+        "frameId": "mobile-settings",
+        "hotspotId": "nav-charts"
+      },
+      "to": {
+        "frameId": "mobile-charts"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-charts-nav-house",
+      "from": {
+        "frameId": "mobile-charts",
+        "hotspotId": "nav-house"
+      },
+      "to": {
+        "frameId": "mobile-home"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-charts-nav-user_round",
+      "from": {
+        "frameId": "mobile-charts",
+        "hotspotId": "nav-user_round"
+      },
+      "to": {
+        "frameId": "mobile-settings"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-charts-share-restaurants",
+      "from": {
+        "frameId": "mobile-charts",
+        "hotspotId": "share-restaurants"
+      },
+      "to": {
+        "frameId": "mobile-charts-category"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-charts-insight-restaurants",
+      "from": {
+        "frameId": "mobile-charts",
+        "hotspotId": "insight-restaurants"
+      },
+      "to": {
+        "frameId": "mobile-charts-category"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-charts-category-back",
+      "from": {
+        "frameId": "mobile-charts-category",
+        "hotspotId": "back"
+      },
+      "to": {
+        "frameId": "mobile-charts"
       },
       "trigger": "click"
     }

@@ -2,7 +2,7 @@
 // declared instead of guessing identity from computed styles.
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
-const SVG_TAGS = new Set(['svg', 'g', 'circle']);
+const SVG_TAGS = new Set(['svg', 'g', 'circle', 'path', 'line', 'rect', 'text']);
 const ANDROID_NS = 'http://schemas.android.com/apk/res/android';
 const STRING_SOURCES = { CoreUiRes: 'assets/core-ui', FeatureAuthRes: 'assets/feature-auth' };
 const TYPOGRAPHY_CSS = {
