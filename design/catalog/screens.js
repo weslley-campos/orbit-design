@@ -2043,10 +2043,8 @@ const settings = frame('settings', 'Settings', { status: 'proposed', spec: 'docs
   mainNav(ctx, MAIN_NAV.settings),
 ]));
 
-// A bottom sheet over Settings, like the month picker over Home.
-const settingsSheet = (id, name, sheetKey, labelKey, content) => frame(id, name, {
-  status: 'proposed', spec: 'docs/specs/settings.md',
-}, (ctx) => ctx.node({
+// A bottom sheet over another frame, like the month picker over Home.
+const sheetFrame = (id, name, spec, background, sheetKey, labelKey, content) => frame(id, name, { status: 'proposed', spec }, (ctx) => ctx.node({
   key: `${sheetKey}-frame`,
   styles: ['OrbitScaffold'],
   children: [
@@ -2054,14 +2052,15 @@ const settingsSheet = (id, name, sheetKey, labelKey, content) => frame(id, name,
       key: `${sheetKey}-background`,
       styles: ['MonthPicker/background'],
       attrs: { inert: '', 'aria-hidden': 'true' },
-      children: [settings.render(ctx)],
+      children: [background.render(ctx)],
     }),
     OrbitBottomSheet(ctx, {
       key: sheetKey,
-      attrs: { role: 'dialog', 'aria-modal': 'true', 'aria-label': ctx.t(labelKey) },
+      attrs: { role: 'dialog', 'aria-modal': 'true', 'aria-label': typeof labelKey === 'function' ? labelKey(ctx) : ctx.t(labelKey) },
     }, [ctx.node({ key: `${sheetKey}-content`, styles: ['Screen/content'], children: content(ctx) })]),
   ],
 }));
+const settingsSheet = (id, name, sheetKey, labelKey, content) => sheetFrame(id, name, 'docs/specs/settings.md', settings, sheetKey, labelKey, content);
 
 const paletteOption = (ctx, palette) => {
   const selected = palette === ctx.settings.palette;
@@ -2126,6 +2125,326 @@ const settingsSignOut = settingsSheet('settings-sign-out', 'Settings · Sign out
   ]),
 ]);
 
+// Wallet: the cards, stacked like Apple Wallet. Art comes from assets/proposed/cards (bank artwork the user supplied);
+// the app would use the issuer's card image from Pluggy or a generated card.
+const WALLET_SPEC = 'docs/specs/wallet.md';
+const CARDS = [
+  { key: 'azul', name: 'Azul Itaú', art: 'azul', network: 'Mastercard', last4: '4821', bill: 'R$ 2.140,20', closes: ['oct', 12], due: ['oct', 20], used: 0.18, limit: 'R$ 12.000,00', available: 'R$ 9.859,80' },
+  { key: 'amazon', name: 'Amazon Mastercard', art: 'amazon', network: 'Mastercard', last4: '1093', bill: 'R$ 486,90', closes: ['oct', 8], due: ['oct', 15] },
+  { key: 'bradesco', name: 'Bradesco Diners', art: 'bradesco-diners', network: 'Elo', last4: '7712', bill: 'R$ 1.315,00', closes: ['oct', 18], due: ['oct', 25] },
+  { key: 'amex', name: 'Amex Green', art: 'amex-green', network: 'Amex', last4: '3005', bill: 'R$ 870,30', closes: ['oct', 26], due: ['nov', 2] },
+];
+const card = (key) => CARDS.find((c) => c.key === key);
+const day = (ctx, [month, n]) => ctx.t(`wallet_date_${month}`, n);
+const cardArt = (ctx, key, { art, name }, styles = [], extra = {}) => ctx.node({
+  key,
+  styles: ['Wallet/card', ...styles],
+  attrs: { role: 'img', 'aria-label': name },
+  ...extra,
+  children: [ctx.node({ key: `${key}/art`, tag: 'img', styles: ['Wallet/art'], attrs: { src: `assets/proposed/cards/${art}.jpg`, alt: '', draggable: 'false' } })],
+});
+const thumb = (ctx, key, c) => cardArt(ctx, key, c, ['Wallet/thumb']);
+const cardInfo = (ctx, key, c, detail) => ctx.node({
+  key: `${key}/info`,
+  styles: ['Family/info'],
+  children: [text(ctx, `${key}/name`, 'Family/name', { text: c.name }, clipped('Family/name')), text(ctx, `${key}/detail`, 'Screen/tertiary', detail, clipped('Screen/tertiary'))],
+});
+const billRow = (ctx, c) => ctx.node({
+  key: `bill-${c.key}`,
+  styles: ['Family/row'],
+  hotspot: true,
+  attrs: { role: 'button', tabindex: 0 },
+  children: [
+    thumb(ctx, `bill-${c.key}/thumb`, c),
+    cardInfo(ctx, `bill-${c.key}`, c, { textKey: 'wallet_closes_due', textArgs: [day(ctx, c.closes), day(ctx, c.due)] }),
+    text(ctx, `bill-${c.key}/amount`, 'Home/amount', { text: c.bill }),
+  ],
+});
+const iconAction = (ctx, key, glyph, labelKey) => OrbitIconButton(ctx, { key, hotspot: true, contentDescription: ctx.t(labelKey) }, [
+  icon(ctx, `${key}/icon`, glyph, 'medium', 'colors.text.primary'),
+]);
+
+const wallet = frame('wallet', 'Wallet', { status: 'proposed', spec: WALLET_SPEC }, (ctx) => screenFrame(ctx, [
+  ctx.node({
+    key: 'content',
+    styles: ['Home/scroll'],
+    children: [
+      gap(ctx, 'gap-top', 'spacing.xxLarge'),
+      ctx.node({
+        key: 'header',
+        styles: ['Home/spread', 'Home/inset'],
+        children: [
+          ctx.node({
+            key: 'header/text',
+            styles: ['Home/headerText'],
+            children: [
+              text(ctx, 'title', 'SignIn/title', { textKey: 'wallet_title' }),
+              text(ctx, 'summary', 'Screen/secondary', { textKey: 'wallet_summary', textArgs: [CARDS.length, 'R$ 4.812,40'] }),
+            ],
+          }),
+          ctx.node({ key: 'actions', styles: ['Home/actions'], children: [iconAction(ctx, 'sort', 'arrow_up_down', 'wallet_sort'), iconAction(ctx, 'add', 'plus', 'wallet_add')] }),
+        ],
+      }),
+      gap(ctx, 'gap-header', 'spacing.medium'),
+      inset(ctx, 'stack/inset', ctx.node({
+        key: 'stack',
+        styles: ['Wallet/stack'],
+        attrs: { role: 'list' },
+        children: CARDS.map((c, i) => cardArt(ctx, `card-${c.key}`, c, i ? ['Wallet/stacked'] : [], { hotspot: true, attrs: { role: 'button', 'aria-label': c.name, tabindex: 0 } })),
+      })),
+      gap(ctx, 'gap-stack', 'spacing.large'),
+      ...section(ctx, 'bills', sectionHeader(ctx, 'bills-header', 'wallet_bills_eyebrow', 'wallet_sorted_manual'), OrbitCard(ctx, { key: 'bills', variant: 'Base' }, CARDS.flatMap((c, i) => [
+        i > 0 && HorizontalDivider(ctx, { key: `bills/divider-${i}` }),
+        billRow(ctx, c),
+      ]))),
+      gap(ctx, 'gap-bottom', 'spacing.large'),
+    ],
+  }),
+  mainNav(ctx, MAIN_NAV.wallet),
+]));
+
+// A tapped card rises to the top with its bill and transactions; the other cards wait in a short deck above the bar.
+const CARD_EXPENSES = [EXPENSES[0], EXPENSES[1], EXPENSES[2], EXPENSES[3]];
+const walletCard = frame('wallet-card', 'Wallet · Card', { status: 'proposed', spec: WALLET_SPEC }, (ctx) => {
+  const c = card('azul');
+  return screenFrame(ctx, [
+    ctx.node({
+      key: 'content',
+      styles: ['Home/scroll'],
+      children: [
+        gap(ctx, 'gap-top', 'spacing.xLarge'),
+        inset(ctx, 'toolbar/inset', ctx.node({
+          key: 'toolbar',
+          styles: ['Home/spread', 'Screen/toolbar'],
+          children: [backButton(ctx), OrbitIconButton(ctx, { key: 'more', hotspot: true, contentDescription: ctx.t('wallet_edit') }, [
+            icon(ctx, 'more/icon', 'ellipsis', 'medium', 'colors.text.primary'),
+          ])],
+        })),
+        gap(ctx, 'gap-toolbar', 'spacing.xxSmall'),
+        inset(ctx, 'selected/inset', cardArt(ctx, 'selected-card', c, ['Wallet/raised'])),
+        gap(ctx, 'gap-card', 'spacing.small'),
+        inset(ctx, 'name/inset', ctx.node({
+          key: 'name',
+          styles: ['Home/headerText'],
+          children: [
+            text(ctx, 'name/title', 'Home/cardTitle', { text: c.name }),
+            text(ctx, 'name/number', 'Screen/secondary', { textKey: 'wallet_number', textArgs: [c.network, c.last4] }),
+          ],
+        })),
+        gap(ctx, 'gap-name', 'spacing.medium'),
+        inset(ctx, 'bill/inset', OrbitCard(ctx, { key: 'bill', variant: 'Base' }, [
+          ctx.node({
+            key: 'bill/body',
+            styles: ['Home/cardBody'],
+            children: [
+              ctx.node({
+                key: 'bill/top',
+                styles: ['Home/spread'],
+                children: [
+                  text(ctx, 'bill/eyebrow', 'Screen/eyebrow', { textKey: 'wallet_current_bill' }),
+                  text(ctx, 'bill/dates', 'Screen/tertiary', { textKey: 'wallet_closes_due', textArgs: [day(ctx, c.closes), day(ctx, c.due)] }),
+                ],
+              }),
+              text(ctx, 'bill/amount', 'OrbitCard/amount', { text: c.bill }),
+              OrbitLinearProgressIndicator(ctx, { key: 'bill/limit', progress: c.used, status: 'Primary', styles: ['Home/track'] }),
+              ctx.node({
+                key: 'bill/footer',
+                styles: ['Home/spread'],
+                children: [
+                  text(ctx, 'bill/used', 'Screen/secondary', { textKey: 'wallet_limit', textArgs: [c.limit] }),
+                  text(ctx, 'bill/available', 'Screen/tertiary', { textKey: 'wallet_available', textArgs: [c.available] }),
+                ],
+              }),
+            ],
+          }),
+        ])),
+        gap(ctx, 'gap-bill', 'spacing.small'),
+        inset(ctx, 'card-actions/inset', ctx.node({
+          key: 'card-actions',
+          styles: ['Home/gridRow'],
+          children: [
+            OrbitButton(ctx, { key: 'edit-card', variant: 'Outlined', hotspot: true, styles: ['Wallet/half'] }, [
+              icon(ctx, 'edit-card/icon', 'pencil', 'medium', 'colors.text.primary', ['Screen/leadingIcon']),
+              label(ctx, 'edit-card/label', { textKey: 'wallet_edit' }),
+            ]),
+            OrbitButton(ctx, { key: 'remove-card', variant: 'Outlined', hotspot: true, styles: ['Wallet/half'] }, [
+              icon(ctx, 'remove-card/icon', 'circle_minus', 'medium', 'colors.text.error', ['Screen/leadingIcon']),
+              label(ctx, 'remove-card/label', { textKey: 'wallet_remove' }, 'Settings/danger'),
+            ]),
+          ],
+        })),
+        gap(ctx, 'gap-actions', 'spacing.large'),
+        ...section(ctx, 'transactions', sectionHeader(ctx, 'transactions-header', 'wallet_transactions_eyebrow', 'wallet_see_bill'),
+          OrbitCard(ctx, { key: 'transactions', variant: 'Base' }, CARD_EXPENSES.flatMap((row, i) => [i > 0 && HorizontalDivider(ctx, { key: `transactions/divider-${i}` }), expense(ctx, row)]))),
+        gap(ctx, 'gap-bottom', 'spacing.large'),
+      ],
+    }),
+    ctx.node({
+      key: 'deck',
+      styles: ['Wallet/deck'],
+      hotspot: true,
+      attrs: { role: 'button', tabindex: 0, 'aria-label': ctx.t('wallet_other_cards') },
+      children: CARDS.filter((other) => other !== c).map((other, i) => ctx.node({
+        key: `deck-${other.key}`,
+        styles: ['Wallet/sliver', i && 'Wallet/sliverStacked'],
+        children: [cardArt(ctx, `deck-${other.key}/card`, other)],
+      })),
+    }),
+    mainNav(ctx, MAIN_NAV.wallet),
+  ]);
+});
+
+const SORTS = [['manual', 'grip_vertical'], ['bill', 'trending_up'], ['due', 'calendar_days'], ['name', 'arrow_up_down']];
+const walletSort = sheetFrame('wallet-sort', 'Wallet · Sort', WALLET_SPEC, wallet, 'sort-sheet', 'wallet_sort', (ctx) => [
+  ctx.node({
+    key: 'sort-header',
+    styles: ['Home/spread'],
+    children: [
+      text(ctx, 'sort-title', 'SignIn/title', { textKey: 'wallet_sort' }),
+      OrbitIconButton(ctx, { key: 'sort-close', hotspot: true, contentDescription: ctx.t('home_picker_close') }, [icon(ctx, 'sort-close/icon', 'x', 'medium', 'colors.text.secondary')]),
+    ],
+  }),
+  gap(ctx, 'sort-gap-title', 'spacing.xxSmall'),
+  ctx.node({
+    key: 'sort-options',
+    styles: ['Settings/stack'],
+    attrs: { role: 'radiogroup', 'aria-label': ctx.t('wallet_sort') },
+    children: SORTS.map(([sort, glyph], i) => settingsRow(ctx, `sort-${sort}`, glyph, `wallet_sort_${sort}`, {
+      detail: { textKey: `wallet_sort_${sort}_detail` },
+      trailing: i === 0 ? icon(ctx, `sort-${sort}/check`, 'check', 'medium', 'colors.text.brand') : null,
+    })),
+  }),
+  gap(ctx, 'sort-gap-edit', 'spacing.medium'),
+  OrbitButton(ctx, { key: 'edit-order', variant: 'Outlined', hotspot: true, styles: ['Screen/fill'] }, [
+    icon(ctx, 'edit-order/icon', 'grip_vertical', 'medium', 'colors.text.primary', ['Screen/leadingIcon']),
+    label(ctx, 'edit-order/label', { textKey: 'wallet_edit_order' }),
+  ]),
+]);
+
+// Reordering: Bradesco is being dragged above Amazon.
+const editRow = (ctx, c, dragging = false) => ctx.node({
+  key: `edit-${c.key}`,
+  styles: ['Family/row', dragging && 'Wallet/dragging'],
+  children: [
+    OrbitIconButton(ctx, { key: `edit-${c.key}/remove`, hotspot: true, contentDescription: ctx.t('wallet_remove_card', c.name) }, [
+      icon(ctx, `edit-${c.key}/remove/icon`, 'circle_minus', 'medium', 'colors.text.error'),
+    ]),
+    thumb(ctx, `edit-${c.key}/thumb`, c),
+    cardInfo(ctx, `edit-${c.key}`, c, { textKey: 'wallet_number', textArgs: [c.network, c.last4] }),
+    ctx.node({
+      key: `edit-${c.key}/handle`, styles: ['Wallet/handle'], attrs: { role: 'button', 'aria-label': ctx.t('wallet_reorder_card', c.name) },
+      children: [icon(ctx, `edit-${c.key}/handle/icon`, 'grip_vertical', 'medium', 'colors.text.tertiary')],
+    }),
+  ],
+});
+const walletEdit = frame('wallet-edit', 'Wallet · Edit cards', { status: 'proposed', spec: WALLET_SPEC }, (ctx) => screenFrame(ctx, [
+  content(ctx, [
+    ...header(ctx, 'wallet_edit_title', 'wallet_edit_guidance'),
+    OrbitCard(ctx, { key: 'cards', variant: 'Base', styles: ['Charts/card'] }, [
+      editRow(ctx, card('azul')),
+      HorizontalDivider(ctx, { key: 'cards/divider-1' }),
+      editRow(ctx, card('bradesco'), true),
+      editRow(ctx, card('amazon')),
+      HorizontalDivider(ctx, { key: 'cards/divider-3' }),
+      editRow(ctx, card('amex')),
+    ]),
+    ctx.node({ key: 'spacer', styles: ['Screen/grow'] }),
+    actions(ctx, [
+      primary(ctx, 'done', 'wallet_done'),
+      OrbitButton(ctx, { key: 'add-card', variant: 'Outlined', hotspot: true, styles: ['Screen/fill'] }, [
+        icon(ctx, 'add-card/icon', 'plus', 'medium', 'colors.text.primary', ['Screen/leadingIcon']),
+        label(ctx, 'add-card/label', { textKey: 'wallet_add' }),
+      ]),
+    ]),
+  ]),
+]));
+
+const NETWORKS = ['Mastercard', 'Visa', 'Elo', 'Amex', null];
+const halfField = (ctx, key, labelKey, options) => ctx.node({ key: `${key}/column`, styles: ['Wallet/fieldColumn'], children: field(ctx, key, labelKey, options) });
+const walletAdd = frame('wallet-add', 'Wallet · Add card', { status: 'proposed', spec: WALLET_SPEC }, (ctx) => screenFrame(ctx, [
+  content(ctx, [
+    ...header(ctx, 'wallet_add', 'wallet_add_guidance'),
+    ctx.node({
+      key: 'preview',
+      styles: ['Wallet/preview'],
+      attrs: { role: 'img', 'aria-label': 'Nubank Ultravioleta' },
+      children: [
+        text(ctx, 'preview/name', 'Wallet/previewName', { text: 'Nubank Ultravioleta' }),
+        ctx.node({ key: 'preview/spacer', styles: ['Screen/grow'] }),
+        ctx.node({
+          key: 'preview/bottom',
+          styles: ['Home/spread'],
+          children: [text(ctx, 'preview/number', 'Wallet/previewNumber', { text: '•••• 6620' }), text(ctx, 'preview/network', 'Wallet/previewName', { text: 'Mastercard' })],
+        }),
+      ],
+    }),
+    gap(ctx, 'gap-preview', 'spacing.medium'),
+    OrbitCard(ctx, { key: 'import-card', variant: 'Base', styles: ['Charts/card'] }, [
+      settingsRow(ctx, 'import', 'plug', 'wallet_import', { detail: { textKey: 'wallet_import_detail' } }),
+    ]),
+    gap(ctx, 'gap-import', 'spacing.large'),
+    text(ctx, 'manual-eyebrow', 'Screen/eyebrow', { textKey: 'wallet_manual_eyebrow' }),
+    gap(ctx, 'gap-manual', 'spacing.small'),
+    ...field(ctx, 'card-name', 'wallet_name_label', { value: 'Nubank Ultravioleta', placeholderKey: 'wallet_name_placeholder' }),
+    gap(ctx, 'gap-name', 'spacing.small'),
+    ctx.node({
+      key: 'numbers-row',
+      styles: ['Home/gridRow'],
+      children: [
+        halfField(ctx, 'last-digits', 'wallet_digits_label', { value: '6620' }),
+        halfField(ctx, 'limit', 'wallet_limit_label', { value: '', placeholder: 'R$ 0,00' }),
+      ],
+    }),
+    gap(ctx, 'gap-numbers', 'spacing.small'),
+    text(ctx, 'network-eyebrow', 'Screen/eyebrow', { textKey: 'wallet_network_label' }),
+    gap(ctx, 'gap-network', 'spacing.xxxSmall'),
+    ctx.node({
+      key: 'networks',
+      styles: ['Wallet/chips'],
+      attrs: { role: 'radiogroup', 'aria-label': ctx.t('wallet_network_label') },
+      children: NETWORKS.map((network, i) => OrbitFilterChip(ctx, {
+        key: `network-${network?.toLowerCase() ?? 'other'}`,
+        ...(network ? { label: network } : { labelKey: 'wallet_network_other' }),
+        selected: i === 0,
+        hotspot: true,
+        attrs: { role: 'radio', 'aria-checked': i === 0, tabindex: 0 },
+      })),
+    }),
+    gap(ctx, 'gap-networks', 'spacing.small'),
+    ctx.node({
+      key: 'days-row',
+      styles: ['Home/gridRow'],
+      children: [
+        halfField(ctx, 'closing-day', 'wallet_closing_label', { value: '3' }),
+        halfField(ctx, 'due-day', 'wallet_due_label', { value: '10' }),
+      ],
+    }),
+    gap(ctx, 'gap-days', 'spacing.large'),
+    ctx.node({ key: 'spacer', styles: ['Screen/grow'] }),
+    actions(ctx, [primary(ctx, 'save', 'wallet_add'), textButton(ctx, 'cancel', 'wallet_cancel')]),
+  ]),
+]));
+
+const walletRemove = sheetFrame('wallet-remove', 'Wallet · Remove card', WALLET_SPEC, walletCard, 'remove-sheet',
+  (ctx) => ctx.t('wallet_remove_title', card('azul').name), (ctx) => [
+    ctx.node({
+      key: 'remove-badge',
+      styles: ['EmailSent/badge', 'Settings/dangerBadge'],
+      children: [icon(ctx, 'remove-badge/icon', 'circle_minus', 'xLarge', 'colors.text.error')],
+    }),
+    gap(ctx, 'remove-gap-badge', 'spacing.medium'),
+    text(ctx, 'remove-title', 'SignIn/title', { textKey: 'wallet_remove_title', textArgs: [card('azul').name] }),
+    gap(ctx, 'remove-gap-title', 'spacing.xxSmall'),
+    text(ctx, 'remove-body', 'Screen/guidance', { textKey: 'wallet_remove_body' }),
+    gap(ctx, 'remove-gap-body', 'spacing.large'),
+    actions(ctx, [
+      OrbitButton(ctx, { key: 'remove-confirm', variant: 'Destructive', hotspot: true, styles: ['Screen/fill'] }, [
+        label(ctx, 'remove-confirm/label', { textKey: 'wallet_remove_confirm' }),
+      ]),
+      textButton(ctx, 'remove-cancel', 'wallet_cancel'),
+    ]),
+  ]);
+
 export const frames = [
   splash,
   signIn,
@@ -2145,6 +2464,12 @@ export const frames = [
   homeLeftover,
   charts,
   chartsCategory,
+  wallet,
+  walletCard,
+  walletSort,
+  walletEdit,
+  walletAdd,
+  walletRemove,
   settings,
   settingsTheme,
   settingsSignOut,
