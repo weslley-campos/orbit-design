@@ -2,8 +2,8 @@ import { BASE_CSS, LANGUAGES, hotspotsOf, loadCatalog, overridesCss } from '../c
 import { MOBILE_SCREEN, deviceOf, h, kids, openMenu, outerSize, preserveFocus } from './dom.js';
 import { icon } from './icons.js';
 import {
-  STORAGE_KEY, loadWorkspace, locate, moveFrameToPage, moveShelfItem, nextFreeX, normalize, parseWorkspace, removePage, restoreFrame, shelveFrame, uniqueId,
-  validateWorkspace,
+  STORAGE_KEY, loadWorkspace, locate, mergeSeed, moveFrameToPage, moveShelfItem, nextFreeX, normalize, parseWorkspace, pendingMerge, removePage, restoreFrame,
+  shelveFrame, uniqueId, validateWorkspace,
 } from './store.js';
 import { createCanvas } from './canvas.js';
 import { createInspector } from './inspector.js';
@@ -549,6 +549,36 @@ async function boot() {
     clearNotice();
     app.commit();
   };
+  // New screens, pages and links from the committed workspace.json join the open workspace; its own work stays (see mergeSeed).
+  const count = (n, one, many) => `${n} ${n === 1 ? one : many}`;
+  const mergeSummary = ({ frames, pages, connections }) => new Intl.ListFormat('en').format([
+    frames && count(frames, 'new screen', 'new screens'),
+    pages && count(pages, 'new page', 'new pages'),
+    connections && count(connections, 'prototype link', 'prototype links'),
+  ].filter(Boolean));
+  const sizes = (pending) => ({ frames: pending.frames.length, pages: pending.pages, connections: pending.connections.length });
+  const hasMerge = (pending) => pending.frames.length > 0 || pending.connections.length > 0;
+  function mergeCommitted(ask) {
+    const pending = pendingMerge(app.ws, seed);
+    if (!hasMerge(pending)) { showToast('Already up to date with the committed workspace.'); return; }
+    if (ask && !confirm(`Merge ${mergeSummary(sizes(pending))} from the committed workspace.json? Positions, Archived, Trash, edits and your other links stay as they are.`)) return;
+    const merged = structuredClone(app.ws);
+    const done = mergeSeed(merged, seed);
+    const errors = validateWorkspace(merged, context);
+    if (errors.length) { showNotice('The merge would make the workspace invalid, so nothing changed.', errors); return; }
+    app.ws = merged;
+    app.selection = null;
+    clearNotice();
+    app.commit();
+    showToast(`Merged ${mergeSummary(done)}.`);
+  }
+  app.offerMerge = () => {
+    if (app.review || locked || !notice.hidden) return;
+    const pending = pendingMerge(app.ws, seed);
+    if (hasMerge(pending)) {
+      showNotice(`The committed workspace has ${mergeSummary(sizes(pending))} that this workspace doesn't have yet.`, [], [{ label: 'Merge', run: () => mergeCommitted(false) }]);
+    }
+  };
   async function reset() {
     if (account.active()) { await account.replace(normalize(structuredClone(seed)), 'reset'); return; }
     if (!confirm('Discard the local draft and reload the committed workspace.json?')) return;
@@ -573,6 +603,7 @@ async function boot() {
       { heading: 'Workspace' },
       { label: 'Export workspace.json', run: () => download('workspace.json', `${JSON.stringify(app.ws, null, 2)}\n`) },
       { label: 'Import workspace.json…', run: () => $('import-file').click() },
+      { label: 'Merge committed changes…', run: () => mergeCommitted(true) },
       { label: 'Reset to committed workspace…', run: reset },
       ...account.menuItems(),
     ]),
@@ -679,6 +710,7 @@ async function boot() {
     app.selection = null;
     app.shelfView = null;
     app.refresh();
+    app.offerMerge();
   }
 
   const env = {
@@ -720,6 +752,7 @@ async function boot() {
   app.refresh();
   app.canvas.setMode(app.mode);
   await (review ?? account).start();
+  app.offerMerge();
 }
 
 boot().catch((error) => {

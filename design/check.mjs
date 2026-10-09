@@ -3,8 +3,8 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import {
-  STORAGE_KEY, loadWorkspace, moveFrameToPage, moveShelfItem, normalize, parseWorkspace, removeFrame, removePage, restoreFrame, saveDraft, setOverride, shelveFrame,
-  uniqueId, validateWorkspace,
+  STORAGE_KEY, loadWorkspace, mergeSeed, moveFrameToPage, moveShelfItem, normalize, parseWorkspace, removeFrame, removePage, restoreFrame, saveDraft, setOverride, shelveFrame,
+  pendingMerge, uniqueId, validateWorkspace,
 } from './js/store.js';
 
 const root = dirname(fileURLToPath(import.meta.url));
@@ -106,6 +106,27 @@ ws = doc();
 moveFrameToPage(ws, 'f2', 'p2');
 assert.deepEqual(ws.pages.map((p) => p.frames.map((f) => f.id)), [['f1'], ['f3', 'f2']], 'frames move between pages');
 assert.equal(ws.connections.length, 2, 'moving keeps connections');
+
+// Merging the committed seed into a draft: new frames, pages and links come in; the draft's own work stays.
+ws = doc();
+ws.pages[0].frames[0].x = 500;
+shelveFrame(ws, 'f3', 'trash');
+ws.connections[0].to.frameId = 'f1';
+ws.connections.push({ id: 'mine', from: { frameId: 'f2', hotspotId: null }, to: { frameId: 'f1' }, trigger: 'click' });
+const newer = doc();
+newer.pages[0].frames.push(frame('f4', 'screens/b'));
+newer.pages.push({ id: 'p3', name: 'Three', view: { x: 0, y: 0, zoom: 1 }, frames: [frame('f5', 'screens/a')] });
+newer.connections.push({ id: 'c3', from: { frameId: 'f4', hotspotId: null }, to: { frameId: 'f5' }, trigger: 'click' });
+assert.deepEqual(mergeSeed(ws, newer), { frames: 2, pages: 1, connections: 2 }, 'merging reports what it added');
+assert.deepEqual(ws.pages.map((p) => p.frames.map((f) => f.id)), [['f1', 'f2', 'f4'], [], ['f5']], 'new frames join their page, or a new one');
+assert.equal(ws.pages[0].frames[0].x, 500, 'moved frames keep their position');
+assert.deepEqual(ws.trash.map((item) => item.frame.id), ['f3'], 'trashed frames stay in Trash');
+assert.equal(ws.connections.find((c) => c.id === 'c1').to.frameId, 'f2', 'the seed link wins on the same hotspot');
+assert.ok(ws.connections.some((c) => c.id === 'mine') && ws.connections.some((c) => c.id === 'c3'), 'own links stay and new ones come in');
+assert.equal(ws.connections.some((c) => c.id === 'c2'), false, 'links to a trashed frame are not brought back');
+assert.deepEqual(validateWorkspace(ws, context), [], 'the merged workspace is valid');
+const again = pendingMerge(ws, newer);
+assert.equal(again.frames.length + again.connections.length, 0, 'a second merge has nothing to do');
 
 const overrides = { tokens: {}, frames: {} };
 setOverride(overrides, ['frames', 'f1', 'go', 'text', 'en'], 'x');

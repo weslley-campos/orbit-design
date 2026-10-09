@@ -124,6 +124,7 @@ export function createAccount(app, env) {
     active = true;
     app.refresh();
     renderStatus();
+    app.offerMerge?.();
     return true;
   }
 
