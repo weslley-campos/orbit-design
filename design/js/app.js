@@ -6,6 +6,7 @@ import {
   shelveFrame, uniqueId, validateWorkspace,
 } from './store.js';
 import { createCanvas } from './canvas.js';
+import { createHistory } from './history.js';
 import { createInspector } from './inspector.js';
 import { openPlay } from './play.js';
 import { createAccount } from './account.js';
@@ -107,6 +108,10 @@ async function boot() {
   const loaded = app.review ? { ws: emptyWorkspace() } : locked ? { ws: lockedWorkspace() } : loadGuest();
   app.ws = loaded.ws;
   app.rawDraft = loaded.draftText ?? null;
+  // Every save records an undo step; opening another workspace (sign-in, cloud copy, lock) starts the history over.
+  const history = createHistory();
+  app.resetHistory = () => history.reset(app.ws);
+  app.resetHistory();
 
   const notice = $('notice');
   const clearNotice = () => { notice.hidden = true; notice.replaceChildren(); };
@@ -125,7 +130,11 @@ async function boot() {
   else if (loaded.notice) showNotice(loaded.notice);
 
   // Browser draft or cloud copy, decided by the account module; a review page never saves.
-  app.save = () => { if (!app.review && !locked) account?.save(); };
+  app.save = () => {
+    if (app.review || locked) return;
+    history.record(app.ws);
+    account?.save();
+  };
 
   const refreshOverrides = () => { $('orbit-overrides').textContent = overridesCss(catalog.tokens, app.ws.overrides); };
   app.change = () => {
@@ -210,6 +219,25 @@ async function boot() {
     showToast(`${app.frameName(app.locate(frameId).frame)} restored to ${page.name}.`);
   }
   app.restore = restore;
+  function step(direction) {
+    if (app.review || locked) return;
+    app.canvas.endLink();
+    const ws = history[direction](app.ws);
+    if (!ws) { showToast(direction === 'undo' ? 'Nothing to undo.' : 'Nothing to redo.'); return; }
+    app.ws = ws;
+    if (app.selection && !app.locate(app.selection.frameId)) app.selection = null;
+    app.commit();
+  }
+  app.undo = () => step('undo');
+  app.redo = () => step('redo');
+  app.removeConnection = (id) => {
+    const index = app.ws.connections.findIndex((c) => c.id === id);
+    if (index < 0) return;
+    app.ws.connections.splice(index, 1);
+    app.change();
+    app.inspector.render();
+    showToast('Link removed.', { label: 'Undo', run: app.undo });
+  };
   app.moveShelf = (frameId, from, to) => {
     moveShelfItem(app.ws, frameId, from, to);
     shelvesOpen.add(to);
@@ -614,6 +642,15 @@ async function boot() {
     })),
   ]);
 
+  // Ctrl/Cmd+Z undoes, Ctrl/Cmd+Shift+Z or Ctrl+Y redoes; text fields keep their own undo.
+  document.addEventListener('keydown', (e) => {
+    if (e.defaultPrevented || !(e.ctrlKey || e.metaKey) || e.altKey || e.target.closest?.('input, textarea, select, [contenteditable], dialog')) return;
+    const key = e.key.toLowerCase();
+    const direction = key === 'z' ? (e.shiftKey ? 'redo' : 'undo') : key === 'y' && !e.shiftKey ? 'redo' : null;
+    if (!direction) return;
+    e.preventDefault();
+    app[direction]();
+  });
   document.addEventListener('keydown', (e) => {
     if (e.defaultPrevented || e.ctrlKey || e.metaKey || e.altKey || e.target.closest?.('input, textarea, select, [contenteditable], dialog')) return;
     if (e.key === 'Escape' && (app.canvas.endLink() || app.closeShelf())) { e.preventDefault(); return; }
@@ -679,6 +716,7 @@ async function boot() {
     document.body.classList.add('is-locked');
     if (app.ws.pages.length) {
       app.ws = lockedWorkspace();
+      app.resetHistory();
       app.selection = null;
       app.shelfView = null;
       app.refresh();
@@ -707,6 +745,7 @@ async function boot() {
     document.body.classList.remove('is-locked');
     gate.hidden = true;
     app.ws = loadGuest().ws;
+    app.resetHistory();
     app.selection = null;
     app.shelfView = null;
     app.refresh();

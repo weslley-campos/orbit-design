@@ -118,6 +118,7 @@ export function createAccount(app, env) {
       return false;
     }
     app.ws = normalize(structuredClone(document));
+    app.resetHistory();
     app.selection = null;
     app.shelfView = null;
     threads.clear();
