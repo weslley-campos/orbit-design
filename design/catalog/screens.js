@@ -1907,13 +1907,13 @@ const PALETTES = ['spruce', 'indigo', 'plum', 'orchid', 'flamingo', 'azure', 'em
 const MODES = ['system', 'light', 'dark'];
 
 // Each Settings row: a neutral icon badge, a title with an optional detail line, and a chevron unless `trailing` says otherwise.
-const settingsRow = (ctx, key, glyph, titleKey, { detail, trailing, hotspot = true } = {}) => ctx.node({
+const settingsRow = (ctx, key, glyph, titleKey, { detail, trailing, hotspot = true, leading } = {}) => ctx.node({
   key,
   styles: ['Family/row'],
   hotspot,
   attrs: hotspot ? { role: 'button', tabindex: 0 } : {},
   children: [
-    ctx.node({
+    leading ?? ctx.node({
       key: `${key}/badge`,
       styles: ['Home/badgeSmall'],
       bind: { background: { token: 'colors.surface.sunken' } },
@@ -1945,7 +1945,7 @@ const accountCard = (ctx) => OrbitCard(ctx, { key: 'account-card', variant: 'Bas
     key: 'account',
     styles: ['Family/row', 'Settings/accountRow'],
     hotspot: true,
-    attrs: { role: 'button', tabindex: 0, 'aria-label': ctx.t('settings_account') },
+    attrs: { role: 'button', tabindex: 0, 'aria-label': ctx.t('profile_title') },
     children: [
       text(ctx, 'account/avatar', 'Family/avatar', { text: 'A' }, { styles: ['Family/avatar', 'Settings/avatar'] }),
       ctx.node({
@@ -2022,7 +2022,6 @@ const settings = frame('settings', 'Settings', { status: 'proposed', spec: 'docs
       ]),
       ...settingsSection(ctx, 'security', 'settings_security_eyebrow', [
         settingsRow(ctx, 'app-lock', 'lock', 'settings_app_lock', { detail: { textKey: 'settings_app_lock_detail' } }),
-        settingsRow(ctx, 'password', 'key_round', 'settings_password', { detail: { textKey: 'settings_password_detail' } }),
         settingsRow(ctx, 'export', 'download', 'settings_export', { detail: { textKey: 'settings_export_detail' } }),
       ]),
       ...settingsSection(ctx, 'about', 'settings_about_eyebrow', [
@@ -2034,11 +2033,7 @@ const settings = frame('settings', 'Settings', { status: 'proposed', spec: 'docs
         icon(ctx, 'sign-out/icon', 'log_out', 'medium', 'colors.text.error', ['Screen/leadingIcon']),
         label(ctx, 'sign-out/label', { textKey: 'settings_sign_out' }, 'Settings/danger'),
       ])),
-      gap(ctx, 'gap-sign-out', 'spacing.xxSmall'),
-      inset(ctx, 'delete-account/inset', OrbitButton(ctx, { key: 'delete-account', variant: 'Text', hotspot: true, styles: ['Screen/fill'] }, [
-        label(ctx, 'delete-account/label', { textKey: 'settings_delete_account' }, 'Settings/danger'),
-      ])),
-      gap(ctx, 'gap-delete', 'spacing.xxSmall'),
+      gap(ctx, 'gap-sign-out', 'spacing.small'),
       text(ctx, 'version', 'Settings/version', { textKey: 'settings_version', textArgs: ['1.0.0 (42)'] }),
       gap(ctx, 'gap-bottom', 'spacing.large'),
     ],
@@ -2126,6 +2121,123 @@ const settingsSignOut = settingsSheet('settings-sign-out', 'Settings · Sign out
     ]),
     textButton(ctx, 'sign-out-cancel', 'settings_sign_out_cancel'),
   ]),
+]);
+
+// Profile: who you are in Orbit, opened from the account card in Settings. It sits one level below the Settings tab,
+// so it hides the navigation bar and goes back with Back, like the Transaction screen.
+const PROFILE_SPEC = 'docs/specs/profile.md';
+const googleBadge = (ctx) => ctx.node({
+  key: 'google/badge',
+  styles: ['Home/badgeSmall'],
+  bind: { background: { token: 'colors.surface.sunken' } },
+  children: [ctx.node({ key: 'google/logo', styles: ['SignIn/googleIcon', 'Profile/google'] })],
+});
+const avatarStack = (ctx, key, initials) => ctx.node({
+  key,
+  styles: ['Profile/stack'],
+  children: initials.map((initial, i) => text(ctx, `${key}/${i}`, 'Family/avatar', { text: initial }, { styles: ['Family/avatar', i > 0 && 'Profile/stacked'] })),
+});
+
+const profile = frame('profile', 'Profile', { status: 'proposed', spec: PROFILE_SPEC }, (ctx) => screenFrame(ctx, [
+  content(ctx, [
+    ctx.node({ key: 'toolbar', styles: ['Screen/toolbar'], children: [backButton(ctx)] }),
+    gap(ctx, 'gap-toolbar', 'spacing.xxSmall'),
+    ctx.node({
+      key: 'hero',
+      styles: ['Tx/hero'],
+      children: [
+        ctx.node({
+          key: 'avatar',
+          styles: ['Profile/avatarWrap'],
+          children: [
+            text(ctx, 'avatar/initial', 'Family/avatar', { text: 'A' }, { styles: ['Family/avatar', 'Profile/avatar'] }),
+            OrbitIconButton(ctx, { key: 'photo', variant: 'Filled', hotspot: true, styles: ['Profile/photo'], contentDescription: ctx.t('profile_change_photo') }, [
+              icon(ctx, 'photo/icon', 'camera', 'small', 'colors.text.onInk'),
+            ]),
+          ],
+        }),
+        gap(ctx, 'gap-avatar', 'spacing.xxSmall'),
+        text(ctx, 'name', 'SignIn/title', { text: 'Ana Souza' }),
+        text(ctx, 'email', 'Screen/secondary', { text: 'ana@example.com' }),
+        text(ctx, 'since', 'Screen/tertiary', { textKey: 'profile_member_since' }),
+      ],
+    }),
+    gap(ctx, 'gap-hero', 'spacing.large'),
+    text(ctx, 'personal-eyebrow', 'Screen/eyebrow', { textKey: 'profile_personal_eyebrow' }),
+    gap(ctx, 'gap-personal-eyebrow', 'spacing.xxSmall'),
+    OrbitCard(ctx, { key: 'personal', variant: 'Base', styles: ['Charts/card'] }, [
+      detailRow(ctx, 'full-name', neutralBadge(ctx, 'full-name/badge', 'user_round'), 'profile_name', { text: 'Ana Souza' }, true),
+      HorizontalDivider(ctx, { key: 'personal/divider-1' }),
+      detailRow(ctx, 'short-name', neutralBadge(ctx, 'short-name/badge', 'users'), 'profile_short_name', { text: 'Ana' }, true),
+      HorizontalDivider(ctx, { key: 'personal/divider-2' }),
+      ctx.node({
+        key: 'email-row',
+        styles: ['Family/row'],
+        hotspot: true,
+        attrs: { role: 'button', tabindex: 0 },
+        children: [
+          neutralBadge(ctx, 'email-row/badge', 'mail'),
+          ctx.node({
+            key: 'email-row/info',
+            styles: ['Family/info'],
+            children: [
+              text(ctx, 'email-row/label', 'Screen/tertiary', { textKey: 'profile_email' }),
+              text(ctx, 'email-row/value', 'Family/name', { text: 'ana@example.com' }, clipped('Family/name')),
+            ],
+          }),
+          status(ctx, 'email-row/verified', 'circle_check', 'colors.text.success', 'profile_verified'),
+          chevron(ctx, 'email-row'),
+        ],
+      }),
+      HorizontalDivider(ctx, { key: 'personal/divider-3' }),
+      detailRow(ctx, 'phone', neutralBadge(ctx, 'phone/badge', 'phone'), 'profile_phone', { textKey: 'profile_phone_add', bind: { color: { token: 'colors.text.brand' } } }, true),
+    ]),
+    gap(ctx, 'gap-personal', 'spacing.large'),
+    text(ctx, 'family-eyebrow', 'Screen/eyebrow', { textKey: 'settings_family_eyebrow' }),
+    gap(ctx, 'gap-family-eyebrow', 'spacing.xxSmall'),
+    OrbitCard(ctx, { key: 'family-card', variant: 'Base', styles: ['Charts/card'] }, [
+      settingsRow(ctx, 'family', null, 'profile_family', { detail: { textKey: 'profile_family_detail', textArgs: ['1'] }, leading: avatarStack(ctx, 'family/avatars', ['A', 'M']) }),
+    ]),
+    gap(ctx, 'gap-family', 'spacing.large'),
+    text(ctx, 'sign-in-eyebrow', 'Screen/eyebrow', { textKey: 'profile_sign_in_eyebrow' }),
+    gap(ctx, 'gap-sign-in-eyebrow', 'spacing.xxSmall'),
+    OrbitCard(ctx, { key: 'sign-in-card', variant: 'Base', styles: ['Charts/card'] }, [
+      settingsRow(ctx, 'password', 'key_round', 'profile_password', { detail: { textKey: 'profile_password_detail' } }),
+      HorizontalDivider(ctx, { key: 'sign-in-card/divider-1' }),
+      settingsRow(ctx, 'google', null, 'profile_google', {
+        detail: { textKey: 'profile_google_detail' },
+        leading: googleBadge(ctx),
+        hotspot: false,
+        trailing: textButton(ctx, 'google-connect', 'profile_connect', []),
+      }),
+    ]),
+    gap(ctx, 'gap-sign-in', 'spacing.small'),
+    OrbitButton(ctx, { key: 'delete-account', variant: 'Text', hotspot: true, styles: ['Screen/fill'] }, [
+      label(ctx, 'delete-account/label', { textKey: 'settings_delete_account' }, 'Settings/danger'),
+    ]),
+    gap(ctx, 'gap-bottom', 'spacing.small'),
+  ]),
+]));
+
+const profilePhoto = sheetFrame('profile-photo', 'Profile · Photo', PROFILE_SPEC, profile, 'photo-sheet', 'profile_photo_title', (ctx) => [
+  ctx.node({
+    key: 'photo-header',
+    styles: ['Home/spread'],
+    children: [
+      text(ctx, 'photo-title', 'SignIn/title', { textKey: 'profile_photo_title' }),
+      OrbitIconButton(ctx, { key: 'photo-close', hotspot: true, contentDescription: ctx.t('home_picker_close') }, [
+        icon(ctx, 'photo-close/icon', 'x', 'medium', 'colors.text.secondary'),
+      ]),
+    ],
+  }),
+  gap(ctx, 'photo-gap-title', 'spacing.xxSmall'),
+  text(ctx, 'photo-guidance', 'Screen/guidance', { textKey: 'profile_photo_guidance' }),
+  gap(ctx, 'photo-gap-guidance', 'spacing.medium'),
+  settingsCard(ctx, 'photo-options', [
+    settingsRow(ctx, 'take-photo', 'camera', 'profile_photo_take', { trailing: null }),
+    settingsRow(ctx, 'choose-photo', 'image', 'profile_photo_choose', { trailing: null }),
+  ]),
+  gap(ctx, 'photo-gap-bottom', 'spacing.small'),
 ]);
 
 // Wallet: the cards, stacked like Apple Wallet. Art comes from assets/proposed/cards (bank artwork the user supplied);
@@ -2825,6 +2937,8 @@ export const frames = [
   settings,
   settingsTheme,
   settingsSignOut,
+  profile,
+  profilePhoto,
   connectorsEmpty,
   connectors,
   pluggySetup,

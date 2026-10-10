@@ -3614,6 +3614,130 @@
       "css": {
         "overflow-wrap": "anywhere"
       }
+    },
+    "Icon/camera": {
+      "bind": {
+        "icon": {
+          "resource": "proposed.drawable.ic_camera",
+          "proposal": "Lucide camera (ISC)"
+        }
+      },
+      "css": {
+        "flex-shrink": "0"
+      }
+    },
+    "Icon/image": {
+      "bind": {
+        "icon": {
+          "resource": "proposed.drawable.ic_image",
+          "proposal": "Lucide image (ISC)"
+        }
+      },
+      "css": {
+        "flex-shrink": "0"
+      }
+    },
+    "Icon/phone": {
+      "bind": {
+        "icon": {
+          "resource": "proposed.drawable.ic_phone",
+          "proposal": "Lucide phone (ISC)"
+        }
+      },
+      "css": {
+        "flex-shrink": "0"
+      }
+    },
+    "Icon/user_round": {
+      "bind": {
+        "icon": {
+          "resource": "proposed.drawable.ic_user_round",
+          "proposal": "Lucide user-round (ISC)"
+        }
+      },
+      "css": {
+        "flex-shrink": "0"
+      }
+    },
+    "Profile/avatarWrap": {
+      "css": {
+        "position": "relative",
+        "flex-shrink": "0"
+      }
+    },
+    "Profile/avatar": {
+      "bind": {
+        "width": {
+          "literal": "88dp",
+          "proposal": "profile photo diameter; no size token"
+        },
+        "height": {
+          "literal": "88dp",
+          "proposal": "profile photo diameter; no size token"
+        },
+        "font": {
+          "token": "typography.headlineMedium"
+        }
+      }
+    },
+    "Profile/photo": {
+      "bind": {
+        "width": {
+          "token": "sizes.xxLarge"
+        },
+        "height": {
+          "token": "sizes.xxLarge"
+        },
+        "outline": [
+          {
+            "literal": "2dp",
+            "proposal": "surface ring that separates the camera button from the photo"
+          },
+          {
+            "token": "colors.surface.background"
+          }
+        ]
+      },
+      "css": {
+        "position": "absolute",
+        "right": "0",
+        "bottom": "0",
+        "outline-style": "solid",
+        "min-width": "0",
+        "min-height": "0",
+        "padding": "0"
+      }
+    },
+    "Profile/google": {
+      "css": {
+        "margin-right": "0"
+      }
+    },
+    "Profile/stack": {
+      "css": {
+        "display": "flex",
+        "flex-shrink": "0"
+      }
+    },
+    "Profile/stacked": {
+      "bind": {
+        "margin-left": {
+          "literal": "-12dp",
+          "proposal": "overlap of stacked family member avatars"
+        },
+        "outline": [
+          {
+            "literal": "2dp",
+            "proposal": "surface ring between stacked avatars"
+          },
+          {
+            "token": "colors.surface.base"
+          }
+        ]
+      },
+      "css": {
+        "outline-style": "solid"
+      }
     }
   }
 }

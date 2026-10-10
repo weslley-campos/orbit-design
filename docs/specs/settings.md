@@ -10,25 +10,25 @@ Status: Draft
 ## 2. Scope
 - Included:
   - Rename the Profile tab to Settings (`home_nav_profile` → `home_nav_settings`, "Settings" / "Ajustes"). The tab keeps its `nav-user_round` hotspot id, so saved prototype links still work.
-  - `screens/settings`: an account card, then Appearance (Theme, Dark mode), Family (Family members, Invite to family), Banks and services (Connectors), Preferences (Language, Currency, Notifications), Security and data (App lock, Password, Export expenses), About (Help, Terms of Use, Privacy Policy), then Sign out, Delete account and the app version.
+  - `screens/settings`: an account card, then Appearance (Theme, Dark mode), Family (Family members, Invite to family), Banks and services (Connectors), Preferences (Language, Currency, Notifications), Security and data (App lock, Export expenses), About (Help, Terms of Use, Privacy Policy), then Sign out and the app version. The account card opens Profile (`docs/specs/profile.md`), which holds Password and Delete account.
   - `screens/settings-theme`: a bottom sheet with Orbit's eight palettes, each shown as its own Orbit mark.
   - `screens/settings-sign-out`: a bottom sheet that confirms signing out.
-  - Prototype links: Home ⇄ Settings, Settings → Theme, Family members, Invite, Connectors and Sign out. Back on Connectors now returns to Settings.
-- Excluded: the account details, language, currency, notifications, app lock, password, export, help and delete-account screens; leaving a family; production app changes.
-- Design: `screens/home` → `screens/settings` → `screens/settings-theme`, `screens/settings-sign-out`, `screens/family-members`, `screens/invite`, `screens/connectors`.
+  - Prototype links: Home ⇄ Settings, Settings → Profile, Theme, Family members, Invite, Connectors and Sign out. Back on Connectors now returns to Settings.
+- Excluded: the language, currency, notifications, app lock, export and help screens; leaving a family; production app changes.
+- Design: `screens/home` → `screens/settings` → `screens/settings-theme`, `screens/settings-sign-out`, `screens/profile`, `screens/family-members`, `screens/invite`, `screens/connectors`.
 
 ## 3. Required behavior
 - R1: The fifth navigation tab reads Settings (Ajustes). It opens Settings, which marks it selected; Home in the bar returns to Home.
 - R2: The Theme row shows the current palette's name and mark and opens the Theme sheet. The sheet lists Spruce, Indigo, Plum, Orchid, Flamingo, Azure, Ember and Graphite, with the current palette selected. Apply and Close return to Settings.
 - R3: Dark mode offers System, Light and Dark as a single choice, with System selected by default. It is independent of the palette.
 - R4: Family members shows "2 members · 1 invite pending" and opens Family members. Invite to family opens Invite. Connectors shows "Pluggy · 2 banks" and opens Connectors, whose Back returns to Settings.
-- R5: Sign out opens a confirmation sheet. Sign out returns to Sign in. Cancel returns to Settings. Delete account is a separate, less prominent action in the error color.
+- R5: Sign out opens a confirmation sheet. Sign out returns to Sign in. Cancel returns to Settings. Delete account lives in Profile.
 - R6: Language shows the language in use (English or Português (Brasil)). Palette, light/dark mode and English/Portuguese apply to all three frames, and no text is clipped at 402 × 874.
 
 ## 4. Constraints
 - Reuse `OrbitCard`, `HorizontalDivider`, `OrbitFilterChip`, `OrbitButton` (Outlined, Text, Destructive), `OrbitIconButton`, `OrbitBottomSheet`, `OrbitNavigationBar`, the Family list styles and the Home section headers, with declared theme tokens.
 - The palette marks are the committed `ic_logo_<palette>` resources. SVG ids are scoped per file, so several palettes' gradients can share a screen.
-- New icons are Lucide proposals (`ic_palette`, `ic_moon`, `ic_languages`, `ic_banknote`, `ic_lock`, `ic_key_round`, `ic_download`, `ic_file_text`, `ic_log_out`) under `design/assets/proposed`.
+- New icons are Lucide proposals (`ic_palette`, `ic_moon`, `ic_languages`, `ic_banknote`, `ic_lock`, `ic_download`, `ic_file_text`, `ic_log_out`) under `design/assets/proposed`.
 - New literals are proposals: the 72dp account row and the 2dp outline on the selected palette.
 
 ## 6. Acceptance criteria
@@ -49,4 +49,4 @@ Status: Draft
 - Can every family member manage the family, or only the person who created it? Is there a Leave family action? — product owner — blocks the family management screen.
 - Is Delete account in scope for the first release (LGPD lets users request deletion)? — product owner — does not block this draft.
 - Which preferences are needed at launch: currency (only BRL?), the day the budget month starts, notifications, app lock? — product owner — does not block this draft.
-- Assumptions: Settings is a tab, not a screen behind the avatar. Account details open from the top card. Counts, version and the email are sample data.
+- Assumptions: Settings is a tab, not a screen behind the avatar. Profile opens from the top card. Counts, version and the email are sample data.

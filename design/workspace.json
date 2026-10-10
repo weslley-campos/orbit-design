@@ -378,6 +378,22 @@
           "height": 874
         },
         {
+          "id": "mobile-profile",
+          "catalogId": "screens/profile",
+          "x": 5632,
+          "y": 1932,
+          "width": 402,
+          "height": 874
+        },
+        {
+          "id": "mobile-profile-photo",
+          "catalogId": "screens/profile-photo",
+          "x": 6144,
+          "y": 1932,
+          "width": 402,
+          "height": 874
+        },
+        {
           "id": "mobile-charts",
           "catalogId": "screens/charts",
           "x": 3584,
@@ -1114,6 +1130,83 @@
       },
       "to": {
         "frameId": "mobile-settings"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-settings-account",
+      "from": {
+        "frameId": "mobile-settings",
+        "hotspotId": "account"
+      },
+      "to": {
+        "frameId": "mobile-profile"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-profile-back",
+      "from": {
+        "frameId": "mobile-profile",
+        "hotspotId": "back"
+      },
+      "to": {
+        "frameId": "mobile-settings"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-profile-photo",
+      "from": {
+        "frameId": "mobile-profile",
+        "hotspotId": "photo"
+      },
+      "to": {
+        "frameId": "mobile-profile-photo"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-profile-family",
+      "from": {
+        "frameId": "mobile-profile",
+        "hotspotId": "family"
+      },
+      "to": {
+        "frameId": "mobile-family-members"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-profile-photo-close",
+      "from": {
+        "frameId": "mobile-profile-photo",
+        "hotspotId": "photo-close"
+      },
+      "to": {
+        "frameId": "mobile-profile"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-profile-photo-take",
+      "from": {
+        "frameId": "mobile-profile-photo",
+        "hotspotId": "take-photo"
+      },
+      "to": {
+        "frameId": "mobile-profile"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-profile-photo-choose",
+      "from": {
+        "frameId": "mobile-profile-photo",
+        "hotspotId": "choose-photo"
+      },
+      "to": {
+        "frameId": "mobile-profile"
       },
       "trigger": "click"
     },
