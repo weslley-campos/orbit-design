@@ -10,4 +10,20 @@
     <string name="snackbar_close">Close</string>
     <string name="password_show">Show password</string>
     <string name="password_hide">Hide password</string>
+
+    <string name="common_home">Home</string>
+    <string name="common_charts">Charts</string>
+    <string name="common_add">Add</string>
+    <string name="common_wallet">Wallet</string>
+    <string name="common_settings">Settings</string>
+
+    <string name="add_expense_title">Add expense</string>
+    <string name="add_expense_close">Close</string>
+
+    <!-- a11y -->
+    <string name="a11y_icon_home_description">Go to home screen</string>
+    <string name="a11y_icon_pie_chart_description">View expense charts</string>
+    <string name="a11y_icon_add_description">Add an expense</string>
+    <string name="a11y_icon_wallet_description">Open wallet</string>
+    <string name="a11y_icon_settings_description">Open settings</string>
 </resources>

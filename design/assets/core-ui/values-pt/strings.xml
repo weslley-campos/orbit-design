@@ -10,4 +10,20 @@
     <string name="snackbar_close">Fechar</string>
     <string name="password_show">Mostrar senha</string>
     <string name="password_hide">Ocultar senha</string>
+
+    <string name="common_home">Início</string>
+    <string name="common_charts">Gráficos</string>
+    <string name="common_add">Adicionar</string>
+    <string name="common_wallet">Carteira</string>
+    <string name="common_settings">Configurações</string>
+
+    <string name="add_expense_title">Adicionar despesa</string>
+    <string name="add_expense_close">Fechar</string>
+
+    <!-- a11y -->
+    <string name="a11y_icon_home_description">Ir para a tela inicial</string>
+    <string name="a11y_icon_pie_chart_description">Ver gráficos de despesas</string>
+    <string name="a11y_icon_add_description">Adicionar despesa</string>
+    <string name="a11y_icon_wallet_description">Abrir carteira</string>
+    <string name="a11y_icon_settings_description">Abrir configurações</string>
 </resources>

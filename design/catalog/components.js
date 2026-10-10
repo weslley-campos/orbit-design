@@ -239,24 +239,23 @@ export function OrbitLinearProgressIndicator(ctx, options) {
 
 export function OrbitNavigationBar(ctx, options) {
   const { key } = options;
-  const { selectedIndex, alwaysShowLabel } = ctx.props(key, 'OrbitNavigationBar', given(options, 'selectedIndex', 'alwaysShowLabel'));
+  const { selectedIndex } = ctx.props(key, 'OrbitNavigationBar', given(options, 'selectedIndex'));
   const part = (name) => `OrbitNavigationBar/${name}`;
   const items = (options.items ?? []).map((item, index) => {
     if (item.slot) return item.slot;
     const selected = index === selectedIndex;
-    const enabled = item.enabled !== false;
     const itemKey = `${key}/item-${index}`;
     return ctx.node({
       key: itemKey,
-      styles: [part('item'), selected && part('item/Selected'), !enabled && part('item/Disabled')],
+      styles: [part('item'), selected && part('item/Selected')],
       children: [
         // An icon given as a function receives `selected`, like the Kotlin icon slot that picks filled or outlined artwork.
         ctx.node({
           key: `${itemKey}/indicator`,
-          styles: [part('indicator'), selected && part(enabled ? 'indicator/Selected' : 'indicator/SelectedDisabled')],
+          styles: [part('indicator'), selected && part('indicator/Selected')],
           children: [typeof item.icon === 'function' ? item.icon(selected) : item.icon],
         }),
-        (alwaysShowLabel || selected) && ctx.node({ key: `${itemKey}/label`, styles: [part('label')], ...text(item, 'label') }),
+        ctx.node({ key: `${itemKey}/label`, styles: [part('label')], ...text(item, 'label') }),
       ],
     });
   });
@@ -358,7 +357,7 @@ const block = (ctx, key, title, cells) => ctx.node({
 const page = (ctx, children) => OrbitScaffold(ctx, { key: 'root' }, [ctx.node({ key: 'page', styles: ['Catalog/page'], children })]);
 const closeIcon = (ctx, key) => ctx.node({ key, styles: ['OrbitIconButton/icon/close'] });
 const glyph = (ctx, key, character) => ctx.node({ key, styles: ['Catalog/glyph'], text: character });
-const navIcon = (ctx, key, name) => ctx.node({ key, styles: [`Icon/${name}`], bind: { width: { token: 'sizes.large' }, height: { token: 'sizes.large' } } });
+const navIcon = (ctx, key, name) => ctx.node({ key, styles: [`OrbitNavigationBar/icon/${name}`], bind: { width: { token: 'sizes.large' }, height: { token: 'sizes.large' } } });
 
 const frame = (name, viewport, render, extra = {}) => {
   const slug = name.toLowerCase().replaceAll(' ', '-');
@@ -476,28 +475,35 @@ export const frames = [
     }), 'Catalog/screen');
   })))), { source: `${KOTLIN}components/OrbitTopAppBar.kt` }),
 
-  // ponytail: hovered, pressed and focused item states are Material 3 ripples, not rendered; add them when someone needs the ripple colors.
-  frame('Navigation Bar', { width: 760, height: 700 }, (ctx) => page(ctx, [true, false].map((alwaysShowLabel) => block(ctx, alwaysShowLabel ? 'always' : 'selected', alwaysShowLabel ? 'Always show labels' : 'Selected label only', [
-    ['Selected', 0, true], ['Unselected', 1, true], ['Disabled', 1, false], ['Selected disabled', 0, false],
-  ].map(([name, selectedIndex, enabled]) => {
-    const key = `${alwaysShowLabel ? 'always' : 'selected'}-${name.toLowerCase().replaceAll(' ', '-')}`;
+  frame('Navigation Bar', { width: 760, height: 700 }, (ctx) => page(ctx, [block(ctx, 'destinations', 'Destinations', [
+    ['Home', 0], ['Charts', 1], ['Wallet', 3], ['Settings', 4],
+  ].map(([name, selectedIndex]) => {
+    const key = `selected-${name.toLowerCase()}`;
+    const destination = (label, icon) => ({
+      labelKey: `common_${label}`,
+      icon: (selected) => navIcon(ctx, `${key}/${label}`, `${icon}_${selected ? 'filled' : 'outline'}`),
+    });
     return cell(ctx, key, name, OrbitNavigationBar(ctx, {
       key,
       selectedIndex,
-      alwaysShowLabel,
       items: [
-        { label: 'Home', icon: (selected) => navIcon(ctx, `${key}/home`, `home_${selected ? 'filled' : 'outline'}`), enabled },
-        { label: 'Charts', icon: (selected) => navIcon(ctx, `${key}/charts`, `chart_pie_${selected ? 'filled' : 'outline'}`) },
-        { label: 'Add', icon: navIcon(ctx, `${key}/add`, 'plus') },
-        { label: 'Wallet', icon: (selected) => navIcon(ctx, `${key}/wallet`, `wallet_${selected ? 'filled' : 'outline'}`) },
-        { label: 'Settings', icon: (selected) => navIcon(ctx, `${key}/settings`, `settings_${selected ? 'filled' : 'outline'}`) },
+        destination('home', 'home'),
+        destination('charts', 'pie_chart'),
+        { slot: ctx.node({
+          key: `${key}/add-slot`,
+          styles: ['OrbitNavigationBar/action'],
+          children: [OrbitIconButton(ctx, {
+            key: `${key}/add`, variant: 'Filled', contentDescription: ctx.t('a11y_icon_add_description'),
+          }, [navIcon(ctx, `${key}/add/icon`, 'plus')])],
+        }) },
+        destination('wallet', 'wallet'),
+        destination('settings', 'settings'),
       ],
     }), 'Catalog/screen');
-  })))), { source: `${KOTLIN}components/OrbitNavigationBar.kt` }),
+  }))]), { source: `${KOTLIN}components/OrbitNavigationBar.kt` }),
 
   frame('Bottom Sheet', { width: 392, height: 640 }, (ctx) => page(ctx, [
     caption(ctx, 'sheet', 'Expanded'),
-    OrbitButton(ctx, { key: 'open' }, [ctx.node({ key: 'open/label', text: 'Open sheet' })]),
     OrbitBottomSheet(ctx, { key: 'bottom-sheet' }, [ctx.node({
       key: 'sheet-content',
       styles: ['Catalog/padded'],
