@@ -180,13 +180,20 @@ export function createCanvas(app) {
         ? barButton('archive', 'Move to Archived', () => app.moveShelf(id, 'trash', 'archived'))
         : barButton('trash', 'Move to Trash', () => app.moveShelf(id, 'archived', 'trash')),
     ] : [
-      app.mode === 'prototype' ? barButton('link', 'Connect the whole screen', (e) => startLink(id, null, e)) : null,
+      app.mode === 'prototype' ? linkButton(id) : null,
       share ? Object.assign(barButton('share', share.label, share.run), { disabled: share.disabled }) : null,
       barButton('archive', 'Archive screen', () => app.shelve(id, 'archived')),
       barButton('trash', 'Move screen to Trash', () => app.shelve(id, 'trash')),
     ]));
     bar.hidden = false;
     placeBar();
+  }
+
+  // Links the selected component's hotspot (the component itself or the control containing it), else the whole screen.
+  function linkButton(frameId) {
+    const spot = nodeOf(app.selection)?.closest('[data-hotspot]');
+    const name = spot && (spot.textContent.trim().slice(0, 40) || spot.getAttribute('aria-label') || spot.dataset.hotspot);
+    return barButton('link', spot ? `Connect ${name}` : 'Connect the whole screen', (e) => startLink(frameId, spot?.dataset.hotspot ?? null, e));
   }
 
   function placeBar() {
