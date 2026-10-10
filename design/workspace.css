@@ -244,6 +244,10 @@ body.no-right { --ws-right: 0px; }
 .ws-arrow { fill: none; stroke: var(--ws-accent); stroke-width: 2; vector-effect: non-scaling-stroke; }
 .ws-arrowhead, .ws-arrow-dot { fill: var(--ws-accent); }
 .ws-arrow-label { fill: var(--ws-accent); font-family: var(--ws-font); paint-order: stroke; stroke: var(--ws-bg); stroke-width: 3px; }
+.ws-arrow-hit { fill: none; stroke: transparent; stroke-width: 12; vector-effect: non-scaling-stroke; pointer-events: stroke; cursor: context-menu; }
+.is-linking .ws-arrow-hit, .is-shelf .ws-arrow-hit { pointer-events: none; }
+.ws-arrows g:hover { opacity: 1; }
+.ws-arrows g:hover .ws-arrow { stroke-width: 3; }
 .ws-empty {
   position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); text-align: center;
   background: var(--ws-panel); border: 1px dashed var(--ws-line); border-radius: 10px; padding: 18px 28px; cursor: default;

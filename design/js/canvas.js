@@ -247,19 +247,26 @@ export function createCanvas(app) {
     return { l: x(r.left), r: x(r.right), cy: y((r.top + r.bottom) / 2) };
   }
 
-  function arrow(from, to, label, dim) {
+  // A saved connection (id set) also gets a wider invisible stroke to hover and right-click.
+  function arrow(from, to, label, dim, id) {
     const z = zoom();
     const dir = to.x >= from.x ? 1 : -1;
     const k = Math.max(40, Math.abs(to.x - from.x) / 2);
     const s = 10 / z;
+    const d = `M ${from.x} ${from.y} C ${from.x + dir * k} ${from.y}, ${to.x - dir * k} ${to.y}, ${to.x} ${to.y}`;
     const group = svgEl('g', dim ? { opacity: 0.25 } : {});
     svg.append(group);
     group.append(
       svgEl('circle', { class: 'ws-arrow-dot', cx: from.x, cy: from.y, r: 3 / z }),
-      svgEl('path', { class: 'ws-arrow', d: `M ${from.x} ${from.y} C ${from.x + dir * k} ${from.y}, ${to.x - dir * k} ${to.y}, ${to.x} ${to.y}` }),
+      svgEl('path', { class: 'ws-arrow', d }),
       svgEl('path', { class: 'ws-arrowhead', d: `M ${to.x} ${to.y} L ${to.x - dir * s} ${to.y - s * 0.6} L ${to.x - dir * s} ${to.y + s * 0.6} Z` }),
     );
     if (label) group.append(svgEl('text', { class: 'ws-arrow-label', x: (from.x + to.x) / 2, y: Math.min(from.y, to.y) - 6 / z, 'font-size': 12 / z, 'text-anchor': 'middle' }, label));
+    if (id != null) {
+      const hit = svgEl('path', { class: 'ws-arrow-hit', d, 'data-connection': id });
+      hit.append(svgEl('title', {}, 'Right-click to remove this link'));
+      group.append(hit);
+    }
   }
 
   // ponytail: arrows are redrawn from scratch on every change and show one page at a time; diff the SVG or draw all pages if the frame count grows.
@@ -279,13 +286,13 @@ export function createCanvas(app) {
       if (src && dst) {
         const rect = sourceRect(c, src, size(src));
         const dir = dst.x + size(dst).width / 2 >= (rect.l + rect.r) / 2 ? 1 : -1;
-        arrow({ x: dir > 0 ? rect.r : rect.l, y: rect.cy }, edge(dst, -dir), null, dim);
+        arrow({ x: dir > 0 ? rect.r : rect.l, y: rect.cy }, edge(dst, -dir), null, dim, c.id);
       } else if (src && other) {
         const rect = sourceRect(c, src, size(src));
-        arrow({ x: rect.r, y: rect.cy }, { x: rect.r + STUB, y: rect.cy }, `→ ${other.page.name} / ${app.frameName(other.frame)}`, dim);
+        arrow({ x: rect.r, y: rect.cy }, { x: rect.r + STUB, y: rect.cy }, `→ ${other.page.name} / ${app.frameName(other.frame)}`, dim, c.id);
       } else if (dst && other) {
         const to = edge(dst, -1);
-        arrow({ x: to.x - STUB, y: to.y }, to, `← ${other.page.name} / ${app.frameName(other.frame)}`, dim);
+        arrow({ x: to.x - STUB, y: to.y }, to, `← ${other.page.name} / ${app.frameName(other.frame)}`, dim, c.id);
       }
     }
     const src = link && local.get(link.frameId);
@@ -444,10 +451,17 @@ export function createCanvas(app) {
     for (const [id, el] of els) el.wrap.classList.toggle('is-link-target', id === target && id !== link.frameId);
     schedulePaint();
   });
+  // Right-click cancels a pending connection, or removes the link under the pointer (Ctrl/Cmd+Z brings it back).
   root.addEventListener('contextmenu', (e) => {
-    if (!link) return;
+    if (link) {
+      e.preventDefault();
+      endLink();
+      return;
+    }
+    const hit = e.target.closest?.('.ws-arrow-hit');
+    if (!hit || readOnly()) return;
     e.preventDefault();
-    endLink();
+    app.removeConnection(hit.dataset.connection);
   });
   stage.addEventListener('pointerleave', () => { hover.hidden = true; });
 

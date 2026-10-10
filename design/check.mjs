@@ -6,6 +6,7 @@ import {
   STORAGE_KEY, loadWorkspace, mergeSeed, moveFrameToPage, moveShelfItem, normalize, parseWorkspace, removeFrame, removePage, restoreFrame, saveDraft, setOverride, shelveFrame,
   pendingMerge, uniqueId, validateWorkspace,
 } from './js/store.js';
+import { createHistory } from './js/history.js';
 
 const root = dirname(fileURLToPath(import.meta.url));
 const tokens = {
@@ -127,6 +128,39 @@ assert.equal(ws.connections.some((c) => c.id === 'c2'), false, 'links to a trash
 assert.deepEqual(validateWorkspace(ws, context), [], 'the merged workspace is valid');
 const again = pendingMerge(ws, newer);
 assert.equal(again.frames.length + again.connections.length, 0, 'a second merge has nothing to do');
+
+// Undo and redo: edits are steps, views are not, and quick saves in a row make one step.
+let clock = 0;
+const history = createHistory(() => clock);
+ws = normalize(doc());
+history.reset(ws);
+ws.connections.splice(0, 1);
+clock += 1000;
+history.record(ws);
+ws.pages[0].view = { x: 40, y: 40, zoom: 2 };
+ws.settings.language = 'pt';
+history.record(ws);
+ws.pages[0].frames[0].x = 10;
+clock += 1000;
+history.record(ws);
+ws.pages[0].frames[0].x = 20;
+clock += 100;
+history.record(ws);
+ws = history.undo(ws);
+assert.equal(ws.pages[0].frames[0].x, 0, 'undo reverts quick saves together');
+assert.deepEqual(ws.connections.map((c) => c.id), ['c2']);
+ws = history.undo(ws);
+assert.deepEqual(ws.connections.map((c) => c.id), ['c1', 'c2'], 'undo brings a removed link back');
+assert.deepEqual([ws.pages[0].view.zoom, ws.settings.language], [2, 'pt'], 'undo keeps the current view and options');
+assert.equal(history.undo(ws), null, 'nothing before the start');
+ws = history.redo(ws);
+assert.deepEqual(ws.connections.map((c) => c.id), ['c2'], 'redo removes it again');
+history.record(ws);
+assert.ok(history.canRedo(), 'saving the restored state keeps redo');
+ws.startFrameId = null;
+clock += 1000;
+history.record(ws);
+assert.equal(history.canRedo(), false, 'a new edit clears redo');
 
 const overrides = { tokens: {}, frames: {} };
 setOverride(overrides, ['frames', 'f1', 'go', 'text', 'en'], 'x');

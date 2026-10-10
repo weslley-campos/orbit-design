@@ -156,7 +156,6 @@ export function saveDraft(storage, ws) {
   }
 }
 
-// ponytail: no undo; keep a snapshot stack of the workspace JSON if edits need reverting.
 export const allFrames = (ws) => ws.pages.flatMap((page) => page.frames);
 
 export function locate(ws, frameId) {
