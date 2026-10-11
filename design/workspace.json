@@ -458,6 +458,14 @@
           "height": 874
         },
         {
+          "id": "mobile-wallet-bill",
+          "catalogId": "screens/wallet-bill",
+          "x": 6656,
+          "y": 3864,
+          "width": 402,
+          "height": 874
+        },
+        {
           "id": "mobile-transactions",
           "catalogId": "screens/transactions",
           "x": 3584,
@@ -1677,6 +1685,50 @@
       "from": {
         "frameId": "mobile-wallet-card",
         "hotspotId": "transactions-header/link"
+      },
+      "to": {
+        "frameId": "mobile-wallet-bill"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-bill-back",
+      "from": {
+        "frameId": "mobile-wallet-bill",
+        "hotspotId": "back"
+      },
+      "to": {
+        "frameId": "mobile-wallet-card"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-bill-ifood",
+      "from": {
+        "frameId": "mobile-wallet-bill",
+        "hotspotId": "ifood"
+      },
+      "to": {
+        "frameId": "mobile-transaction-detail"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-bill-share-restaurants",
+      "from": {
+        "frameId": "mobile-wallet-bill",
+        "hotspotId": "share-restaurants"
+      },
+      "to": {
+        "frameId": "mobile-charts-category"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-bill-see-all",
+      "from": {
+        "frameId": "mobile-wallet-bill",
+        "hotspotId": "see-all"
       },
       "to": {
         "frameId": "mobile-transactions"

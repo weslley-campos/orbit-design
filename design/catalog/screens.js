@@ -1586,7 +1586,8 @@ const trend = (ctx, key, direction, value) => ctx.node({
     ctx.node({ key: `${key}/text`, tag: 'span', textKey: 'charts_vs_average', textArgs: [`${direction === 'up' ? '+' : '−'}${value}`] }),
   ],
 });
-const shareRow = (ctx, [category, amount, share, direction, change]) => ctx.node({
+// The second line is the trend against the average unless a row brings its own detail.
+const shareRow = (ctx, [category, amount, share, direction, change], detail = trend(ctx, `share-${category}/trend`, direction, change)) => ctx.node({
   key: `share-${category}`,
   styles: ['Family/row'],
   hotspot: true,
@@ -1598,7 +1599,7 @@ const shareRow = (ctx, [category, amount, share, direction, change]) => ctx.node
       styles: ['Family/info'],
       children: [
         text(ctx, `share-${category}/name`, 'Family/name', { textKey: `home_category_${category}` }, clipped('Family/name')),
-        trend(ctx, `share-${category}/trend`, direction, change),
+        detail,
       ],
     }),
     ctx.node({
@@ -1611,20 +1612,21 @@ const shareRow = (ctx, [category, amount, share, direction, change]) => ctx.node
     }),
   ],
 });
+const shareBar = (ctx, key, shares) => ctx.node({
+  key: `${key}/bar-row`,
+  styles: ['Home/cardBody'],
+  children: [ctx.node({
+    key: `${key}/bar`,
+    styles: ['Home/split', 'Charts/split'],
+    children: shares.map(([category, share]) => ctx.node({
+      key: `${key}/bar/${category}`,
+      styles: [`Home/grow/${share}`],
+      bind: { background: { token: CATEGORIES[category].color ?? OTHER_ARC } },
+    })),
+  })],
+});
 const categoriesCard = (ctx) => OrbitCard(ctx, { key: 'shares', variant: 'Base' }, [
-  ctx.node({
-    key: 'shares/bar-row',
-    styles: ['Home/cardBody'],
-    children: [ctx.node({
-      key: 'shares/bar',
-      styles: ['Home/split', 'Charts/split'],
-      children: [['groceries', 37], ['restaurants', 22], ['transport', 13], ['other', 28]].map(([category, share]) => ctx.node({
-        key: `shares/bar/${category}`,
-        styles: [`Home/grow/${share}`],
-        bind: { background: { token: CATEGORIES[category].color ?? OTHER_ARC } },
-      })),
-    })],
-  }),
+  shareBar(ctx, 'shares', [['groceries', 37], ['restaurants', 22], ['transport', 13], ['other', 28]]),
   ...SHARES.flatMap((row, i) => [i > 0 && HorizontalDivider(ctx, { key: `shares/divider-${i}` }), shareRow(ctx, row)]),
 ]);
 
@@ -2584,7 +2586,8 @@ const TX_DAYS = [
 ];
 const weekdayDate = (ctx, { weekday, date }) => ctx.t('tx_weekday_date', ctx.t(`tx_weekday_${weekday}`), day(ctx, ['oct', date]));
 
-const txRow = (ctx, [key, merchant, category, cardKey, member, amount, time, glyph], { timed = false } = {}) => ctx.node({
+// A bill leaves the card out: every row is on it.
+const txRow = (ctx, [key, merchant, category, cardKey, member, amount, time, glyph], { timed = false, carded = true } = {}) => ctx.node({
   key,
   styles: ['Home/row'],
   hotspot: true,
@@ -2597,7 +2600,7 @@ const txRow = (ctx, [key, merchant, category, cardKey, member, amount, time, gly
       children: [
         text(ctx, `${key}/merchant`, 'Family/name', { text: merchant }, clipped('Family/name')),
         text(ctx, `${key}/detail`, 'Screen/tertiary', {
-          text: [timed && time, ctx.t(`home_category_${category}`), card(cardKey).short, member].filter(Boolean).join(' · '),
+          text: [timed && time, ctx.t(`home_category_${category}`), carded && card(cardKey).short, member].filter(Boolean).join(' · '),
         }, clipped('Screen/tertiary')),
       ],
     }),
@@ -2608,7 +2611,7 @@ const txCard = (ctx, key, rows, options) => OrbitCard(ctx, { key, variant: 'Base
   i > 0 && HorizontalDivider(ctx, { key: `${key}/divider-${i}` }),
   txRow(ctx, row, options),
 ]));
-const dayGroup = (ctx, group) => {
+const dayGroup = (ctx, group, options) => {
   const title = [group.labelKey && ctx.t(group.labelKey), weekdayDate(ctx, group)].filter(Boolean).join(' · ').toLocaleUpperCase(ctx.settings.language);
   return [
     ctx.node({
@@ -2620,7 +2623,7 @@ const dayGroup = (ctx, group) => {
       ],
     }),
     gap(ctx, `${group.key}-gap`, 'spacing.xxSmall'),
-    inset(ctx, `${group.key}/inset`, txCard(ctx, group.key, group.rows)),
+    inset(ctx, `${group.key}/inset`, txCard(ctx, group.key, group.rows, options)),
     gap(ctx, `${group.key}-gap-after`, 'spacing.medium'),
   ];
 };
@@ -2904,6 +2907,108 @@ const transactionDetail = frame('transaction-detail', 'Transaction', { status: '
   ]);
 });
 
+// A card's bill: one cycle at a time, what it adds up to, where it went and the purchases on it.
+const BILL_SPEC = 'docs/specs/bill.md';
+const BILL_TOTALS = { 'oct-7': 'R$ 207,30', 'oct-6': 'R$ 278,50', 'oct-5': 'R$ 155,90' };
+const BILL_DAYS = TX_DAYS.map((group) => ({ ...group, total: BILL_TOTALS[group.key], rows: group.rows.filter(([, , , cardKey]) => cardKey === 'azul') }));
+// [category, amount, share, purchases]
+const BILL_SHARES = [
+  ['groceries', 'R$ 791,90', '37%', 9],
+  ['transport', 'R$ 470,80', '22%', 7],
+  ['restaurants', 'R$ 278,20', '13%', 6],
+  ['other', 'R$ 599,30', '28%', 9],
+];
+const walletBill = frame('wallet-bill', 'Wallet · Bill', { status: 'proposed', spec: BILL_SPEC }, (ctx) => {
+  const c = card('azul');
+  return screenFrame(ctx, [
+    ctx.node({
+      key: 'content',
+      styles: ['Home/scroll'],
+      children: [
+        gap(ctx, 'gap-top', 'spacing.xLarge'),
+        inset(ctx, 'toolbar/inset', ctx.node({
+          key: 'toolbar',
+          styles: ['Home/spread', 'Screen/toolbar'],
+          children: [backButton(ctx), iconAction(ctx, 'more', 'ellipsis', 'tx_more')],
+        })),
+        inset(ctx, 'card/inset', ctx.node({
+          key: 'card',
+          styles: ['Family/row'],
+          children: [
+            thumb(ctx, 'card/thumb', c),
+            ctx.node({
+              key: 'card/text',
+              styles: ['Home/headerText'],
+              children: [
+                text(ctx, 'card/name', 'Home/cardTitle', { text: c.name }),
+                text(ctx, 'card/number', 'Screen/secondary', { textKey: 'wallet_number', textArgs: [c.network, c.last4] }),
+              ],
+            }),
+          ],
+        })),
+        gap(ctx, 'gap-card', 'spacing.small'),
+        inset(ctx, 'stepper/inset', ctx.node({
+          key: 'stepper',
+          styles: ['Home/switcher'],
+          children: [
+            OrbitIconButton(ctx, { key: 'bill-previous', hotspot: true, styles: ['Home/switcherButton'], contentDescription: ctx.t('bill_previous') }, [
+              icon(ctx, 'bill-previous/icon', 'chevron_left', 'medium', 'colors.text.secondary'),
+            ]),
+            text(ctx, 'stepper/label', 'Family/name', { textKey: 'bill_october' }, { styles: ['Family/name', 'Home/switcherLabel'] }),
+            OrbitIconButton(ctx, { key: 'bill-next', hotspot: true, styles: ['Home/switcherButton'], contentDescription: ctx.t('bill_next') }, [
+              icon(ctx, 'bill-next/icon', 'chevron_right', 'medium', 'colors.text.secondary'),
+            ]),
+          ],
+        })),
+        gap(ctx, 'gap-stepper', 'spacing.medium'),
+        inset(ctx, 'bill/inset', OrbitCard(ctx, { key: 'bill', variant: 'Base' }, [
+          ctx.node({
+            key: 'bill/body',
+            styles: ['Home/cardBody'],
+            children: [
+              ctx.node({
+                key: 'bill/top',
+                styles: ['Home/spread'],
+                children: [
+                  text(ctx, 'bill/eyebrow', 'Screen/eyebrow', { textKey: 'bill_open_eyebrow' }),
+                  status(ctx, 'bill/closes', 'clock', 'colors.text.secondary', 'bill_closes_in', [5]),
+                ],
+              }),
+              text(ctx, 'bill/amount', 'OrbitCard/amount', { text: c.bill }),
+              text(ctx, 'bill/dates', 'Screen/secondary', { textKey: 'wallet_closes_due', textArgs: [day(ctx, c.closes), day(ctx, c.due)] }),
+              OrbitLinearProgressIndicator(ctx, { key: 'bill/limit', progress: c.used, status: 'Primary', styles: ['Home/track'] }),
+              ctx.node({
+                key: 'bill/footer',
+                styles: ['Home/spread'],
+                children: [
+                  text(ctx, 'bill/used', 'Screen/tertiary', { textKey: 'wallet_limit', textArgs: [c.limit] }),
+                  text(ctx, 'bill/available', 'Screen/tertiary', { textKey: 'wallet_available', textArgs: [c.available] }),
+                ],
+              }),
+              HorizontalDivider(ctx, { key: 'bill/divider' }),
+              status(ctx, 'bill/last', 'circle_check', 'colors.text.success', 'bill_last_paid', ['R$ 1.986,40', day(ctx, ['sep', 20])]),
+            ],
+          }),
+        ])),
+        gap(ctx, 'gap-bill', 'spacing.large'),
+        ...section(ctx, 'shares', sectionHeader(ctx, 'shares-header', 'bill_categories_eyebrow'), OrbitCard(ctx, { key: 'shares', variant: 'Base' }, [
+          shareBar(ctx, 'shares', BILL_SHARES.map(([category, , share]) => [category, parseInt(share, 10)])),
+          ...BILL_SHARES.flatMap(([category, amount, share, count], i) => [
+            i > 0 && HorizontalDivider(ctx, { key: `shares/divider-${i}` }),
+            shareRow(ctx, [category, amount, share], text(ctx, `share-${category}/count`, 'Screen/tertiary', { textKey: 'bill_purchases', textArgs: [count] })),
+          ]),
+        ])),
+        gap(ctx, 'gap-shares', 'spacing.large'),
+        ...BILL_DAYS.flatMap((group) => dayGroup(ctx, group, { carded: false })),
+        inset(ctx, 'see-all/inset', OrbitButton(ctx, { key: 'see-all', variant: 'Outlined', hotspot: true, styles: ['Screen/fill'] }, [
+          label(ctx, 'see-all/label', { textKey: 'bill_see_all', textArgs: [31] }),
+        ])),
+        gap(ctx, 'gap-bottom', 'spacing.large'),
+      ],
+    }),
+  ]);
+});
+
 export const frames = [
   splash,
   signIn,
@@ -2929,6 +3034,7 @@ export const frames = [
   walletEdit,
   walletAdd,
   walletRemove,
+  walletBill,
   transactions,
   transactionsWeek,
   transactionsDay,
