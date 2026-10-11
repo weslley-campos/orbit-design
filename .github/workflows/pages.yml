@@ -15,7 +15,9 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # Only main deploys: a manual run from any other branch skips every job, so it never migrates or publishes.
   build:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
