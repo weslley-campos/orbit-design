@@ -2246,7 +2246,7 @@ const profilePhoto = sheetFrame('profile-photo', 'Profile · Photo', PROFILE_SPE
 // the app would use the issuer's card image from Pluggy or a generated card.
 const WALLET_SPEC = 'docs/specs/wallet.md';
 const CARDS = [
-  { key: 'azul', name: 'Azul Itaú', short: 'Azul', art: 'azul', network: 'Mastercard', last4: '4821', bill: 'R$ 2.140,20', closes: ['oct', 12], due: ['oct', 20], used: 0.18, limit: 'R$ 12.000,00', available: 'R$ 9.859,80' },
+  { key: 'azul', name: 'Azul Itaú', short: 'Azul', art: 'azul', network: 'Mastercard', last4: '4821', bill: 'R$ 2.140,20', closes: ['oct', 12], due: ['oct', 20], used: 0.36, limit: 'R$ 12.000,00', available: 'R$ 7.708,10', inUse: 'R$ 4.291,90' },
   { key: 'amazon', name: 'Amazon Mastercard', short: 'Amazon', art: 'amazon', network: 'Mastercard', last4: '1093', bill: 'R$ 486,90', closes: ['oct', 8], due: ['oct', 15] },
   { key: 'bradesco', name: 'Bradesco Diners', short: 'Diners', art: 'bradesco-diners', network: 'Elo', last4: '7712', bill: 'R$ 1.315,00', closes: ['oct', 18], due: ['oct', 25] },
   { key: 'amex', name: 'Amex Green', short: 'Amex', art: 'amex-green', network: 'Amex', last4: '3005', bill: 'R$ 870,30', closes: ['oct', 26], due: ['nov', 2] },
@@ -2584,9 +2584,8 @@ const TX_DAYS = [
     ['smart-fit', 'Smart Fit', 'health', 'amex', null, 'R$ 119,90', '07:00'],
   ] },
 ];
-const weekdayDate = (ctx, { weekday, date }) => ctx.t('tx_weekday_date', ctx.t(`tx_weekday_${weekday}`), day(ctx, ['oct', date]));
+const weekdayDate = (ctx, { weekday, month = 'oct', date }) => ctx.t('tx_weekday_date', ctx.t(`tx_weekday_${weekday}`), day(ctx, [month, date]));
 
-// A bill leaves the card out: every row is on it.
 const txRow = (ctx, [key, merchant, category, cardKey, member, amount, time, glyph], { timed = false, carded = true } = {}) => ctx.node({
   key,
   styles: ['Home/row'],
@@ -2609,7 +2608,7 @@ const txRow = (ctx, [key, merchant, category, cardKey, member, amount, time, gly
 });
 const txCard = (ctx, key, rows, options) => OrbitCard(ctx, { key, variant: 'Base' }, rows.flatMap((row, i) => [
   i > 0 && HorizontalDivider(ctx, { key: `${key}/divider-${i}` }),
-  txRow(ctx, row, options),
+  (options?.row ?? txRow)(ctx, row, options),
 ]));
 const dayGroup = (ctx, group, options) => {
   const title = [group.labelKey && ctx.t(group.labelKey), weekdayDate(ctx, group)].filter(Boolean).join(' · ').toLocaleUpperCase(ctx.settings.language);
@@ -2907,93 +2906,381 @@ const transactionDetail = frame('transaction-detail', 'Transaction', { status: '
   ]);
 });
 
-// A card's bill: one cycle at a time, what it adds up to, who spent it, where it went and the purchases on it.
-// Status and payment always come from the bank; Orbit never marks a bill as paid.
+// A bill belongs to the credit account, not to a physical card: every card on the account shares one bill, one limit,
+// one closing day and one due day. A closed bill comes from the bank (total, minimum, payments); the open bill is the sum
+// of its lines and a future bill holds only the installments already committed. Orbit never moves money, so nothing here
+// pays a bill.
 const BILL_SPEC = 'docs/specs/bill.md';
-const BILL_TOTALS = { 'oct-7': 'R$ 207,30', 'oct-6': 'R$ 278,50', 'oct-5': 'R$ 155,90' };
-const BILL_DAYS = TX_DAYS.map((group) => ({ ...group, total: BILL_TOTALS[group.key], rows: group.rows.filter(([, , , cardKey]) => cardKey === 'azul') }));
-// Installments are bought once and charged on later bills: [key, merchant, category, glyph, number, of, amount, total]
-const INSTALLMENTS = {
-  sep: [['magalu', 'Magazine Luiza', 'other', 'store', 2, 10, 'R$ 289,90', 'R$ 2.899,00'], ['fast-shop', 'Fast Shop', 'other', 'store', 1, 3, 'R$ 122,40', 'R$ 367,20']],
-  oct: [['magalu', 'Magazine Luiza', 'other', 'store', 3, 10, 'R$ 289,90', 'R$ 2.899,00'], ['fast-shop', 'Fast Shop', 'other', 'store', 2, 3, 'R$ 122,40', 'R$ 367,20']],
-  nov: [['magalu', 'Magazine Luiza', 'other', 'store', 4, 10, 'R$ 289,90', 'R$ 2.899,00'], ['fast-shop', 'Fast Shop', 'other', 'store', 3, 3, 'R$ 122,40', 'R$ 367,20']],
-};
+const BANK = 'Itaú';
+const ACCOUNT_CARDS = ['4821', '7730'];
 const AVATARS = {
   ana: { background: { token: 'colors.brand.primary' }, color: { token: 'colors.text.onBrand' } },
   marina: { background: { token: 'colors.brand.accent' }, color: { token: 'colors.brand.ink' } },
 };
+// Statement text is all the bank sends for a card purchase: no merchant name, logo or time of day.
+// Amounts are as the bank reports them; a credit (refund) is negative.
+const line = (key, statement, category, last4, amount, extra = {}) => ({ key, statement, category, last4, amount, ...extra });
+const PAO = (amount, extra) => line('pao-de-acucar', 'PAO DE ACUCAR 1342', 'groceries', '4821', amount, extra);
+const IFOOD = (amount) => line('ifood', 'IFD*IFOOD.COM AGENCIA DE SAO PAULO BR', 'restaurants', '4821', amount);
+const UBER = (amount, extra) => line('uber', 'UBER *TRIP HELP.UBER.COM', 'transport', '7730', amount, extra);
+const IPIRANGA = (amount) => line('ipiranga', 'POSTO IPIRANGA 0214', 'transport', '4821', amount, { glyph: 'fuel' });
+// Installments carry their number and the original purchase date, which differs from the day they post.
+const MAGALU = (number) => line('magalu', 'MAGALU*MAGAZINELUIZA', 'other', '4821', 'R$ 289,90', { glyph: 'store', installment: [number, 10, ['jul', 14]] });
+const FAST_SHOP = (number) => line('fast-shop', 'FAST SHOP*FASTSHOP', 'other', '7730', 'R$ 122,40', { glyph: 'store', installment: [number, 3, ['aug', 21]] });
+const group = (key, weekday, month, date, total, rows, labelKey) => ({ key, weekday, month, date, total, rows, labelKey });
+
+// What is already committed to the next bills: [month, amount]. Magazine Luiza ends in May 2027.
+const AFTER_NOVEMBER = [12, 1, 2, 3, 4, 5].map((month) => [month, 'R$ 289,90']);
 const BILLS = {
+  jul: {
+    labelKey: 'bill_july',
+    previous: false,
+    eyebrow: { textKey: 'bill_no_record_eyebrow', textArgs: [BANK.toUpperCase()] },
+    pill: ['neutral', { textKey: 'bill_status_no_record' }],
+    dates: { textKey: 'bill_period', textArgs: [['jun', 13], ['jul', 12]] },
+    notes: [['circle_help', { textKey: 'bill_no_record_note', textArgs: [BANK, 12] }]],
+    lines: { count: 24, days: [
+      group('jul-12', 7, 'jul', 12, 'R$ 167,80', [PAO('R$ 167,80')]),
+      group('jul-11', 6, 'jul', 11, 'R$ 262,00', [line('cinemark', 'CINEMARK MORUMBI', 'leisure', '7730', 'R$ 72,00'), IPIRANGA('R$ 190,00')]),
+    ] },
+  },
+  aug: {
+    labelKey: 'bill_august',
+    eyebrow: { textKey: 'bill_total_eyebrow', textArgs: [BANK.toUpperCase()] },
+    pill: ['due', { textKey: 'bill_status_partial' }],
+    amount: 'R$ 1.742,15',
+    dates: { textKey: 'bill_closed_due', textArgs: [['aug', 12], ['aug', 20]] },
+    minimum: 'R$ 261,32',
+    payments: { rows: [['aug-20', 'partial', ['aug', 20], 'Pix', 'R$ 1.200,00']], short: 'R$ 542,15' },
+    installments: { amount: 'R$ 289,90', share: 17, count: 1 },
+    lines: { count: 26, reconcile: true, days: [
+      group('aug-12', 3, 'aug', 12, 'R$ 201,70', [PAO('R$ 201,70')]),
+      group('aug-11', 2, 'aug', 11, 'R$ 86,20', [IFOOD('R$ 54,80'), UBER('R$ 31,40')]),
+    ] },
+  },
   sep: {
     labelKey: 'bill_september',
-    eyebrowKey: 'bill_paid_eyebrow',
+    eyebrow: { textKey: 'bill_total_eyebrow', textArgs: [BANK.toUpperCase()] },
+    pill: ['paid', { textKey: 'bill_status_paid' }],
     amount: 'R$ 1.986,40',
     dates: { textKey: 'bill_closed_due', textArgs: [['sep', 12], ['sep', 20]] },
-    status: ['circle_check', 'colors.text.success', 'bill_paid_reported', [['sep', 20]]],
-    members: [['ana', 'A', 'Ana', 'R$ 1.390,50', 70], ['marina', 'M', 'Marina', 'R$ 595,90', 30]],
-    shares: [['groceries', 'R$ 794,60', 40, 10], ['restaurants', 'R$ 397,30', 20, 6], ['transport', 'R$ 238,40', 12, 5], ['other', 'R$ 556,10', 28, 7]],
-    count: 28,
+    payments: { rows: [['sep-18', 'full', ['sep', 18], 'Pix', 'R$ 1.986,40']] },
+    installments: { amount: 'R$ 412,30', share: 21, count: 2 },
+    lines: { count: 28, reconcile: true, days: [
+      group('sep-12', 6, 'sep', 12, 'R$ 143,20', [PAO('R$ 143,20')]),
+      group('sep-11', 5, 'sep', 11, 'R$ 70,10', [
+        line('netshoes', 'ESTORNO NETSHOES', 'other', '4821', '−R$ 79,90', { credit: true }),
+        line('shell', 'SHELL BOX', 'transport', '7730', 'R$ 150,00', { glyph: 'fuel' }),
+      ]),
+    ] },
   },
   oct: {
     labelKey: 'bill_october',
-    eyebrowKey: 'bill_open_eyebrow',
+    eyebrow: { textKey: 'bill_so_far_eyebrow' },
+    pill: ['open', { textKey: 'bill_status_open' }],
     amount: 'R$ 2.140,20',
-    corner: ['clock', 'colors.text.secondary', 'bill_closes_in', [5]],
     dates: { textKey: 'wallet_closes_due', textArgs: [['oct', 12], ['oct', 20]] },
     limit: true,
-    status: ['circle_check', 'colors.text.success', 'bill_last_paid', ['R$ 1.986,40', ['sep', 20]]],
-    members: [['ana', 'A', 'Ana', 'R$ 1.498,10', 70], ['marina', 'M', 'Marina', 'R$ 642,10', 30]],
-    shares: [['groceries', 'R$ 791,90', 37, 9], ['transport', 'R$ 470,80', 22, 7], ['restaurants', 'R$ 278,20', 13, 6], ['other', 'R$ 599,30', 28, 9]],
-    committed: true,
-    days: true,
-    count: 31,
+    notes: [['calendar_days', { textKey: 'bill_dates_worked_out', textArgs: [12, 20] }]],
+    installments: { amount: 'R$ 412,30', share: 19, count: 2, next: [[11, 'R$ 412,30'], ...AFTER_NOVEMBER], committed: 'R$ 2.151,70' },
+    lines: { count: 31, days: [
+      group('oct-7', 3, 'oct', 7, 'R$ 207,30', [PAO('R$ 182,40', { pending: true }), UBER('R$ 24,90', { pending: true })], 'home_today'),
+      group('oct-6', 2, 'oct', 6, 'R$ 278,50', [IFOOD('R$ 68,50'), IPIRANGA('R$ 210,00')], 'home_yesterday'),
+      group('oct-5', 1, 'oct', 5, 'R$ 155,90', [line('sabesp', 'SABESP*CONTA AGUA', 'bills', '4821', 'R$ 155,90')]),
+    ] },
   },
   nov: {
     labelKey: 'bill_november',
-    eyebrowKey: 'bill_next_eyebrow',
+    eyebrow: { textKey: 'bill_at_least_eyebrow' },
+    pill: ['neutral', { textKey: 'bill_status_upcoming' }],
     amount: 'R$ 412,30',
-    corner: ['calendar_days', 'colors.text.secondary', 'bill_opens', [['oct', 13]]],
     dates: { textKey: 'wallet_closes_due', textArgs: [['nov', 12], ['nov', 20]] },
-    status: ['calendar_days', 'colors.text.tertiary', 'bill_next_note', [['oct', 13]]],
+    notes: [['calendar_days', { textKey: 'bill_future_note', textArgs: [['oct', 13]] }]],
+    installments: { next: AFTER_NOVEMBER, committed: 'R$ 1.739,40' },
+    lines: { count: 2, eyebrowKey: 'bill_committed_eyebrow', rows: [MAGALU(4), FAST_SHOP(3)] },
   },
+};
+// The open bill filtered to one card: the header keeps the account's bill, the list keeps that card's lines.
+BILLS.octCard = {
+  ...BILLS.oct,
+  filter: '7730',
+  lines: { count: 9, share: 'R$ 642,10', days: [
+    group('oct-7', 3, 'oct', 7, 'R$ 24,90', [UBER('R$ 24,90', { pending: true })], 'home_today'),
+    group('oct-4', 7, 'oct', 4, 'R$ 186,30', [line('coco-bambu', 'COCO BAMBU MORUMBI', 'restaurants', '7730', 'R$ 186,30')]),
+    group('oct-2', 5, 'oct', 2, 'R$ 98,60', [
+      line('netflix', 'NETFLIX.COM', 'leisure', '7730', 'R$ 55,90'),
+      line('drogaria', 'DROGARIA SAO PAULO', 'health', '7730', 'R$ 42,70'),
+    ]),
+  ] },
+};
+// October once it closes, seen on Wed 14 Oct: the bank's total and minimum, nothing paid yet, due date ahead.
+BILLS.octClosed = {
+  labelKey: 'bill_october',
+  eyebrow: { textKey: 'bill_total_eyebrow', textArgs: [BANK.toUpperCase()] },
+  pill: ['due', { textKey: 'bill_status_due_in', textArgs: [6] }],
+  amount: 'R$ 2.318,60',
+  dates: { textKey: 'bill_closed_due', textArgs: [['oct', 12], ['oct', 20]] },
+  minimum: 'R$ 347,79',
+  notes: [
+    ['calendar_days', { textKey: 'bill_installment_plan', textArgs: [BANK] }],
+    ['circle_help', { textKey: 'bill_pay_elsewhere', textArgs: [BANK] }],
+  ],
+  payments: { none: ['oct', 20] },
+  installments: { amount: 'R$ 412,30', share: 18, count: 2 },
+  lines: { count: 38, reconcile: true, days: [
+    group('oct-12', 1, 'oct', 12, 'R$ 115,10', [
+      line('zona-sul', 'ZONA SUL SUPERMERCADOS', 'groceries', '4821', 'R$ 96,40'),
+      line('99-pop', '99 *POP', 'transport', '7730', 'R$ 18,70'),
+    ]),
+    group('oct-10', 6, 'oct', 10, 'R$ 63,30', [line('madero', 'MADERO MORUMBI', 'restaurants', '4821', 'R$ 63,30')]),
+  ] },
+};
+// A card added by hand: the user typed its closing and due days and its lines, so the total is their sum.
+// Due on Nov 2, so it is the November bill.
+BILLS.manual = {
+  card: 'amex',
+  labelKey: 'bill_november',
+  eyebrow: { textKey: 'bill_sum_eyebrow' },
+  pill: ['open', { textKey: 'bill_status_open' }],
+  amount: 'R$ 870,30',
+  dates: { textKey: 'wallet_closes_due', textArgs: [['oct', 26], ['nov', 2]] },
+  notes: [['pencil', { textKey: 'bill_manual_note', textArgs: [26, 2] }]],
+  lines: { count: 14, days: [
+    group('oct-6', 2, 'oct', 6, 'R$ 57,30', [line('drogasil', 'Drogasil', 'health', '3005', 'R$ 57,30', { typed: true })], 'home_yesterday'),
+    group('oct-5', 1, 'oct', 5, 'R$ 119,90', [line('smart-fit', 'Smart Fit', 'health', '3005', 'R$ 119,90', { typed: true })]),
+  ] },
 };
 // Dates in textArgs are [month, day] pairs, localized here.
 const dated = (ctx, args) => args.map((arg) => (Array.isArray(arg) ? day(ctx, arg) : arg));
-
-// The bar under the text shows how much of the purchase is already charged.
-const installmentRow = (ctx, [key, merchant, category, glyph, number, of, amount, total]) => ctx.node({
-  key: `installment-${key}`,
-  styles: ['Bill/installment'],
-  hotspot: true,
-  attrs: { role: 'button', tabindex: 0 },
+const lastFour = (ctx, last4) => ctx.t('bill_card', last4);
+const billPill = (ctx, key, [tone, content]) => text(ctx, key, 'Bill/pill', { ...content, textArgs: dated(ctx, content.textArgs ?? []) }, { styles: ['Bill/pill', `Bill/pill/${tone}`] });
+const billNote = (ctx, key, [glyph, content]) => ctx.node({
+  key,
+  styles: ['Bill/note'],
   children: [
-    badge(ctx, `installment-${key}/badge`, category, { glyph }),
-    ctx.node({
-      key: `installment-${key}/info`,
-      styles: ['Family/info'],
-      children: [
-        text(ctx, `installment-${key}/merchant`, 'Family/name', { text: merchant }, clipped('Family/name')),
-        text(ctx, `installment-${key}/detail`, 'Screen/tertiary', number === of
-          ? { textKey: 'bill_installment_last', textArgs: [number, of] }
-          : { textKey: 'bill_installment', textArgs: [number, of, of - number] }, clipped('Screen/tertiary')),
-        gap(ctx, `installment-${key}/gap`, 'spacing.xxxSmall'),
-        OrbitLinearProgressIndicator(ctx, { key: `installment-${key}/bar`, progress: number / of, status: 'Primary', styles: ['Home/track'] }),
-      ],
-    }),
-    ctx.node({
-      key: `installment-${key}/trailing`,
-      styles: ['Home/trailing'],
-      children: [
-        text(ctx, `installment-${key}/amount`, 'Home/amount', { text: amount }),
-        text(ctx, `installment-${key}/total`, 'Screen/tertiary', { textKey: 'bill_installment_total', textArgs: [total] }),
-      ],
-    }),
+    icon(ctx, `${key}/icon`, glyph, 'xSmall', 'colors.text.tertiary', ['Bill/noteIcon']),
+    ctx.node({ key: `${key}/text`, tag: 'span', ...content, textArgs: dated(ctx, content.textArgs ?? []) }),
   ],
 });
 
+// A line on a bill. With more than one card on the account and no card filter, each line names its card.
+const billLine = (ctx, { key, statement, category, last4, amount, glyph, pending, credit, installment, typed }, { carded = false } = {}) => {
+  const [number, of, bought] = installment ?? [];
+  // The card goes first: when the line is too long, the category (also shown by the badge) is what gets cut.
+  const detail = [
+    carded && lastFour(ctx, last4),
+    installment ? ctx.t('bill_bought', day(ctx, bought)) : ctx.t(`home_category_${category}`),
+  ].filter(Boolean).join(' · ');
+  const amountText = text(ctx, `${key}/amount`, 'Home/amount', { text: amount }, credit ? { bind: { color: { token: 'colors.text.success' } } } : {});
+  const title = typed ? 'Family/name' : 'Bill/statement';
+  return ctx.node({
+    key,
+    styles: ['Home/row'],
+    hotspot: true,
+    attrs: { role: 'button', tabindex: 0 },
+    children: [
+      badge(ctx, `${key}/badge`, category, { glyph }),
+      ctx.node({
+        key: `${key}/info`,
+        styles: ['Family/info'],
+        children: [
+          text(ctx, `${key}/statement`, title, { text: statement }, clipped(title)),
+          pending
+            ? ctx.node({
+              key: `${key}/detail`,
+              styles: ['Family/pending'],
+              children: [
+                icon(ctx, `${key}/pending`, 'clock', 'xSmall', 'colors.text.tertiary'),
+                ctx.node({ key: `${key}/detail-text`, tag: 'span', styles: ['Home/ellipsis'], textKey: 'bill_pending', textArgs: [detail] }),
+              ],
+            })
+            : text(ctx, `${key}/detail`, 'Screen/tertiary', { text: detail }, clipped('Screen/tertiary')),
+        ],
+      }),
+      // An installment shows its number under the amount, so the detail line keeps the original purchase date.
+      installment ? ctx.node({
+        key: `${key}/trailing`,
+        styles: ['Home/trailing'],
+        children: [
+          amountText,
+          text(ctx, `${key}/number`, 'Screen/tertiary', { textKey: number === of ? 'bill_installment_last' : 'bill_installment', textArgs: [number, of] }),
+        ],
+      }) : amountText,
+    ],
+  });
+};
+const billLines = (ctx, key, rows, options) => OrbitCard(ctx, { key, variant: 'Base' }, rows.flatMap((row, i) => [
+  i > 0 && HorizontalDivider(ctx, { key: `${key}/divider-${i}` }),
+  billLine(ctx, row, options),
+]));
+
+// The account's limit, as on Wallet · Card. In use counts every future installment, so it is more than the open bill.
+const limitRows = (ctx, c) => [
+  OrbitLinearProgressIndicator(ctx, { key: 'bill/limit', progress: c.used, status: 'Primary', styles: ['Home/track'] }),
+  ctx.node({
+    key: 'bill/footer',
+    styles: ['Home/spread'],
+    children: [
+      text(ctx, 'bill/used', 'Screen/tertiary', { textKey: 'wallet_limit', textArgs: [c.limit] }),
+      text(ctx, 'bill/available', 'Screen/tertiary', { textKey: 'wallet_available', textArgs: [c.available] }),
+    ],
+  }),
+  text(ctx, 'bill/in-use', 'Screen/tertiary', { textKey: 'bill_in_use', textArgs: [c.inUse, BILLS.oct.installments.committed] }),
+];
+
+const billCard = (ctx, bill, c) => inset(ctx, 'bill/inset', OrbitCard(ctx, { key: 'bill', variant: 'Base' }, [
+  ctx.node({
+    key: 'bill/body',
+    styles: ['Home/cardBody'],
+    children: [
+      ctx.node({
+        key: 'bill/top',
+        styles: ['Home/spread'],
+        children: [text(ctx, 'bill/eyebrow', 'Screen/eyebrow', bill.eyebrow), billPill(ctx, 'bill/status', bill.pill)],
+      }),
+      bill.amount && text(ctx, 'bill/amount', 'OrbitCard/amount', { text: bill.amount }),
+      text(ctx, 'bill/dates', 'Screen/secondary', { textKey: bill.dates.textKey, textArgs: dated(ctx, bill.dates.textArgs) }),
+      ...(bill.limit ? limitRows(ctx, c) : []),
+      bill.minimum && ctx.node({
+        key: 'bill/minimum',
+        styles: ['Home/spread'],
+        children: [
+          text(ctx, 'bill/minimum-label', 'Screen/secondary', { textKey: 'bill_minimum' }),
+          text(ctx, 'bill/minimum-amount', 'Home/amount', { text: bill.minimum }),
+        ],
+      }),
+    ],
+  }),
+  ...(bill.notes ? [
+    HorizontalDivider(ctx, { key: 'bill/divider' }),
+    ctx.node({ key: 'bill/notes', styles: ['Bill/notes'], children: bill.notes.map((note, i) => billNote(ctx, `bill/note-${i}`, note)) }),
+  ] : []),
+]));
+
+// Payments exist only on closed bills, as the bank reports them. Orbit never marks a bill as paid.
+const paymentsSection = (ctx, { rows = [], short, none }) => [
+  ...section(ctx, 'payments', sectionHeader(ctx, 'payments-header', 'bill_payments_eyebrow'), settingsCard(ctx, 'payments', [
+    ...rows.map(([key, kind, date, method, amount]) => settingsRow(ctx, `payment-${key}`, 'banknote', `bill_payment_${kind}`, {
+      detail: { textKey: 'bill_payment_detail', textArgs: [day(ctx, date), method] },
+      trailing: text(ctx, `payment-${key}/amount`, 'Home/amount', { text: amount }),
+      hotspot: false,
+    })),
+    short && settingsRow(ctx, 'payment-short', 'triangle_alert', 'bill_short', {
+      detail: { textKey: 'bill_short_detail' },
+      trailing: text(ctx, 'payment-short/amount', 'Home/amount', { text: short }, { bind: { color: { token: 'colors.text.warning' } } }),
+      hotspot: false,
+    }),
+    none && settingsRow(ctx, 'payment-none', 'clock', 'bill_no_payment', {
+      detail: { textKey: 'bill_no_payment_detail', textArgs: [day(ctx, none)] },
+      trailing: null,
+      hotspot: false,
+    }),
+  ].filter(Boolean))),
+  gap(ctx, 'gap-payments', 'spacing.large'),
+];
+
+// How much of this bill is installments, and what is already committed to the next bills ("at least", not a forecast).
+const installmentsSection = (ctx, { amount, share, count, next, committed }) => [
+  ...section(ctx, 'installments', sectionHeader(ctx, 'installments-header', 'bill_installments_eyebrow'), OrbitCard(ctx, { key: 'installments', variant: 'Base' }, [
+    amount && ctx.node({
+      key: 'installments/body',
+      styles: ['Home/cardBody'],
+      children: [
+        ctx.node({
+          key: 'installments/top',
+          styles: ['Home/spread'],
+          children: [
+            text(ctx, 'installments/amount', 'Family/name', { textKey: 'bill_installments_share', textArgs: [amount] }),
+            text(ctx, 'installments/percent', 'Screen/tertiary', { textKey: 'bill_installments_percent', textArgs: [`${share}%`] }),
+          ],
+        }),
+        OrbitLinearProgressIndicator(ctx, { key: 'installments/bar', progress: share / 100, status: 'Primary', styles: ['Home/track'] }),
+        text(ctx, 'installments/count', 'Screen/tertiary', { textKey: count === 1 ? 'bill_installments_count_one' : 'bill_installments_count', textArgs: [count] }),
+      ],
+    }),
+    amount && next && HorizontalDivider(ctx, { key: 'installments/divider' }),
+    next && ctx.node({
+      key: 'next',
+      styles: ['Home/cardBody'],
+      children: [
+        text(ctx, 'next/eyebrow', 'Screen/eyebrow', { textKey: 'bill_next_bills_eyebrow' }, { bind: { color: { token: 'colors.text.tertiary' } } }),
+        ctx.node({
+          key: 'next/strip',
+          styles: ['Bill/strip'],
+          attrs: { role: 'list' },
+          children: next.map(([month, value]) => ctx.node({
+            key: `next-${month}`,
+            styles: ['Bill/stripItem'],
+            hotspot: true,
+            attrs: { role: 'button', tabindex: 0 },
+            children: [
+              text(ctx, `next-${month}/month`, 'Screen/tertiary', { textKey: `charts_month_short_${month}` }),
+              text(ctx, `next-${month}/amount`, 'Home/amount', { text: value }),
+            ],
+          })),
+        }),
+        text(ctx, 'next/note', 'Screen/tertiary', { textKey: 'bill_next_bills_note', textArgs: [committed] }),
+      ],
+    }),
+  ])),
+  gap(ctx, 'gap-installments', 'spacing.large'),
+];
+
+// Lines grouped by day like Transactions. A closed bill's total is the bank's and can differ from its lines, so the list
+// never sums up to it. The card filter shows when the account has more than one card.
+const linesSection = (ctx, bill, cards) => {
+  const { count, days, rows, share, reconcile, eyebrowKey = 'bill_lines_eyebrow' } = bill.lines;
+  const carded = cards.length > 1 && !bill.filter;
+  return [
+    ctx.node({
+      key: 'lines-header',
+      styles: ['Home/spread', 'Home/inset'],
+      children: [
+        text(ctx, 'lines-header/eyebrow', 'Screen/eyebrow', { textKey: eyebrowKey }),
+        text(ctx, 'lines-header/count', 'Screen/tertiary', { textKey: 'bill_lines_count', textArgs: [count] }),
+      ],
+    }),
+    ...(reconcile ? [
+      gap(ctx, 'gap-lines-note', 'spacing.xxSmall'),
+      inset(ctx, 'lines-note/inset', text(ctx, 'lines-note', 'Screen/tertiary', { textKey: 'bill_lines_note', textArgs: [BANK] })),
+    ] : []),
+    ...(cards.length > 1 ? [
+      gap(ctx, 'gap-chips', 'spacing.xSmall'),
+      inset(ctx, 'cards/inset', ctx.node({
+        key: 'cards',
+        styles: ['Institutions/chips'],
+        attrs: { role: 'radiogroup', 'aria-label': ctx.t('bill_cards_filter') },
+        children: [null, ...cards].map((last4) => OrbitFilterChip(ctx, {
+          key: `chip-${last4 ?? 'all'}`,
+          ...(last4 ? { label: lastFour(ctx, last4) } : { labelKey: 'tx_filter_cards' }),
+          selected: (bill.filter ?? null) === last4,
+          hotspot: true,
+          attrs: { role: 'radio', 'aria-checked': (bill.filter ?? null) === last4, tabindex: 0 },
+        })),
+      })),
+    ] : []),
+    ...(share ? [
+      gap(ctx, 'gap-share', 'spacing.xSmall'),
+      inset(ctx, 'share/inset', text(ctx, 'share', 'Screen/secondary', { textKey: 'bill_card_share', textArgs: [share, lastFour(ctx, bill.filter)] })),
+    ] : []),
+    gap(ctx, 'gap-lines', 'spacing.small'),
+    ...(days
+      ? days.flatMap((g) => dayGroup(ctx, g, { row: billLine, carded }))
+      : [inset(ctx, 'lines/inset', billLines(ctx, 'lines', rows, { carded })), gap(ctx, 'gap-lines-after', 'spacing.medium')]),
+    count > (days ? days.reduce((sum, g) => sum + g.rows.length, 0) : rows.length) && inset(ctx, 'see-all/inset', OrbitButton(ctx, {
+      key: 'see-all', variant: 'Outlined', hotspot: true, styles: ['Screen/fill'],
+    }, [label(ctx, 'see-all/label', { textKey: 'bill_see_all', textArgs: [count] })])),
+  ];
+};
+
 const billFrame = (id, name, cycle) => frame(id, name, { status: 'proposed', spec: BILL_SPEC }, (ctx) => {
-  const c = card('azul');
   const bill = BILLS[cycle];
-  const statusLine = (key, [glyph, color, textKey, args]) => status(ctx, key, glyph, color, textKey, dated(ctx, args));
+  const c = card(bill.card ?? 'azul');
+  const manual = Boolean(bill.card);
+  const cards = manual ? [c.last4] : ACCOUNT_CARDS;
+  const stepButton = (key, glyph, labelKey, enabled = true) => OrbitIconButton(ctx, {
+    key, hotspot: enabled, enabled, styles: ['Home/switcherButton'], contentDescription: ctx.t(labelKey),
+  }, [icon(ctx, `${key}/icon`, glyph, 'medium', enabled ? 'colors.text.secondary' : 'colors.text.disabled')]);
   return screenFrame(ctx, [
     ctx.node({
       key: 'content',
@@ -3003,8 +3290,9 @@ const billFrame = (id, name, cycle) => frame(id, name, { status: 'proposed', spe
         inset(ctx, 'toolbar/inset', ctx.node({
           key: 'toolbar',
           styles: ['Home/spread', 'Screen/toolbar'],
-          children: [backButton(ctx), iconAction(ctx, 'sync', 'sliders_horizontal', 'sync_title')],
+          children: [backButton(ctx), !manual && iconAction(ctx, 'sync', 'sliders_horizontal', 'sync_title')],
         })),
+        // The screen opens from one card, so it names every card the bill covers.
         inset(ctx, 'card/inset', ctx.node({
           key: 'card',
           styles: ['Family/row'],
@@ -3015,7 +3303,9 @@ const billFrame = (id, name, cycle) => frame(id, name, { status: 'proposed', spe
               styles: ['Home/headerText'],
               children: [
                 text(ctx, 'card/name', 'Home/cardTitle', { text: c.name }),
-                text(ctx, 'card/number', 'Screen/secondary', { textKey: 'wallet_number', textArgs: [c.network, c.last4] }),
+                text(ctx, 'card/covers', 'Screen/secondary', manual
+                  ? { textKey: 'bill_manual_card', textArgs: [c.network, c.last4] }
+                  : { textKey: 'bill_covers', textArgs: cards.map((last4) => lastFour(ctx, last4)) }, clipped('Screen/secondary')),
               ],
             }),
           ],
@@ -3025,91 +3315,30 @@ const billFrame = (id, name, cycle) => frame(id, name, { status: 'proposed', spe
           key: 'stepper',
           styles: ['Home/switcher'],
           children: [
-            OrbitIconButton(ctx, { key: 'bill-previous', hotspot: true, styles: ['Home/switcherButton'], contentDescription: ctx.t('bill_previous') }, [
-              icon(ctx, 'bill-previous/icon', 'chevron_left', 'medium', 'colors.text.secondary'),
-            ]),
+            stepButton('bill-previous', 'chevron_left', 'bill_previous', bill.previous !== false),
             text(ctx, 'stepper/label', 'Family/name', { textKey: bill.labelKey }, { styles: ['Family/name', 'Home/switcherLabel'] }),
-            OrbitIconButton(ctx, { key: 'bill-next', hotspot: true, styles: ['Home/switcherButton'], contentDescription: ctx.t('bill_next') }, [
-              icon(ctx, 'bill-next/icon', 'chevron_right', 'medium', 'colors.text.secondary'),
-            ]),
+            stepButton('bill-next', 'chevron_right', 'bill_next'),
           ],
         })),
         gap(ctx, 'gap-stepper', 'spacing.medium'),
-        inset(ctx, 'bill/inset', OrbitCard(ctx, { key: 'bill', variant: 'Base' }, [
-          ctx.node({
-            key: 'bill/body',
-            styles: ['Home/cardBody'],
-            children: [
-              ctx.node({
-                key: 'bill/top',
-                styles: ['Home/spread'],
-                children: [
-                  text(ctx, 'bill/eyebrow', 'Screen/eyebrow', { textKey: bill.eyebrowKey }),
-                  bill.corner && statusLine('bill/corner', bill.corner),
-                ],
-              }),
-              text(ctx, 'bill/amount', 'OrbitCard/amount', { text: bill.amount }),
-              text(ctx, 'bill/dates', 'Screen/secondary', { textKey: bill.dates.textKey, textArgs: dated(ctx, bill.dates.textArgs) }),
-              ...(bill.limit ? [
-                OrbitLinearProgressIndicator(ctx, { key: 'bill/limit', progress: c.used, status: 'Primary', styles: ['Home/track'] }),
-                ctx.node({
-                  key: 'bill/footer',
-                  styles: ['Home/spread'],
-                  children: [
-                    text(ctx, 'bill/used', 'Screen/tertiary', { textKey: 'wallet_limit', textArgs: [c.limit] }),
-                    text(ctx, 'bill/available', 'Screen/tertiary', { textKey: 'wallet_available', textArgs: [c.available] }),
-                  ],
-                }),
-              ] : []),
-              HorizontalDivider(ctx, { key: 'bill/divider' }),
-              statusLine('bill/status', bill.status),
-            ],
-          }),
-        ])),
+        billCard(ctx, bill, c),
         gap(ctx, 'gap-bill', 'spacing.large'),
-        ...(bill.members ? [
-          ...section(ctx, 'members', sectionHeader(ctx, 'members-header', 'bill_members_eyebrow'), OrbitCard(ctx, { key: 'members', variant: 'Base' }, [
-            ctx.node({
-              key: 'members/body',
-              styles: ['Home/cardBody'],
-              children: [
-                splitBar(ctx, 'members/split', bill.members.map(([key, , , , share]) => [key, share, AVATARS[key].background.token])),
-                ...bill.members.map(([key, initial, person, amount, share], i) => splitMember(ctx, `member-${key}`, initial, person, amount, `${share}%`, AVATARS[key], i === 0)),
-              ],
-            }),
-          ])),
-          gap(ctx, 'gap-members', 'spacing.large'),
-        ] : []),
-        ...(bill.shares ? [
-          ...section(ctx, 'shares', sectionHeader(ctx, 'shares-header', 'bill_categories_eyebrow'), OrbitCard(ctx, { key: 'shares', variant: 'Base' }, [
-            shareBar(ctx, 'shares', bill.shares.map(([category, , share]) => [category, share])),
-            ...bill.shares.flatMap(([category, amount, share, count], i) => [
-              i > 0 && HorizontalDivider(ctx, { key: `shares/divider-${i}` }),
-              shareRow(ctx, [category, amount, `${share}%`], text(ctx, `share-${category}/count`, 'Screen/tertiary', { textKey: 'bill_purchases', textArgs: [count] })),
-            ]),
-          ])),
-          gap(ctx, 'gap-shares', 'spacing.large'),
-        ] : []),
-        ...section(ctx, 'installments', sectionHeader(ctx, 'installments-header', 'bill_installments_eyebrow'), OrbitCard(ctx, { key: 'installments', variant: 'Base' }, [
-          ...INSTALLMENTS[cycle].flatMap((row, i) => [i > 0 && HorizontalDivider(ctx, { key: `installments/divider-${i}` }), installmentRow(ctx, row)]),
-          ...(bill.committed ? [
-            HorizontalDivider(ctx, { key: 'installments/divider-committed' }),
-            settingsRow(ctx, 'committed', 'calendar_days', { textKey: 'bill_committed', textArgs: ['R$ 2.151,70'] }, { detail: { textKey: 'bill_committed_detail' } }),
-          ] : []),
-        ])),
-        gap(ctx, 'gap-installments', 'spacing.large'),
-        ...(bill.days ? BILL_DAYS.flatMap((group) => dayGroup(ctx, group, { carded: false })) : []),
-        bill.count && inset(ctx, 'see-all/inset', OrbitButton(ctx, { key: 'see-all', variant: 'Outlined', hotspot: true, styles: ['Screen/fill'] }, [
-          label(ctx, 'see-all/label', { textKey: 'bill_see_all', textArgs: [bill.count] }),
-        ])),
+        ...(bill.payments ? paymentsSection(ctx, bill.payments) : []),
+        ...(bill.installments ? installmentsSection(ctx, bill.installments) : []),
+        ...linesSection(ctx, bill, cards),
         gap(ctx, 'gap-bottom', 'spacing.large'),
       ],
     }),
   ]);
 });
 const walletBill = billFrame('wallet-bill', 'Wallet · Bill', 'oct');
+const walletBillCard = billFrame('wallet-bill-card', 'Wallet · Bill · One card', 'octCard');
+const walletBillClosed = billFrame('wallet-bill-closed', 'Wallet · Bill · October closed', 'octClosed');
 const walletBillSeptember = billFrame('wallet-bill-september', 'Wallet · Bill · September', 'sep');
+const walletBillAugust = billFrame('wallet-bill-august', 'Wallet · Bill · August', 'aug');
+const walletBillJuly = billFrame('wallet-bill-july', 'Wallet · Bill · July', 'jul');
 const walletBillNovember = billFrame('wallet-bill-november', 'Wallet · Bill · November', 'nov');
+const walletBillManual = billFrame('wallet-bill-manual', 'Wallet · Bill · Manual card', 'manual');
 
 // Which of the bank's cards Orbit loads, from when, and who uses each one. Without an end date it keeps fetching.
 const SYNC_MODES = ['on', 'off'];
@@ -3123,7 +3352,7 @@ const syncSection = (ctx, key, eyebrowKey, rows) => [
   gap(ctx, `${key}-gap`, 'spacing.xxSmall'),
   settingsCard(ctx, key, rows),
 ];
-const walletCardSync = frame('wallet-card-sync', 'Wallet · Card sync', { status: 'proposed', spec: BILL_SPEC }, (ctx) => screenFrame(ctx, [
+const walletCardSync = frame('wallet-card-sync', 'Wallet · Card sync', { status: 'proposed', spec: 'docs/specs/card-sync.md' }, (ctx) => screenFrame(ctx, [
   content(ctx, [
     ...header(ctx, 'sync_title', 'sync_guidance'),
     ...syncSection(ctx, 'load', 'sync_load_eyebrow', [
@@ -3198,9 +3427,14 @@ export const frames = [
   walletEdit,
   walletAdd,
   walletRemove,
-  walletBill,
+  walletBillJuly,
+  walletBillAugust,
   walletBillSeptember,
+  walletBill,
+  walletBillCard,
+  walletBillClosed,
   walletBillNovember,
+  walletBillManual,
   walletCardSync,
   transactions,
   transactionsWeek,

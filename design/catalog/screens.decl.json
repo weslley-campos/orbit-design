@@ -3615,27 +3615,187 @@
         "overflow-wrap": "anywhere"
       }
     },
-    "Bill/installment": {
+    "Bill/statement": {
       "bind": {
+        "font": {
+          "token": "typography.money"
+        },
+        "color": {
+          "token": "colors.text.primary"
+        }
+      }
+    },
+    "Bill/pill": {
+      "bind": {
+        "font": {
+          "token": "typography.labelSmall"
+        },
+        "border-radius": {
+          "token": "shapes.pill"
+        },
         "padding-top": {
-          "token": "spacing.small"
+          "token": "spacing.xxxSmall"
         },
         "padding-bottom": {
-          "token": "spacing.small"
+          "token": "spacing.xxxSmall"
         },
         "padding-left": {
-          "token": "spacing.small"
+          "token": "spacing.xxSmall"
         },
         "padding-right": {
+          "token": "spacing.xxSmall"
+        }
+      },
+      "css": {
+        "border-style": "solid",
+        "flex-shrink": "0",
+        "white-space": "nowrap"
+      }
+    },
+    "Bill/pill/open": {
+      "bind": {
+        "color": {
+          "token": "colors.text.brand"
+        },
+        "background": {
+          "token": "colors.brand.subtle"
+        },
+        "border": [
+          {
+            "literal": "1dp",
+            "proposal": "hairline border of the bill status pill, like the Home status pill"
+          },
+          {
+            "token": "colors.brand.subtle"
+          }
+        ]
+      }
+    },
+    "Bill/pill/paid": {
+      "bind": {
+        "color": {
+          "token": "colors.text.success"
+        },
+        "background": {
+          "token": "colors.direction.gainSubtle"
+        },
+        "border": [
+          {
+            "literal": "1dp",
+            "proposal": "hairline border of the bill status pill, like the Home status pill"
+          },
+          {
+            "token": "colors.direction.gainBorder"
+          }
+        ]
+      }
+    },
+    "Bill/pill/due": {
+      "bind": {
+        "color": {
+          "token": "colors.text.warning"
+        },
+        "background": {
+          "token": "colors.direction.warnSubtle"
+        },
+        "border": [
+          {
+            "literal": "1dp",
+            "proposal": "hairline border of the bill status pill, like the Home status pill"
+          },
+          {
+            "token": "colors.direction.warnBorder"
+          }
+        ]
+      }
+    },
+    "Bill/pill/neutral": {
+      "bind": {
+        "color": {
+          "token": "colors.text.secondary"
+        },
+        "background": {
+          "token": "colors.surface.sunken"
+        },
+        "border": [
+          {
+            "literal": "1dp",
+            "proposal": "hairline border of the bill status pill, like the Home status pill"
+          },
+          {
+            "token": "colors.border.base"
+          }
+        ]
+      }
+    },
+    "Bill/notes": {
+      "bind": {
+        "padding": {
           "token": "spacing.small"
         },
         "gap": {
-          "token": "spacing.xSmall"
+          "token": "spacing.xxSmall"
         }
       },
       "css": {
         "display": "flex",
-        "align-items": "center",
+        "flex-direction": "column"
+      }
+    },
+    "Bill/note": {
+      "bind": {
+        "gap": {
+          "token": "spacing.xxSmall"
+        },
+        "font": {
+          "token": "typography.bodySmall"
+        },
+        "color": {
+          "token": "colors.text.tertiary"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "align-items": "flex-start"
+      }
+    },
+    "Bill/noteIcon": {
+      "bind": {
+        "margin-top": {
+          "token": "spacing.xxxSmall"
+        }
+      }
+    },
+    "Bill/strip": {
+      "bind": {
+        "gap": {
+          "token": "spacing.xxSmall"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "overflow-x": "auto",
+        "flex-shrink": "0"
+      }
+    },
+    "Bill/stripItem": {
+      "bind": {
+        "padding": {
+          "token": "spacing.xSmall"
+        },
+        "gap": {
+          "token": "spacing.xxxSmall"
+        },
+        "border-radius": {
+          "token": "shapes.control"
+        },
+        "background": {
+          "token": "colors.surface.sunken"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "flex-direction": "column",
         "flex-shrink": "0"
       }
     },

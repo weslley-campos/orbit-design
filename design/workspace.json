@@ -458,9 +458,17 @@
           "height": 874
         },
         {
-          "id": "mobile-wallet-bill",
-          "catalogId": "screens/wallet-bill",
+          "id": "mobile-wallet-bill-july",
+          "catalogId": "screens/wallet-bill-july",
           "x": 6656,
+          "y": 3864,
+          "width": 402,
+          "height": 874
+        },
+        {
+          "id": "mobile-wallet-bill-august",
+          "catalogId": "screens/wallet-bill-august",
+          "x": 7168,
           "y": 3864,
           "width": 402,
           "height": 874
@@ -468,7 +476,15 @@
         {
           "id": "mobile-wallet-bill-september",
           "catalogId": "screens/wallet-bill-september",
-          "x": 7168,
+          "x": 7680,
+          "y": 3864,
+          "width": 402,
+          "height": 874
+        },
+        {
+          "id": "mobile-wallet-bill",
+          "catalogId": "screens/wallet-bill",
+          "x": 8192,
           "y": 3864,
           "width": 402,
           "height": 874
@@ -476,7 +492,7 @@
         {
           "id": "mobile-wallet-bill-november",
           "catalogId": "screens/wallet-bill-november",
-          "x": 7680,
+          "x": 8704,
           "y": 3864,
           "width": 402,
           "height": 874
@@ -484,8 +500,32 @@
         {
           "id": "mobile-wallet-card-sync",
           "catalogId": "screens/wallet-card-sync",
-          "x": 8192,
+          "x": 9216,
           "y": 3864,
+          "width": 402,
+          "height": 874
+        },
+        {
+          "id": "mobile-wallet-bill-closed",
+          "catalogId": "screens/wallet-bill-closed",
+          "x": 7680,
+          "y": 4830,
+          "width": 402,
+          "height": 874
+        },
+        {
+          "id": "mobile-wallet-bill-card",
+          "catalogId": "screens/wallet-bill-card",
+          "x": 8192,
+          "y": 4830,
+          "width": 402,
+          "height": 874
+        },
+        {
+          "id": "mobile-wallet-bill-manual",
+          "catalogId": "screens/wallet-bill-manual",
+          "x": 8704,
+          "y": 4830,
           "width": 402,
           "height": 874
         },
@@ -1397,17 +1437,6 @@
       "trigger": "click"
     },
     {
-      "id": "mobile-wallet-bill-azul",
-      "from": {
-        "frameId": "mobile-wallet",
-        "hotspotId": "bill-azul"
-      },
-      "to": {
-        "frameId": "mobile-wallet-card"
-      },
-      "trigger": "click"
-    },
-    {
       "id": "mobile-wallet-sort",
       "from": {
         "frameId": "mobile-wallet",
@@ -1716,182 +1745,6 @@
       "trigger": "click"
     },
     {
-      "id": "mobile-wallet-bill-back",
-      "from": {
-        "frameId": "mobile-wallet-bill",
-        "hotspotId": "back"
-      },
-      "to": {
-        "frameId": "mobile-wallet-card"
-      },
-      "trigger": "click"
-    },
-    {
-      "id": "mobile-wallet-bill-ifood",
-      "from": {
-        "frameId": "mobile-wallet-bill",
-        "hotspotId": "ifood"
-      },
-      "to": {
-        "frameId": "mobile-transaction-detail"
-      },
-      "trigger": "click"
-    },
-    {
-      "id": "mobile-wallet-bill-share-restaurants",
-      "from": {
-        "frameId": "mobile-wallet-bill",
-        "hotspotId": "share-restaurants"
-      },
-      "to": {
-        "frameId": "mobile-charts-category"
-      },
-      "trigger": "click"
-    },
-    {
-      "id": "mobile-wallet-bill-see-all",
-      "from": {
-        "frameId": "mobile-wallet-bill",
-        "hotspotId": "see-all"
-      },
-      "to": {
-        "frameId": "mobile-transactions"
-      },
-      "trigger": "click"
-    },
-    {
-      "id": "mobile-wallet-bill-bill-previous",
-      "from": {
-        "frameId": "mobile-wallet-bill",
-        "hotspotId": "bill-previous"
-      },
-      "to": {
-        "frameId": "mobile-wallet-bill-september"
-      },
-      "trigger": "click"
-    },
-    {
-      "id": "mobile-wallet-bill-bill-next",
-      "from": {
-        "frameId": "mobile-wallet-bill",
-        "hotspotId": "bill-next"
-      },
-      "to": {
-        "frameId": "mobile-wallet-bill-november"
-      },
-      "trigger": "click"
-    },
-    {
-      "id": "mobile-wallet-bill-sync",
-      "from": {
-        "frameId": "mobile-wallet-bill",
-        "hotspotId": "sync"
-      },
-      "to": {
-        "frameId": "mobile-wallet-card-sync"
-      },
-      "trigger": "click"
-    },
-    {
-      "id": "mobile-wallet-bill-committed",
-      "from": {
-        "frameId": "mobile-wallet-bill",
-        "hotspotId": "committed"
-      },
-      "to": {
-        "frameId": "mobile-wallet-bill-november"
-      },
-      "trigger": "click"
-    },
-    {
-      "id": "mobile-wallet-bill-september-back",
-      "from": {
-        "frameId": "mobile-wallet-bill-september",
-        "hotspotId": "back"
-      },
-      "to": {
-        "frameId": "mobile-wallet-card"
-      },
-      "trigger": "click"
-    },
-    {
-      "id": "mobile-wallet-bill-september-bill-next",
-      "from": {
-        "frameId": "mobile-wallet-bill-september",
-        "hotspotId": "bill-next"
-      },
-      "to": {
-        "frameId": "mobile-wallet-bill"
-      },
-      "trigger": "click"
-    },
-    {
-      "id": "mobile-wallet-bill-september-sync",
-      "from": {
-        "frameId": "mobile-wallet-bill-september",
-        "hotspotId": "sync"
-      },
-      "to": {
-        "frameId": "mobile-wallet-card-sync"
-      },
-      "trigger": "click"
-    },
-    {
-      "id": "mobile-wallet-bill-september-share-restaurants",
-      "from": {
-        "frameId": "mobile-wallet-bill-september",
-        "hotspotId": "share-restaurants"
-      },
-      "to": {
-        "frameId": "mobile-charts-category"
-      },
-      "trigger": "click"
-    },
-    {
-      "id": "mobile-wallet-bill-september-see-all",
-      "from": {
-        "frameId": "mobile-wallet-bill-september",
-        "hotspotId": "see-all"
-      },
-      "to": {
-        "frameId": "mobile-transactions"
-      },
-      "trigger": "click"
-    },
-    {
-      "id": "mobile-wallet-bill-november-back",
-      "from": {
-        "frameId": "mobile-wallet-bill-november",
-        "hotspotId": "back"
-      },
-      "to": {
-        "frameId": "mobile-wallet-card"
-      },
-      "trigger": "click"
-    },
-    {
-      "id": "mobile-wallet-bill-november-bill-previous",
-      "from": {
-        "frameId": "mobile-wallet-bill-november",
-        "hotspotId": "bill-previous"
-      },
-      "to": {
-        "frameId": "mobile-wallet-bill"
-      },
-      "trigger": "click"
-    },
-    {
-      "id": "mobile-wallet-bill-november-sync",
-      "from": {
-        "frameId": "mobile-wallet-bill-november",
-        "hotspotId": "sync"
-      },
-      "to": {
-        "frameId": "mobile-wallet-card-sync"
-      },
-      "trigger": "click"
-    },
-    {
       "id": "mobile-wallet-card-sync-back",
       "from": {
         "frameId": "mobile-wallet-card-sync",
@@ -2182,6 +2035,457 @@
       "from": {
         "frameId": "mobile-transaction-detail",
         "hotspotId": "merchant"
+      },
+      "to": {
+        "frameId": "mobile-transactions"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-bill-azul",
+      "from": {
+        "frameId": "mobile-wallet",
+        "hotspotId": "bill-azul"
+      },
+      "to": {
+        "frameId": "mobile-wallet-bill"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-bill-amex",
+      "from": {
+        "frameId": "mobile-wallet",
+        "hotspotId": "bill-amex"
+      },
+      "to": {
+        "frameId": "mobile-wallet-bill-manual"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-bill-back",
+      "from": {
+        "frameId": "mobile-wallet-bill",
+        "hotspotId": "back"
+      },
+      "to": {
+        "frameId": "mobile-wallet-card"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-bill-sync",
+      "from": {
+        "frameId": "mobile-wallet-bill",
+        "hotspotId": "sync"
+      },
+      "to": {
+        "frameId": "mobile-wallet-card-sync"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-bill-card-back",
+      "from": {
+        "frameId": "mobile-wallet-bill-card",
+        "hotspotId": "back"
+      },
+      "to": {
+        "frameId": "mobile-wallet-card"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-bill-card-sync",
+      "from": {
+        "frameId": "mobile-wallet-bill-card",
+        "hotspotId": "sync"
+      },
+      "to": {
+        "frameId": "mobile-wallet-card-sync"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-bill-closed-back",
+      "from": {
+        "frameId": "mobile-wallet-bill-closed",
+        "hotspotId": "back"
+      },
+      "to": {
+        "frameId": "mobile-wallet-card"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-bill-closed-sync",
+      "from": {
+        "frameId": "mobile-wallet-bill-closed",
+        "hotspotId": "sync"
+      },
+      "to": {
+        "frameId": "mobile-wallet-card-sync"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-bill-september-back",
+      "from": {
+        "frameId": "mobile-wallet-bill-september",
+        "hotspotId": "back"
+      },
+      "to": {
+        "frameId": "mobile-wallet-card"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-bill-september-sync",
+      "from": {
+        "frameId": "mobile-wallet-bill-september",
+        "hotspotId": "sync"
+      },
+      "to": {
+        "frameId": "mobile-wallet-card-sync"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-bill-august-back",
+      "from": {
+        "frameId": "mobile-wallet-bill-august",
+        "hotspotId": "back"
+      },
+      "to": {
+        "frameId": "mobile-wallet-card"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-bill-august-sync",
+      "from": {
+        "frameId": "mobile-wallet-bill-august",
+        "hotspotId": "sync"
+      },
+      "to": {
+        "frameId": "mobile-wallet-card-sync"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-bill-july-back",
+      "from": {
+        "frameId": "mobile-wallet-bill-july",
+        "hotspotId": "back"
+      },
+      "to": {
+        "frameId": "mobile-wallet-card"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-bill-july-sync",
+      "from": {
+        "frameId": "mobile-wallet-bill-july",
+        "hotspotId": "sync"
+      },
+      "to": {
+        "frameId": "mobile-wallet-card-sync"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-bill-november-back",
+      "from": {
+        "frameId": "mobile-wallet-bill-november",
+        "hotspotId": "back"
+      },
+      "to": {
+        "frameId": "mobile-wallet-card"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-bill-november-sync",
+      "from": {
+        "frameId": "mobile-wallet-bill-november",
+        "hotspotId": "sync"
+      },
+      "to": {
+        "frameId": "mobile-wallet-card-sync"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-bill-bill-previous",
+      "from": {
+        "frameId": "mobile-wallet-bill",
+        "hotspotId": "bill-previous"
+      },
+      "to": {
+        "frameId": "mobile-wallet-bill-september"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-bill-bill-next",
+      "from": {
+        "frameId": "mobile-wallet-bill",
+        "hotspotId": "bill-next"
+      },
+      "to": {
+        "frameId": "mobile-wallet-bill-november"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-bill-next-11",
+      "from": {
+        "frameId": "mobile-wallet-bill",
+        "hotspotId": "next-11"
+      },
+      "to": {
+        "frameId": "mobile-wallet-bill-november"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-bill-see-all",
+      "from": {
+        "frameId": "mobile-wallet-bill",
+        "hotspotId": "see-all"
+      },
+      "to": {
+        "frameId": "mobile-transactions"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-bill-card-bill-previous",
+      "from": {
+        "frameId": "mobile-wallet-bill-card",
+        "hotspotId": "bill-previous"
+      },
+      "to": {
+        "frameId": "mobile-wallet-bill-september"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-bill-card-bill-next",
+      "from": {
+        "frameId": "mobile-wallet-bill-card",
+        "hotspotId": "bill-next"
+      },
+      "to": {
+        "frameId": "mobile-wallet-bill-november"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-bill-card-next-11",
+      "from": {
+        "frameId": "mobile-wallet-bill-card",
+        "hotspotId": "next-11"
+      },
+      "to": {
+        "frameId": "mobile-wallet-bill-november"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-bill-card-see-all",
+      "from": {
+        "frameId": "mobile-wallet-bill-card",
+        "hotspotId": "see-all"
+      },
+      "to": {
+        "frameId": "mobile-transactions"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-bill-chip-7730",
+      "from": {
+        "frameId": "mobile-wallet-bill",
+        "hotspotId": "chip-7730"
+      },
+      "to": {
+        "frameId": "mobile-wallet-bill-card"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-bill-ifood",
+      "from": {
+        "frameId": "mobile-wallet-bill",
+        "hotspotId": "ifood"
+      },
+      "to": {
+        "frameId": "mobile-transaction-detail"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-bill-card-chip-all",
+      "from": {
+        "frameId": "mobile-wallet-bill-card",
+        "hotspotId": "chip-all"
+      },
+      "to": {
+        "frameId": "mobile-wallet-bill"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-bill-card-uber",
+      "from": {
+        "frameId": "mobile-wallet-bill-card",
+        "hotspotId": "uber"
+      },
+      "to": {
+        "frameId": "mobile-transaction-detail"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-bill-closed-bill-previous",
+      "from": {
+        "frameId": "mobile-wallet-bill-closed",
+        "hotspotId": "bill-previous"
+      },
+      "to": {
+        "frameId": "mobile-wallet-bill-september"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-bill-closed-see-all",
+      "from": {
+        "frameId": "mobile-wallet-bill-closed",
+        "hotspotId": "see-all"
+      },
+      "to": {
+        "frameId": "mobile-transactions"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-bill-september-bill-previous",
+      "from": {
+        "frameId": "mobile-wallet-bill-september",
+        "hotspotId": "bill-previous"
+      },
+      "to": {
+        "frameId": "mobile-wallet-bill-august"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-bill-september-bill-next",
+      "from": {
+        "frameId": "mobile-wallet-bill-september",
+        "hotspotId": "bill-next"
+      },
+      "to": {
+        "frameId": "mobile-wallet-bill"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-bill-september-see-all",
+      "from": {
+        "frameId": "mobile-wallet-bill-september",
+        "hotspotId": "see-all"
+      },
+      "to": {
+        "frameId": "mobile-transactions"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-bill-august-bill-previous",
+      "from": {
+        "frameId": "mobile-wallet-bill-august",
+        "hotspotId": "bill-previous"
+      },
+      "to": {
+        "frameId": "mobile-wallet-bill-july"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-bill-august-bill-next",
+      "from": {
+        "frameId": "mobile-wallet-bill-august",
+        "hotspotId": "bill-next"
+      },
+      "to": {
+        "frameId": "mobile-wallet-bill-september"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-bill-august-see-all",
+      "from": {
+        "frameId": "mobile-wallet-bill-august",
+        "hotspotId": "see-all"
+      },
+      "to": {
+        "frameId": "mobile-transactions"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-bill-july-bill-next",
+      "from": {
+        "frameId": "mobile-wallet-bill-july",
+        "hotspotId": "bill-next"
+      },
+      "to": {
+        "frameId": "mobile-wallet-bill-august"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-bill-july-see-all",
+      "from": {
+        "frameId": "mobile-wallet-bill-july",
+        "hotspotId": "see-all"
+      },
+      "to": {
+        "frameId": "mobile-transactions"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-bill-november-bill-previous",
+      "from": {
+        "frameId": "mobile-wallet-bill-november",
+        "hotspotId": "bill-previous"
+      },
+      "to": {
+        "frameId": "mobile-wallet-bill"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-bill-manual-back",
+      "from": {
+        "frameId": "mobile-wallet-bill-manual",
+        "hotspotId": "back"
+      },
+      "to": {
+        "frameId": "mobile-wallet"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-bill-manual-see-all",
+      "from": {
+        "frameId": "mobile-wallet-bill-manual",
+        "hotspotId": "see-all"
       },
       "to": {
         "frameId": "mobile-transactions"
