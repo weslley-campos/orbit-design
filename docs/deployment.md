@@ -17,7 +17,7 @@ Sign-in is optional. Without the Supabase settings the site works browser-only, 
 1. The repository must be **public** (GitHub Pages on a private repository needs a paid plan, and the published site is public either way).
 2. **Settings → Pages → Build and deployment → Source: GitHub Actions.**
 
-The workflow runs on every push to `main` and on demand (**Actions → Deploy design workspace to GitHub Pages → Run workflow**). It:
+Only `main` deploys. The workflow runs on every push to `main` and on demand from `main` (**Actions → Deploy design workspace to GitHub Pages → Run workflow**); pushes to other branches never trigger it, and a manual run from another branch skips every job, so it neither migrates the database nor publishes. It:
 
 1. runs `node design/check.mjs` (workspace, store and cloud-sync checks);
 2. runs `node supabase/tests/service.test.mjs` (the database functions on a throwaway PostgreSQL on the runner);

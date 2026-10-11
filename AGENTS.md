@@ -11,3 +11,8 @@ Orbit is a personal expense manager. Sharing with family members is optional. Us
 - Run `node design/check.mjs` and verify changed frames in light/dark and English/Portuguese. Run the Kotlin synchronization checks from the Orbit checkout as documented in `design/README.md`.
 - Preview with `python3 design/serve.py`. Keep the same localhost port to preserve browser drafts.
 - `design/assets/core-ui` and `design/assets/feature-auth` are committed resource snapshots; refresh them using the commands in `design/README.md`.
+
+## Git and deployment
+
+- Author commits as `Weslley Campos <weslley_campos@outlook.com>`. Do not add `Co-Authored-By` trailers.
+- `main` is the only branch that deploys: every push to `main` runs the checks, applies Supabase migrations and publishes to GitHub Pages (`.github/workflows/pages.yml`, documented in `docs/deployment.md`). Other branches never deploy.
