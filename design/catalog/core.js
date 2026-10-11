@@ -202,6 +202,8 @@ function format(template, args) {
 
 function androidColor(color) {
   if (!color) return null;
+  // A fully transparent #00RRGGBB or #0RGB paints nothing; keep it out of the currentColor tint.
+  if ((color.length === 9 && color.startsWith('#00')) || (color.length === 5 && color[1] === '0')) return 'none';
   if (color.length === 9) return `#${color.slice(3)}${color.slice(1, 3)}`;
   if (color.length === 5) return `#${color.slice(2)}${color[1]}`;
   return color;
