@@ -51,7 +51,7 @@ Status: Draft
 - [ ] Gradle token/declaration checks from the Orbit checkout.
 
 ## 8. Open questions
-- Are cards personal or shared with family members (e.g. Marina's purchases on Ana's card)? — product owner — blocks per-member filters on the card screen.
+- Decided: a card can be shared. Each card the bank reports (main or additional) belongs to whoever uses it, and the bill splits by family member (see [bill.md](bill.md)).
 - Should Highest bill first sort by the open bill or by this month's spending? — product owner — does not block this draft.
 - Where does card art come from in the app: Pluggy's connector image, a set of issuer templates, or a color the user picks? — product owner — does not block this draft.
 - Assumptions: bills, dates and limits are sample data; the open bill total includes purchases from before this month, so it differs from Home's month total.
