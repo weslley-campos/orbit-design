@@ -492,7 +492,17 @@
     "charts_month_short_4": "Apr",
     "charts_month_short_11": "Nov",
     "charts_month_short_12": "Dec",
-    "tx_daily_budget": "R$ %1$s a day"
+    "tx_daily_budget": "R$ %1$s a day",
+    "wallet_date_sep": "Sep %1$s",
+    "bill_october": "October bill",
+    "bill_previous": "Previous bill",
+    "bill_next": "Next bill",
+    "bill_open_eyebrow": "OPEN BILL",
+    "bill_closes_in": "Closes in %1$s days",
+    "bill_last_paid": "Last bill %1$s · paid %2$s",
+    "bill_categories_eyebrow": "BY CATEGORY",
+    "bill_purchases": "%1$s purchases",
+    "bill_see_all": "See all %1$s purchases"
   },
   "pt": {
     "forgot_password_title": "Recuperar senha",
@@ -987,6 +997,16 @@
     "charts_month_short_4": "Abr",
     "charts_month_short_11": "Nov",
     "charts_month_short_12": "Dez",
-    "tx_daily_budget": "R$ %1$s por dia"
+    "tx_daily_budget": "R$ %1$s por dia",
+    "wallet_date_sep": "%1$s set",
+    "bill_october": "Fatura de outubro",
+    "bill_previous": "Fatura anterior",
+    "bill_next": "Próxima fatura",
+    "bill_open_eyebrow": "FATURA ABERTA",
+    "bill_closes_in": "Fecha em %1$s dias",
+    "bill_last_paid": "Fatura anterior %1$s · paga %2$s",
+    "bill_categories_eyebrow": "POR CATEGORIA",
+    "bill_purchases": "%1$s compras",
+    "bill_see_all": "Ver todas as %1$s compras"
   }
 }

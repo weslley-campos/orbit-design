@@ -19,7 +19,7 @@ Status: Draft
   - `screens/wallet-add`: import from the bank through Pluggy, or a manual form (name, last 4 digits, optional limit, network, closing and due days) with a live card preview.
   - `screens/wallet-remove`: confirmation that a card's expenses stay in history.
   - Prototype links among all six, the Wallet tab from Home, Charts and Settings, and Import → Connectors.
-- Excluded: the full bill screen, editing a single card's details, flipping a card, paying a bill, Pluggy's card import flow, production app changes.
+- Excluded: the full bill screen (see [bill.md](bill.md)), editing a single card's details, flipping a card, paying a bill, Pluggy's card import flow, production app changes.
 - Design: `screens/home` → `screens/wallet` → `screens/wallet-card`, `screens/wallet-sort`, `screens/wallet-edit`, `screens/wallet-add`, `screens/wallet-remove`.
 
 ## 3. Required behavior
