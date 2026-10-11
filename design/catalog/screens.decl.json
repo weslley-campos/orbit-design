@@ -3799,6 +3799,30 @@
         "flex-shrink": "0"
       }
     },
+    "Bill/installment": {
+      "bind": {
+        "padding-top": {
+          "token": "spacing.small"
+        },
+        "padding-bottom": {
+          "token": "spacing.small"
+        },
+        "padding-left": {
+          "token": "spacing.small"
+        },
+        "padding-right": {
+          "token": "spacing.small"
+        },
+        "gap": {
+          "token": "spacing.xSmall"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "align-items": "center",
+        "flex-shrink": "0"
+      }
+    },
     "Icon/camera": {
       "bind": {
         "icon": {

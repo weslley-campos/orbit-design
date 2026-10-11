@@ -530,6 +530,30 @@
           "height": 874
         },
         {
+          "id": "mobile-wallet-bill-v1-september",
+          "catalogId": "screens/wallet-bill-v1-september",
+          "x": 7680,
+          "y": 5796,
+          "width": 402,
+          "height": 874
+        },
+        {
+          "id": "mobile-wallet-bill-v1",
+          "catalogId": "screens/wallet-bill-v1",
+          "x": 8192,
+          "y": 5796,
+          "width": 402,
+          "height": 874
+        },
+        {
+          "id": "mobile-wallet-bill-v1-november",
+          "catalogId": "screens/wallet-bill-v1-november",
+          "x": 8704,
+          "y": 5796,
+          "width": 402,
+          "height": 874
+        },
+        {
           "id": "mobile-transactions",
           "catalogId": "screens/transactions",
           "x": 3584,
@@ -2489,6 +2513,182 @@
       },
       "to": {
         "frameId": "mobile-transactions"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-bill-v1-back",
+      "from": {
+        "frameId": "mobile-wallet-bill-v1",
+        "hotspotId": "back"
+      },
+      "to": {
+        "frameId": "mobile-wallet-card"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-bill-v1-ifood",
+      "from": {
+        "frameId": "mobile-wallet-bill-v1",
+        "hotspotId": "ifood"
+      },
+      "to": {
+        "frameId": "mobile-transaction-detail"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-bill-v1-share-restaurants",
+      "from": {
+        "frameId": "mobile-wallet-bill-v1",
+        "hotspotId": "share-restaurants"
+      },
+      "to": {
+        "frameId": "mobile-charts-category"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-bill-v1-see-all",
+      "from": {
+        "frameId": "mobile-wallet-bill-v1",
+        "hotspotId": "see-all"
+      },
+      "to": {
+        "frameId": "mobile-transactions"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-bill-v1-bill-previous",
+      "from": {
+        "frameId": "mobile-wallet-bill-v1",
+        "hotspotId": "bill-previous"
+      },
+      "to": {
+        "frameId": "mobile-wallet-bill-v1-september"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-bill-v1-bill-next",
+      "from": {
+        "frameId": "mobile-wallet-bill-v1",
+        "hotspotId": "bill-next"
+      },
+      "to": {
+        "frameId": "mobile-wallet-bill-v1-november"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-bill-v1-sync",
+      "from": {
+        "frameId": "mobile-wallet-bill-v1",
+        "hotspotId": "sync"
+      },
+      "to": {
+        "frameId": "mobile-wallet-card-sync"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-bill-v1-committed",
+      "from": {
+        "frameId": "mobile-wallet-bill-v1",
+        "hotspotId": "committed"
+      },
+      "to": {
+        "frameId": "mobile-wallet-bill-v1-november"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-bill-v1-september-back",
+      "from": {
+        "frameId": "mobile-wallet-bill-v1-september",
+        "hotspotId": "back"
+      },
+      "to": {
+        "frameId": "mobile-wallet-card"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-bill-v1-september-bill-next",
+      "from": {
+        "frameId": "mobile-wallet-bill-v1-september",
+        "hotspotId": "bill-next"
+      },
+      "to": {
+        "frameId": "mobile-wallet-bill-v1"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-bill-v1-september-sync",
+      "from": {
+        "frameId": "mobile-wallet-bill-v1-september",
+        "hotspotId": "sync"
+      },
+      "to": {
+        "frameId": "mobile-wallet-card-sync"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-bill-v1-september-share-restaurants",
+      "from": {
+        "frameId": "mobile-wallet-bill-v1-september",
+        "hotspotId": "share-restaurants"
+      },
+      "to": {
+        "frameId": "mobile-charts-category"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-bill-v1-september-see-all",
+      "from": {
+        "frameId": "mobile-wallet-bill-v1-september",
+        "hotspotId": "see-all"
+      },
+      "to": {
+        "frameId": "mobile-transactions"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-bill-v1-november-back",
+      "from": {
+        "frameId": "mobile-wallet-bill-v1-november",
+        "hotspotId": "back"
+      },
+      "to": {
+        "frameId": "mobile-wallet-card"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-bill-v1-november-bill-previous",
+      "from": {
+        "frameId": "mobile-wallet-bill-v1-november",
+        "hotspotId": "bill-previous"
+      },
+      "to": {
+        "frameId": "mobile-wallet-bill-v1"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-bill-v1-november-sync",
+      "from": {
+        "frameId": "mobile-wallet-bill-v1-november",
+        "hotspotId": "sync"
+      },
+      "to": {
+        "frameId": "mobile-wallet-card-sync"
       },
       "trigger": "click"
     }
