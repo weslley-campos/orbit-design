@@ -60,6 +60,6 @@ Status: Draft
 
 ## 8. Open questions
 - Should Transactions become a tab, or stay behind See all? The bar is full: Home, Charts, Add, Wallet, Settings. — product owner — does not block this draft.
-- How are installments shown: one row per bill ("2 of 6") or one purchase with its schedule? — product owner — blocks the installments design.
+- Decided: installments show on each bill they are charged to, in their own section with "3 of 10" and what is left (see [bill.md](bill.md)). How they show in this list is still open — product owner — does not block this draft.
 - Do family members see each other's notes? — product owner — does not block this draft.
 - Assumptions: today is Wednesday, 7 October 2026; amounts and statement text are sample data.

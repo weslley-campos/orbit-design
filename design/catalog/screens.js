@@ -2907,19 +2907,93 @@ const transactionDetail = frame('transaction-detail', 'Transaction', { status: '
   ]);
 });
 
-// A card's bill: one cycle at a time, what it adds up to, where it went and the purchases on it.
+// A card's bill: one cycle at a time, what it adds up to, who spent it, where it went and the purchases on it.
+// Status and payment always come from the bank; Orbit never marks a bill as paid.
 const BILL_SPEC = 'docs/specs/bill.md';
 const BILL_TOTALS = { 'oct-7': 'R$ 207,30', 'oct-6': 'R$ 278,50', 'oct-5': 'R$ 155,90' };
 const BILL_DAYS = TX_DAYS.map((group) => ({ ...group, total: BILL_TOTALS[group.key], rows: group.rows.filter(([, , , cardKey]) => cardKey === 'azul') }));
-// [category, amount, share, purchases]
-const BILL_SHARES = [
-  ['groceries', 'R$ 791,90', '37%', 9],
-  ['transport', 'R$ 470,80', '22%', 7],
-  ['restaurants', 'R$ 278,20', '13%', 6],
-  ['other', 'R$ 599,30', '28%', 9],
-];
-const walletBill = frame('wallet-bill', 'Wallet · Bill', { status: 'proposed', spec: BILL_SPEC }, (ctx) => {
+// Installments are bought once and charged on later bills: [key, merchant, category, glyph, number, of, amount, total]
+const INSTALLMENTS = {
+  sep: [['magalu', 'Magazine Luiza', 'other', 'store', 2, 10, 'R$ 289,90', 'R$ 2.899,00'], ['fast-shop', 'Fast Shop', 'other', 'store', 1, 3, 'R$ 122,40', 'R$ 367,20']],
+  oct: [['magalu', 'Magazine Luiza', 'other', 'store', 3, 10, 'R$ 289,90', 'R$ 2.899,00'], ['fast-shop', 'Fast Shop', 'other', 'store', 2, 3, 'R$ 122,40', 'R$ 367,20']],
+  nov: [['magalu', 'Magazine Luiza', 'other', 'store', 4, 10, 'R$ 289,90', 'R$ 2.899,00'], ['fast-shop', 'Fast Shop', 'other', 'store', 3, 3, 'R$ 122,40', 'R$ 367,20']],
+};
+const AVATARS = {
+  ana: { background: { token: 'colors.brand.primary' }, color: { token: 'colors.text.onBrand' } },
+  marina: { background: { token: 'colors.brand.accent' }, color: { token: 'colors.brand.ink' } },
+};
+const BILLS = {
+  sep: {
+    labelKey: 'bill_september',
+    eyebrowKey: 'bill_paid_eyebrow',
+    amount: 'R$ 1.986,40',
+    dates: { textKey: 'bill_closed_due', textArgs: [['sep', 12], ['sep', 20]] },
+    status: ['circle_check', 'colors.text.success', 'bill_paid_reported', [['sep', 20]]],
+    members: [['ana', 'A', 'Ana', 'R$ 1.390,50', 70], ['marina', 'M', 'Marina', 'R$ 595,90', 30]],
+    shares: [['groceries', 'R$ 794,60', 40, 10], ['restaurants', 'R$ 397,30', 20, 6], ['transport', 'R$ 238,40', 12, 5], ['other', 'R$ 556,10', 28, 7]],
+    count: 28,
+  },
+  oct: {
+    labelKey: 'bill_october',
+    eyebrowKey: 'bill_open_eyebrow',
+    amount: 'R$ 2.140,20',
+    corner: ['clock', 'colors.text.secondary', 'bill_closes_in', [5]],
+    dates: { textKey: 'wallet_closes_due', textArgs: [['oct', 12], ['oct', 20]] },
+    limit: true,
+    status: ['circle_check', 'colors.text.success', 'bill_last_paid', ['R$ 1.986,40', ['sep', 20]]],
+    members: [['ana', 'A', 'Ana', 'R$ 1.498,10', 70], ['marina', 'M', 'Marina', 'R$ 642,10', 30]],
+    shares: [['groceries', 'R$ 791,90', 37, 9], ['transport', 'R$ 470,80', 22, 7], ['restaurants', 'R$ 278,20', 13, 6], ['other', 'R$ 599,30', 28, 9]],
+    committed: true,
+    days: true,
+    count: 31,
+  },
+  nov: {
+    labelKey: 'bill_november',
+    eyebrowKey: 'bill_next_eyebrow',
+    amount: 'R$ 412,30',
+    corner: ['calendar_days', 'colors.text.secondary', 'bill_opens', [['oct', 13]]],
+    dates: { textKey: 'wallet_closes_due', textArgs: [['nov', 12], ['nov', 20]] },
+    status: ['calendar_days', 'colors.text.tertiary', 'bill_next_note', [['oct', 13]]],
+  },
+};
+// Dates in textArgs are [month, day] pairs, localized here.
+const dated = (ctx, args) => args.map((arg) => (Array.isArray(arg) ? day(ctx, arg) : arg));
+
+// The bar under the text shows how much of the purchase is already charged.
+const installmentRow = (ctx, [key, merchant, category, glyph, number, of, amount, total]) => ctx.node({
+  key: `installment-${key}`,
+  styles: ['Bill/installment'],
+  hotspot: true,
+  attrs: { role: 'button', tabindex: 0 },
+  children: [
+    badge(ctx, `installment-${key}/badge`, category, { glyph }),
+    ctx.node({
+      key: `installment-${key}/info`,
+      styles: ['Family/info'],
+      children: [
+        text(ctx, `installment-${key}/merchant`, 'Family/name', { text: merchant }, clipped('Family/name')),
+        text(ctx, `installment-${key}/detail`, 'Screen/tertiary', number === of
+          ? { textKey: 'bill_installment_last', textArgs: [number, of] }
+          : { textKey: 'bill_installment', textArgs: [number, of, of - number] }, clipped('Screen/tertiary')),
+        gap(ctx, `installment-${key}/gap`, 'spacing.xxxSmall'),
+        OrbitLinearProgressIndicator(ctx, { key: `installment-${key}/bar`, progress: number / of, status: 'Primary', styles: ['Home/track'] }),
+      ],
+    }),
+    ctx.node({
+      key: `installment-${key}/trailing`,
+      styles: ['Home/trailing'],
+      children: [
+        text(ctx, `installment-${key}/amount`, 'Home/amount', { text: amount }),
+        text(ctx, `installment-${key}/total`, 'Screen/tertiary', { textKey: 'bill_installment_total', textArgs: [total] }),
+      ],
+    }),
+  ],
+});
+
+const billFrame = (id, name, cycle) => frame(id, name, { status: 'proposed', spec: BILL_SPEC }, (ctx) => {
   const c = card('azul');
+  const bill = BILLS[cycle];
+  const statusLine = (key, [glyph, color, textKey, args]) => status(ctx, key, glyph, color, textKey, dated(ctx, args));
   return screenFrame(ctx, [
     ctx.node({
       key: 'content',
@@ -2929,7 +3003,7 @@ const walletBill = frame('wallet-bill', 'Wallet · Bill', { status: 'proposed', 
         inset(ctx, 'toolbar/inset', ctx.node({
           key: 'toolbar',
           styles: ['Home/spread', 'Screen/toolbar'],
-          children: [backButton(ctx), iconAction(ctx, 'more', 'ellipsis', 'tx_more')],
+          children: [backButton(ctx), iconAction(ctx, 'sync', 'sliders_horizontal', 'sync_title')],
         })),
         inset(ctx, 'card/inset', ctx.node({
           key: 'card',
@@ -2954,7 +3028,7 @@ const walletBill = frame('wallet-bill', 'Wallet · Bill', { status: 'proposed', 
             OrbitIconButton(ctx, { key: 'bill-previous', hotspot: true, styles: ['Home/switcherButton'], contentDescription: ctx.t('bill_previous') }, [
               icon(ctx, 'bill-previous/icon', 'chevron_left', 'medium', 'colors.text.secondary'),
             ]),
-            text(ctx, 'stepper/label', 'Family/name', { textKey: 'bill_october' }, { styles: ['Family/name', 'Home/switcherLabel'] }),
+            text(ctx, 'stepper/label', 'Family/name', { textKey: bill.labelKey }, { styles: ['Family/name', 'Home/switcherLabel'] }),
             OrbitIconButton(ctx, { key: 'bill-next', hotspot: true, styles: ['Home/switcherButton'], contentDescription: ctx.t('bill_next') }, [
               icon(ctx, 'bill-next/icon', 'chevron_right', 'medium', 'colors.text.secondary'),
             ]),
@@ -2970,44 +3044,134 @@ const walletBill = frame('wallet-bill', 'Wallet · Bill', { status: 'proposed', 
                 key: 'bill/top',
                 styles: ['Home/spread'],
                 children: [
-                  text(ctx, 'bill/eyebrow', 'Screen/eyebrow', { textKey: 'bill_open_eyebrow' }),
-                  status(ctx, 'bill/closes', 'clock', 'colors.text.secondary', 'bill_closes_in', [5]),
+                  text(ctx, 'bill/eyebrow', 'Screen/eyebrow', { textKey: bill.eyebrowKey }),
+                  bill.corner && statusLine('bill/corner', bill.corner),
                 ],
               }),
-              text(ctx, 'bill/amount', 'OrbitCard/amount', { text: c.bill }),
-              text(ctx, 'bill/dates', 'Screen/secondary', { textKey: 'wallet_closes_due', textArgs: [day(ctx, c.closes), day(ctx, c.due)] }),
-              OrbitLinearProgressIndicator(ctx, { key: 'bill/limit', progress: c.used, status: 'Primary', styles: ['Home/track'] }),
-              ctx.node({
-                key: 'bill/footer',
-                styles: ['Home/spread'],
-                children: [
-                  text(ctx, 'bill/used', 'Screen/tertiary', { textKey: 'wallet_limit', textArgs: [c.limit] }),
-                  text(ctx, 'bill/available', 'Screen/tertiary', { textKey: 'wallet_available', textArgs: [c.available] }),
-                ],
-              }),
+              text(ctx, 'bill/amount', 'OrbitCard/amount', { text: bill.amount }),
+              text(ctx, 'bill/dates', 'Screen/secondary', { textKey: bill.dates.textKey, textArgs: dated(ctx, bill.dates.textArgs) }),
+              ...(bill.limit ? [
+                OrbitLinearProgressIndicator(ctx, { key: 'bill/limit', progress: c.used, status: 'Primary', styles: ['Home/track'] }),
+                ctx.node({
+                  key: 'bill/footer',
+                  styles: ['Home/spread'],
+                  children: [
+                    text(ctx, 'bill/used', 'Screen/tertiary', { textKey: 'wallet_limit', textArgs: [c.limit] }),
+                    text(ctx, 'bill/available', 'Screen/tertiary', { textKey: 'wallet_available', textArgs: [c.available] }),
+                  ],
+                }),
+              ] : []),
               HorizontalDivider(ctx, { key: 'bill/divider' }),
-              status(ctx, 'bill/last', 'circle_check', 'colors.text.success', 'bill_last_paid', ['R$ 1.986,40', day(ctx, ['sep', 20])]),
+              statusLine('bill/status', bill.status),
             ],
           }),
         ])),
         gap(ctx, 'gap-bill', 'spacing.large'),
-        ...section(ctx, 'shares', sectionHeader(ctx, 'shares-header', 'bill_categories_eyebrow'), OrbitCard(ctx, { key: 'shares', variant: 'Base' }, [
-          shareBar(ctx, 'shares', BILL_SHARES.map(([category, , share]) => [category, parseInt(share, 10)])),
-          ...BILL_SHARES.flatMap(([category, amount, share, count], i) => [
-            i > 0 && HorizontalDivider(ctx, { key: `shares/divider-${i}` }),
-            shareRow(ctx, [category, amount, share], text(ctx, `share-${category}/count`, 'Screen/tertiary', { textKey: 'bill_purchases', textArgs: [count] })),
-          ]),
+        ...(bill.members ? [
+          ...section(ctx, 'members', sectionHeader(ctx, 'members-header', 'bill_members_eyebrow'), OrbitCard(ctx, { key: 'members', variant: 'Base' }, [
+            ctx.node({
+              key: 'members/body',
+              styles: ['Home/cardBody'],
+              children: [
+                splitBar(ctx, 'members/split', bill.members.map(([key, , , , share]) => [key, share, AVATARS[key].background.token])),
+                ...bill.members.map(([key, initial, person, amount, share], i) => splitMember(ctx, `member-${key}`, initial, person, amount, `${share}%`, AVATARS[key], i === 0)),
+              ],
+            }),
+          ])),
+          gap(ctx, 'gap-members', 'spacing.large'),
+        ] : []),
+        ...(bill.shares ? [
+          ...section(ctx, 'shares', sectionHeader(ctx, 'shares-header', 'bill_categories_eyebrow'), OrbitCard(ctx, { key: 'shares', variant: 'Base' }, [
+            shareBar(ctx, 'shares', bill.shares.map(([category, , share]) => [category, share])),
+            ...bill.shares.flatMap(([category, amount, share, count], i) => [
+              i > 0 && HorizontalDivider(ctx, { key: `shares/divider-${i}` }),
+              shareRow(ctx, [category, amount, `${share}%`], text(ctx, `share-${category}/count`, 'Screen/tertiary', { textKey: 'bill_purchases', textArgs: [count] })),
+            ]),
+          ])),
+          gap(ctx, 'gap-shares', 'spacing.large'),
+        ] : []),
+        ...section(ctx, 'installments', sectionHeader(ctx, 'installments-header', 'bill_installments_eyebrow'), OrbitCard(ctx, { key: 'installments', variant: 'Base' }, [
+          ...INSTALLMENTS[cycle].flatMap((row, i) => [i > 0 && HorizontalDivider(ctx, { key: `installments/divider-${i}` }), installmentRow(ctx, row)]),
+          ...(bill.committed ? [
+            HorizontalDivider(ctx, { key: 'installments/divider-committed' }),
+            settingsRow(ctx, 'committed', 'calendar_days', { textKey: 'bill_committed', textArgs: ['R$ 2.151,70'] }, { detail: { textKey: 'bill_committed_detail' } }),
+          ] : []),
         ])),
-        gap(ctx, 'gap-shares', 'spacing.large'),
-        ...BILL_DAYS.flatMap((group) => dayGroup(ctx, group, { carded: false })),
-        inset(ctx, 'see-all/inset', OrbitButton(ctx, { key: 'see-all', variant: 'Outlined', hotspot: true, styles: ['Screen/fill'] }, [
-          label(ctx, 'see-all/label', { textKey: 'bill_see_all', textArgs: [31] }),
+        gap(ctx, 'gap-installments', 'spacing.large'),
+        ...(bill.days ? BILL_DAYS.flatMap((group) => dayGroup(ctx, group, { carded: false })) : []),
+        bill.count && inset(ctx, 'see-all/inset', OrbitButton(ctx, { key: 'see-all', variant: 'Outlined', hotspot: true, styles: ['Screen/fill'] }, [
+          label(ctx, 'see-all/label', { textKey: 'bill_see_all', textArgs: [bill.count] }),
         ])),
         gap(ctx, 'gap-bottom', 'spacing.large'),
       ],
     }),
   ]);
 });
+const walletBill = billFrame('wallet-bill', 'Wallet · Bill', 'oct');
+const walletBillSeptember = billFrame('wallet-bill-september', 'Wallet · Bill · September', 'sep');
+const walletBillNovember = billFrame('wallet-bill-november', 'Wallet · Bill · November', 'nov');
+
+// Which of the bank's cards Orbit loads, from when, and who uses each one. Without an end date it keeps fetching.
+const SYNC_MODES = ['on', 'off'];
+const syncCard = (ctx, key, initial, avatarBind, titleKey, digits, detail) => settingsRow(ctx, `sync-${key}`, null, { textKey: titleKey, textArgs: [digits] }, {
+  detail,
+  leading: text(ctx, `sync-${key}/avatar`, 'Family/avatar', { text: initial }, avatarBind ? { bind: avatarBind } : {}),
+});
+// Inside Screen/content, which already has the side gutter, so sections are not inset again.
+const syncSection = (ctx, key, eyebrowKey, rows) => [
+  text(ctx, `${key}-eyebrow`, 'Screen/eyebrow', { textKey: eyebrowKey }),
+  gap(ctx, `${key}-gap`, 'spacing.xxSmall'),
+  settingsCard(ctx, key, rows),
+];
+const walletCardSync = frame('wallet-card-sync', 'Wallet · Card sync', { status: 'proposed', spec: BILL_SPEC }, (ctx) => screenFrame(ctx, [
+  content(ctx, [
+    ...header(ctx, 'sync_title', 'sync_guidance'),
+    ...syncSection(ctx, 'load', 'sync_load_eyebrow', [
+      ctx.node({
+        key: 'load-stack',
+        styles: ['Settings/stack'],
+        children: [
+          settingsRow(ctx, 'load-row', 'plug', { textKey: 'wallet_number', textArgs: ['Azul Itaú', '4821'] }, { detail: { textKey: 'tx_source_pluggy' }, trailing: null, hotspot: false }),
+          ctx.node({
+            key: 'load-options',
+            styles: ['Settings/options'],
+            attrs: { role: 'radiogroup', 'aria-label': ctx.t('sync_load_eyebrow') },
+            children: SYNC_MODES.map((mode, i) => OrbitFilterChip(ctx, {
+              key: `load-${mode}`,
+              labelKey: `sync_load_${mode}`,
+              selected: i === 0,
+              hotspot: true,
+              styles: ['Settings/option'],
+              attrs: { role: 'radio', 'aria-checked': i === 0, tabindex: 0 },
+            })),
+          }),
+        ],
+      }),
+    ]),
+    gap(ctx, 'gap-load', 'spacing.large'),
+    text(ctx, 'period-eyebrow', 'Screen/eyebrow', { textKey: 'sync_period_eyebrow' }),
+    gap(ctx, 'gap-period-eyebrow', 'spacing.xxSmall'),
+    ctx.node({
+      key: 'period-row',
+      styles: ['Home/gridRow'],
+      children: [
+        halfField(ctx, 'from', 'sync_from', { value: ctx.t('sync_from_value'), trailingIcon: icon(ctx, 'from/icon', 'calendar_days', 'medium', 'colors.text.tertiary') }),
+        halfField(ctx, 'until', 'sync_until', { value: '', placeholderKey: 'sync_until_placeholder', trailingIcon: icon(ctx, 'until/icon', 'calendar_days', 'medium', 'colors.text.tertiary') }),
+      ],
+    }),
+    gap(ctx, 'gap-period', 'spacing.xxSmall'),
+    text(ctx, 'period-guidance', 'Screen/guidance', { textKey: 'sync_period_guidance' }),
+    gap(ctx, 'gap-period-guidance', 'spacing.large'),
+    ...syncSection(ctx, 'cards', 'sync_cards_eyebrow', [
+      syncCard(ctx, 'main', 'A', AVATARS.ana, 'sync_card_main', '4821', { textKey: 'tx_you', textArgs: ['Ana'] }),
+      syncCard(ctx, 'marina', 'M', AVATARS.marina, 'sync_card_additional', '7730', { text: 'Marina' }),
+      syncCard(ctx, 'carlos', 'C', null, 'sync_card_additional', '5512', { textKey: 'sync_not_loaded', textArgs: ['Carlos', day(ctx, ['aug', 1])] }),
+    ]),
+    gap(ctx, 'gap-cards', 'spacing.xxSmall'),
+    text(ctx, 'cards-guidance', 'Screen/guidance', { textKey: 'sync_cards_guidance' }),
+    gap(ctx, 'gap-bottom', 'spacing.large'),
+  ]),
+]));
 
 export const frames = [
   splash,
@@ -3035,6 +3199,9 @@ export const frames = [
   walletAdd,
   walletRemove,
   walletBill,
+  walletBillSeptember,
+  walletBillNovember,
+  walletCardSync,
   transactions,
   transactionsWeek,
   transactionsDay,
