@@ -19,12 +19,12 @@ Status: Draft
   - `screens/wallet-add`: import from the bank through Pluggy, or a manual form (name, last 4 digits, optional limit, network, closing and due days) with a live card preview.
   - `screens/wallet-remove`: confirmation that a card's expenses stay in history.
   - Prototype links among all six, the Wallet tab from Home, Charts and Settings, and Import → Connectors.
-- Excluded: the full bill screen (see [bill.md](bill.md)), editing a single card's details, flipping a card, paying a bill, Pluggy's card import flow, production app changes.
+- Excluded: the bill screen (see [bill.md](bill.md)), editing a single card's details, flipping a card, paying a bill, Pluggy's card import flow, production app changes.
 - Design: `screens/home` → `screens/wallet` → `screens/wallet-card`, `screens/wallet-sort`, `screens/wallet-edit`, `screens/wallet-add`, `screens/wallet-remove`.
 
 ## 3. Required behavior
 - R1: The Wallet tab opens Wallet with Wallet selected. Each card behind the last shows a 64dp strip, and the last card is shown whole.
-- R2: Tapping a card (or its Open bills row) opens it on top. The bill shows its closing and due dates, the limit used as a bar, and the amount available. Back or the deck returns to the stack.
+- R2: Tapping a card opens it on top. The bill shows its closing and due dates, the limit used as a bar, and the amount available; in use counts future installments, so it is more than the bill. Back or the deck returns to the stack. An Open bills row opens that account's bill ([bill.md](bill.md)).
 - R3: Sort offers Manual, Highest bill first, Next due date and A–Z. Choosing one closes the sheet and reorders both the stack and Open bills. The header of Open bills names the current order and opens the sheet.
 - R4: Edit order lists the cards with a remove button and a drag handle. Dragging lifts the row and changes the Manual order. Done returns to Wallet.
 - R5: Add card offers Import from your bank first (opens Connectors). The manual form never asks for the full card number or the security code, and the preview shows the typed name, last 4 digits and network.
@@ -51,7 +51,7 @@ Status: Draft
 - [ ] Gradle token/declaration checks from the Orbit checkout.
 
 ## 8. Open questions
-- Decided: a card can be shared. Each card the bank reports (main or additional) belongs to whoever uses it, and the bill splits by family member (see [bill.md](bill.md)).
+- Decided: a bill belongs to the credit account, and every card on it (main or additional) shares it. Who uses each card is set in Card sync ([card-sync.md](card-sync.md)); the bank doesn't report it.
 - Should Highest bill first sort by the open bill or by this month's spending? — product owner — does not block this draft.
 - Where does card art come from in the app: Pluggy's connector image, a set of issuer templates, or a color the user picks? — product owner — does not block this draft.
 - Assumptions: bills, dates and limits are sample data; the open bill total includes purchases from before this month, so it differs from Home's month total.
