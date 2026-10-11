@@ -25,6 +25,10 @@ Status: Draft
     - `screens/wallet-bill-july`: an older month with lines but no bill record;
     - `screens/wallet-bill-november`: future, installments only;
     - `screens/wallet-bill-manual`: Amex Green, a manual card.
+  - The previous draft, kept unchanged for comparison one row below the redraw:
+    - `screens/wallet-bill-v1-september`, `screens/wallet-bill-v1` and `screens/wallet-bill-v1-november`;
+    - their strings are prefixed `bill_v1_` where the redraw changed them;
+    - delete them once the comparison is done.
   - Prototype links:
     - See bill and the Azul Itaú Open bills row → October; the Amex Green row → the manual bill;
     - the stepper July ⇄ August ⇄ September ⇄ October ⇄ November;
