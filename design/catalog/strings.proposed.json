@@ -587,7 +587,8 @@
     "bill_v1_committed_detail": "Scheduled until May 2027",
     "bill_v1_committed": "%1$s on coming bills",
     "bill_v1_see_all": "See all %1$s purchases",
-    "bill_v1_closed_due": "Closed %1$s · due %2$s"
+    "bill_v1_closed_due": "Closed %1$s · due %2$s",
+    "workspace_links_dropped": "{count} prototype links started from parts of a screen that no longer exist, so they were removed. The next edit saves the change."
   },
   "pt": {
     "forgot_password_title": "Recuperar senha",
@@ -1177,6 +1178,7 @@
     "bill_v1_committed_detail": "Lançadas até maio de 2027",
     "bill_v1_committed": "%1$s nas próximas faturas",
     "bill_v1_see_all": "Ver todas as %1$s compras",
-    "bill_v1_closed_due": "Fechou %1$s · venceu %2$s"
+    "bill_v1_closed_due": "Fechou %1$s · venceu %2$s",
+    "workspace_links_dropped": "{count} links do protótipo saíam de partes de uma tela que não existem mais e foram removidos. A próxima edição salva a mudança."
   }
 }

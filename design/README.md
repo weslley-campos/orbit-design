@@ -50,6 +50,7 @@ Each field shows the source value, marks drafts as "edited" and offers "Reset to
 - **Reset** drops the draft and reloads the seed (after a confirmation). Signed in, Import and Reset replace the cloud copy instead (below).
 - **Merge committed changes** (main menu) brings what a newer seed added into the open workspace, signed in or not: screens it doesn't have yet join their page (or a new page) at their committed position, and committed prototype links are added. A committed link wins over yours on the same hotspot. Positions, Archived, Trash, edits, settings and your other links stay. A committed link you removed counts as new, so the notice offers it again and Merge brings it back. When the seed has something new, a notice offers **Merge** on opening, so a new seed no longer needs a Reset.
 - A corrupt or invalid draft is not loaded: the seed opens with a notice and "Download draft".
+- A prototype link that starts from a part of a screen that no longer exists (the catalog changed under a saved draft, cloud copy or import) is removed when the workspace opens, with a notice listing it. The next edit saves the change.
 - To publish a flow, export, replace `design/workspace.json` with the exported file and commit it.
 
 ## Accounts, cloud saving and review

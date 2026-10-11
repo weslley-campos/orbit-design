@@ -4,7 +4,7 @@ import { cloudConfigured, createCloud } from './cloud.js';
 import { createThread } from './comments.js';
 import { h, kids, openMenu } from './dom.js';
 import { icon } from './icons.js';
-import { normalize, saveDraft, validateWorkspace } from './store.js';
+import { dropStaleLinks, normalize, saveDraft, validateWorkspace } from './store.js';
 import { createPreferenceSync, createSync } from './sync.js';
 
 export const reviewUrl = (token) => `${location.origin}${location.pathname}#/review/${token}`;
@@ -110,6 +110,8 @@ export function createAccount(app, env) {
 
   // Opens a document as the account workspace (never saves it by itself).
   function open(document) {
+    document = structuredClone(document);
+    const dropped = dropStaleLinks(document, context.hotspotIds);
     const errors = validateWorkspace(document, context);
     if (errors.length) {
       active = false;
@@ -117,7 +119,7 @@ export function createAccount(app, env) {
       renderStatus();
       return false;
     }
-    app.ws = normalize(structuredClone(document));
+    app.ws = normalize(document);
     app.resetHistory();
     app.selection = null;
     app.shelfView = null;
@@ -125,6 +127,8 @@ export function createAccount(app, env) {
     active = true;
     app.refresh();
     renderStatus();
+    // The cloud copy keeps the dead links until the next edit is saved. While this notice is open, Merge waits in the menu.
+    if (dropped.length) env.showNotice(t('workspace_links_dropped', { count: dropped.length }), dropped);
     app.offerMerge?.();
     return true;
   }
