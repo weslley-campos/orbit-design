@@ -3,7 +3,7 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import {
-  STORAGE_KEY, loadWorkspace, mergeSeed, moveFrameToPage, moveShelfItem, normalize, parseWorkspace, removeFrame, removePage, restoreFrame, saveDraft, setOverride, shelveFrame,
+  STORAGE_KEY, dropStaleLinks, loadWorkspace, mergeSeed, moveFrameToPage, moveShelfItem, normalize, parseWorkspace, removeFrame, removePage, restoreFrame, saveDraft, setOverride, shelveFrame,
   pendingMerge, uniqueId, validateWorkspace,
 } from './js/store.js';
 import { createHistory } from './js/history.js';
@@ -62,6 +62,18 @@ rejects('token scope', (d) => { d.overrides.tokens['plum/dark'] = {}; }, /Unknow
 rejects('override frame', (d) => { d.overrides.frames.ghost = {}; }, /unknown frame ghost/);
 rejects('override text', (d) => { d.overrides.frames.f1.go.text.en = 7; }, /must be a string/);
 rejects('override binding', (d) => { d.overrides.frames.f1.go.bindings.color = { token: 'colors.nope' }; }, /existing token/);
+
+// A link whose hotspot left the catalog can never be followed: loading drops it instead of rejecting the workspace.
+const stale = doc();
+stale.connections[0].from.hotspotId = 'gone';
+stale.archived = [{ frame: frame('f9', 'screens/a'), connections: [{ id: 'c9', from: { frameId: 'f9', hotspotId: 'gone' }, to: { frameId: 'f1' }, trigger: 'click' }] }];
+rejects('stale hotspot', (d) => { d.connections[0].from.hotspotId = 'gone'; }, /missing hotspot gone/);
+const parsed = parseWorkspace(JSON.stringify(stale), context);
+assert.deepEqual(parsed.dropped, ['c1', 'c9'], 'stale links on pages and shelves are dropped');
+assert.deepEqual(parsed.data.connections.map((c) => c.id), ['c2'], 'the other links stay');
+assert.deepEqual(parsed.data.archived[0].connections, [], 'a shelved frame loses its stale link too');
+assert.deepEqual(dropStaleLinks(doc(), context.hotspotIds), [], 'live links are never dropped');
+assert.deepEqual(dropStaleLinks(doc(), undefined), [], 'without hotspot knowledge nothing is dropped');
 
 const bad = parseWorkspace('{not json', context);
 assert.ok(!bad.data && /Not valid JSON/.test(bad.errors[0]), 'malformed JSON is rejected without throwing');

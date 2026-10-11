@@ -119,6 +119,29 @@ export function normalize(data) {
   return data;
 }
 
+// A catalog change can take away the hotspot a saved link starts from. That link can never be followed again, so it
+// is dropped, on the pages and on the shelves, instead of making the whole workspace invalid. Returns the dropped ids.
+export function dropStaleLinks(data, hotspotIds) {
+  if (!isObject(data) || !hotspotIds) return [];
+  const shelved = SHELVES.flatMap((shelf) => (Array.isArray(data[shelf]) ? data[shelf] : []));
+  const frames = [
+    ...(Array.isArray(data.pages) ? data.pages : []).flatMap((page) => (Array.isArray(page?.frames) ? page.frames : [])),
+    ...shelved.map((item) => item?.frame),
+  ].filter(isObject);
+  const catalogOf = new Map(frames.map((frame) => [frame.id, frame.catalogId]));
+  const dropped = new Set();
+  const keep = (connections) => connections.filter((connection) => {
+    const hotspot = connection?.from?.hotspotId;
+    const known = hotspot != null && catalogOf.has(connection.from.frameId) && hotspotIds(catalogOf.get(connection.from.frameId));
+    if (!known || known.has(hotspot)) return true;
+    dropped.add(connection.id);
+    return false;
+  });
+  if (Array.isArray(data.connections)) data.connections = keep(data.connections);
+  for (const item of shelved) if (Array.isArray(item?.connections)) item.connections = keep(item.connections);
+  return [...dropped];
+}
+
 export function parseWorkspace(text, context) {
   let data;
   try {
@@ -126,8 +149,9 @@ export function parseWorkspace(text, context) {
   } catch (error) {
     return { errors: [`Not valid JSON: ${error.message}`] };
   }
+  const dropped = dropStaleLinks(data, context.hotspotIds);
   const errors = validateWorkspace(data, context);
-  return errors.length ? { errors } : { data: normalize(data), errors };
+  return errors.length ? { errors } : { data: normalize(data), errors, dropped };
 }
 
 export function loadWorkspace({ storage, seed, context }) {
@@ -138,8 +162,8 @@ export function loadWorkspace({ storage, seed, context }) {
     return { ws: normalize(structuredClone(seed)), notice: 'Browser storage is unavailable, so changes cannot be saved. Use Export to keep your work.' };
   }
   if (draftText == null) return { ws: normalize(structuredClone(seed)) };
-  const { data, errors } = parseWorkspace(draftText, context);
-  if (data) return { ws: data };
+  const { data, errors, dropped } = parseWorkspace(draftText, context);
+  if (data) return { ws: data, dropped };
   return {
     ws: normalize(structuredClone(seed)),
     draftText,

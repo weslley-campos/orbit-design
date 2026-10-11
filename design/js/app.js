@@ -128,6 +128,7 @@ async function boot() {
   const seedErrors = validateWorkspace(seed, context);
   if (seedErrors.length) showNotice('The committed workspace.json has problems.', seedErrors);
   else if (loaded.notice) showNotice(loaded.notice);
+  else if (loaded.dropped?.length) showNotice(app.t('workspace_links_dropped', { count: loaded.dropped.length }), loaded.dropped);
 
   // Browser draft or cloud copy, decided by the account module; a review page never saves.
   app.save = () => {
@@ -565,17 +566,19 @@ async function boot() {
     const file = e.target.files[0];
     e.target.value = '';
     if (!file) return;
-    const { data, errors } = parseWorkspace(await file.text(), context);
+    const { data, errors, dropped } = parseWorkspace(await file.text(), context);
     if (!data) {
       showNotice('Import failed. The current workspace was not changed.', errors);
       return;
     }
     const replaced = await account.replace(data, 'import');
-    if (replaced !== null) return;
-    app.ws = data;
-    app.selection = null;
-    clearNotice();
-    app.commit();
+    if (replaced === null) {
+      app.ws = data;
+      app.selection = null;
+      clearNotice();
+      app.commit();
+    }
+    if (replaced !== false && dropped.length) showNotice(app.t('workspace_links_dropped', { count: dropped.length }), dropped);
   };
   // New screens, pages and links from the committed workspace.json join the open workspace; its own work stays (see mergeSeed).
   const count = (n, one, many) => `${n} ${n === 1 ? one : many}`;
