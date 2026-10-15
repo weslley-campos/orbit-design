@@ -322,14 +322,6 @@
           "height": 874
         },
         {
-          "id": "mobile-connectors-institutions",
-          "catalogId": "screens/connectors-institutions",
-          "x": 5632,
-          "y": 966,
-          "width": 402,
-          "height": 874
-        },
-        {
           "id": "mobile-connectors-empty",
           "catalogId": "screens/connectors-empty",
           "x": 4096,
@@ -341,6 +333,22 @@
           "id": "mobile-pluggy-setup",
           "catalogId": "screens/pluggy-setup",
           "x": 5120,
+          "y": 966,
+          "width": 402,
+          "height": 874
+        },
+        {
+          "id": "mobile-pluggy",
+          "catalogId": "screens/pluggy",
+          "x": 5632,
+          "y": 966,
+          "width": 402,
+          "height": 874
+        },
+        {
+          "id": "mobile-pluggy-disconnect",
+          "catalogId": "screens/pluggy-disconnect",
+          "x": 6144,
           "y": 966,
           "width": 402,
           "height": 874
@@ -975,28 +983,6 @@
       "trigger": "click"
     },
     {
-      "id": "mobile-connectors-add-bank",
-      "from": {
-        "frameId": "mobile-connectors",
-        "hotspotId": "add-bank"
-      },
-      "to": {
-        "frameId": "mobile-connectors-institutions"
-      },
-      "trigger": "click"
-    },
-    {
-      "id": "mobile-connectors-institutions-back",
-      "from": {
-        "frameId": "mobile-connectors-institutions",
-        "hotspotId": "back"
-      },
-      "to": {
-        "frameId": "mobile-connectors"
-      },
-      "trigger": "click"
-    },
-    {
       "id": "mobile-connectors-empty-back",
       "from": {
         "frameId": "mobile-connectors-empty",
@@ -1014,7 +1000,73 @@
         "hotspotId": "pluggy-row"
       },
       "to": {
+        "frameId": "mobile-pluggy"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-connectors-reconnect",
+      "from": {
+        "frameId": "mobile-connectors",
+        "hotspotId": "reconnect"
+      },
+      "to": {
         "frameId": "mobile-pluggy-setup"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-pluggy-back",
+      "from": {
+        "frameId": "mobile-pluggy",
+        "hotspotId": "back"
+      },
+      "to": {
+        "frameId": "mobile-connectors"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-pluggy-edit",
+      "from": {
+        "frameId": "mobile-pluggy",
+        "hotspotId": "edit"
+      },
+      "to": {
+        "frameId": "mobile-pluggy-setup"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-pluggy-disconnect",
+      "from": {
+        "frameId": "mobile-pluggy",
+        "hotspotId": "disconnect"
+      },
+      "to": {
+        "frameId": "mobile-pluggy-disconnect"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-pluggy-disconnect-confirm",
+      "from": {
+        "frameId": "mobile-pluggy-disconnect",
+        "hotspotId": "disconnect-confirm"
+      },
+      "to": {
+        "frameId": "mobile-connectors-empty"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-pluggy-disconnect-cancel",
+      "from": {
+        "frameId": "mobile-pluggy-disconnect",
+        "hotspotId": "disconnect-cancel"
+      },
+      "to": {
+        "frameId": "mobile-pluggy"
       },
       "trigger": "click"
     },
@@ -2498,6 +2550,36 @@
     "frames": {}
   },
   "archived": [
+    {
+      "frame": {
+        "id": "mobile-connectors-institutions",
+        "catalogId": "screens/connectors-institutions",
+        "x": 6656,
+        "y": 966,
+        "width": 402,
+        "height": 874
+      },
+      "pageId": "page-mobile",
+      "pageName": "Screens / Mobile",
+      "index": 17,
+      "platform": "mobile",
+      "connections": [
+        {
+          "id": "mobile-connectors-institutions-back",
+          "from": {
+            "frameId": "mobile-connectors-institutions",
+            "hotspotId": "back"
+          },
+          "to": {
+            "frameId": "mobile-connectors"
+          },
+          "trigger": "click"
+        }
+      ],
+      "overrides": {},
+      "start": false,
+      "at": "2026-10-15T12:00:00.000Z"
+    },
     {
       "frame": {
         "id": "mobile-wallet-bill-v1-september",

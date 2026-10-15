@@ -2337,6 +2337,28 @@
         "flex-shrink": "0"
       }
     },
+    "Icon/external_link": {
+      "bind": {
+        "icon": {
+          "resource": "proposed.drawable.ic_external_link",
+          "proposal": "Lucide external-link (ISC)"
+        }
+      },
+      "css": {
+        "flex-shrink": "0"
+      }
+    },
+    "Icon/unplug": {
+      "bind": {
+        "icon": {
+          "resource": "proposed.drawable.ic_unplug",
+          "proposal": "Lucide unplug (ISC)"
+        }
+      },
+      "css": {
+        "flex-shrink": "0"
+      }
+    },
     "Connectors/subhead": {
       "bind": {
         "font": {
@@ -2374,6 +2396,16 @@
       "css": {
         "display": "flex",
         "flex-direction": "column"
+      }
+    },
+    "Connectors/authorizePill": {
+      "bind": {
+        "color": {
+          "token": "colors.text.warning"
+        },
+        "background": {
+          "token": "colors.direction.warnSubtle"
+        }
       }
     },
     "Icon/circle_help": {
