@@ -483,23 +483,31 @@ const connectors = frame('connectors', 'Connectors', { status: 'proposed', spec:
     ...connectorsHeader(ctx),
     OrbitCard(ctx, { key: 'pluggy', variant: 'Base', styles: ['Institutions/list'] }, [
       row(ctx, 'pluggy-row', pluggyLogo(ctx), 'Pluggy',
-        status(ctx, 'pluggy/status', 'circle_check', 'colors.text.success', 'connectors_connected', ['2']), chevron(ctx, 'pluggy-row')),
+        status(ctx, 'pluggy/status', 'circle_check', 'colors.text.success', 'connectors_connected', ['3']), chevron(ctx, 'pluggy-row')),
       HorizontalDivider(ctx, { key: 'pluggy-divider' }),
       text(ctx, 'banks-eyebrow', 'Connectors/subhead', { textKey: 'connectors_banks_eyebrow' }),
       row(ctx, 'nubank', bankLogo(ctx, 'nubank', 'Nu'), 'Nubank',
         status(ctx, 'nubank/status', 'circle_check', 'colors.text.success', 'connectors_synced', ['5']), chevron(ctx, 'nubank')),
+      // Paused with reconnect AUTHORIZATION: the user fixes it in MeuPluggy, which Orbit can't do, so a status pill and no button.
       row(ctx, 'itau', bankLogo(ctx, 'itau', 'It'), 'Itaú',
         status(ctx, 'itau/status', 'triangle_alert', 'colors.text.warning', 'connectors_sync_paused'),
+        text(ctx, 'itau/authorize', 'Family/youPill', { textKey: 'connectors_authorize_in_meupluggy' }, {
+          styles: ['Family/youPill', 'Connectors/authorizePill'],
+        }), false),
+      // Paused with reconnect CREDENTIALS: Pluggy rejects the saved client ID or secret, so Reconnect opens Pluggy setup.
+      row(ctx, 'inter', bankLogo(ctx, 'inter', 'In'), 'Inter',
+        status(ctx, 'inter/status', 'triangle_alert', 'colors.text.warning', 'connectors_sync_paused'),
         textButton(ctx, 'reconnect', 'connectors_reconnect', []), false),
+      // Orbit can't add a bank itself: Add a bank opens MeuPluggy in the browser, and the next sync brings the bank in.
       ctx.node({
         key: 'add-bank',
         styles: ['Family/row'],
         hotspot: true,
-        attrs: { role: 'button', tabindex: 0 },
+        attrs: { role: 'link', tabindex: 0 },
         children: [
           ctx.node({ key: 'add-bank/ring', styles: ['Family/addRing'], children: [icon(ctx, 'add-bank/icon', 'plus', 'small', 'colors.text.tertiary')] }),
           text(ctx, 'add-bank/label', 'Family/addPlaceholder', { textKey: 'connectors_add_bank' }),
-          chevron(ctx, 'add-bank'),
+          icon(ctx, 'add-bank/external', 'external_link', 'small', 'colors.text.tertiary'),
         ],
       }),
     ]),
@@ -626,6 +634,7 @@ const pluggySecretHelp = frame('pluggy-secret-help', 'Connectors · Pluggy setup
   ],
 }));
 
+// Archived: Orbit can't add banks, so Add a bank opens MeuPluggy instead of this list.
 // Sample of what Pluggy's GET /connectors returns: [key, initials, name, type, health.status, already connected].
 const INSTITUTIONS = [
   ['banco-do-brasil', 'BB', 'Banco do Brasil', 'PERSONAL_BANK', 'ONLINE'],
@@ -2014,7 +2023,7 @@ const settings = frame('settings', 'Settings', { status: 'proposed', spec: 'docs
       ]),
       ...settingsSection(ctx, 'connections', 'settings_connections_eyebrow', [
         settingsRow(ctx, 'connectors', 'plug', 'settings_connectors', {
-          detail: { textKey: 'settings_connectors_detail', textArgs: ['2'] },
+          detail: { textKey: 'settings_connectors_detail', textArgs: ['3'] },
         }),
       ]),
       ...settingsSection(ctx, 'preferences', 'settings_preferences_eyebrow', [
@@ -2124,6 +2133,65 @@ const settingsSignOut = settingsSheet('settings-sign-out', 'Settings · Sign out
     textButton(ctx, 'sign-out-cancel', 'settings_sign_out_cancel'),
   ]),
 ]);
+
+// Pluggy once it's connected, opened from its row on Connectors: what Orbit saved, Edit credentials and Disconnect.
+const PLUGGY_SPEC = 'docs/specs/pluggy-disconnect.md';
+const credential = (ctx, key, glyph, titleKey, detail) => settingsRow(ctx, key, glyph, titleKey, { detail, trailing: null, hotspot: false });
+const pluggy = frame('pluggy', 'Connectors · Pluggy', { status: 'proposed', spec: PLUGGY_SPEC }, (ctx) => screenFrame(ctx, [
+  content(ctx, [
+    ...header(ctx, 'pluggy_title', 'pluggy_guidance', ctx.node({
+      key: 'badge', styles: ['EmailSent/badge'], children: [icon(ctx, 'badge/icon', 'plug', 'xLarge', 'colors.text.brand')],
+    }), status(ctx, 'pluggy/status', 'circle_check', 'colors.text.success', 'connectors_connected', ['3'])),
+    text(ctx, 'eyebrow', 'Screen/eyebrow', { textKey: 'pluggy_credentials_eyebrow' }),
+    gap(ctx, 'gap-eyebrow', 'spacing.xxSmall'),
+    OrbitCard(ctx, { key: 'credentials', variant: 'Base', styles: ['Institutions/list'] }, [
+      credential(ctx, 'client-id', 'key_round', 'pluggy_client_id_label', { text: '8f3c2a71-5d4e-4b9a-a1c6-2e7f90b3d415' }),
+      credential(ctx, 'client-secret', 'lock', 'pluggy_client_secret_label', { textKey: 'pluggy_secret_saved' }),
+      credential(ctx, 'connector-id', 'plug', 'pluggy_connector_id_label', { text: 'c3b1e2f4-7a9d-4e60-b8f5-1d2a6c9e0b47' }),
+      settingsRow(ctx, 'edit', 'pencil', 'pluggy_edit'),
+    ].flatMap((row, i) => [i > 0 && HorizontalDivider(ctx, { key: `credentials/divider-${i}` }), row])),
+    ctx.node({
+      key: 'note',
+      styles: ['Family/note'],
+      children: [
+        icon(ctx, 'note/icon', 'landmark', 'medium', 'colors.text.tertiary'),
+        ctx.node({ key: 'note/text', textKey: 'pluggy_note' }),
+      ],
+    }),
+    ctx.node({ key: 'spacer', styles: ['Screen/grow'] }),
+    actions(ctx, [
+      OrbitButton(ctx, { key: 'disconnect', variant: 'Outlined', hotspot: true, styles: ['Screen/fill'] }, [
+        icon(ctx, 'disconnect/icon', 'unplug', 'medium', 'colors.text.error', ['Screen/leadingIcon']),
+        label(ctx, 'disconnect/label', { textKey: 'pluggy_disconnect' }, 'Settings/danger'),
+      ]),
+    ]),
+  ]),
+]));
+
+const pluggyDisconnect = sheetFrame('pluggy-disconnect', 'Connectors · Pluggy · Disconnect', PLUGGY_SPEC, pluggy, 'disconnect-sheet',
+  'pluggy_disconnect_title', (ctx) => [
+    ctx.node({
+      key: 'disconnect-badge',
+      styles: ['EmailSent/badge', 'Settings/dangerBadge'],
+      children: [icon(ctx, 'disconnect-badge/icon', 'unplug', 'xLarge', 'colors.text.error')],
+    }),
+    gap(ctx, 'disconnect-gap-badge', 'spacing.medium'),
+    text(ctx, 'disconnect-title', 'SignIn/title', { textKey: 'pluggy_disconnect_title' }),
+    gap(ctx, 'disconnect-gap-title', 'spacing.xxSmall'),
+    text(ctx, 'disconnect-body', 'Screen/guidance', { textKey: 'pluggy_disconnect_body', textArgs: ['3'] }),
+    gap(ctx, 'disconnect-gap-body', 'spacing.large'),
+    // Not actions(): the Pluggy screen behind the sheet already has a node keyed `actions`.
+    ctx.node({
+      key: 'disconnect-actions',
+      styles: ['Screen/actions'],
+      children: [
+        OrbitButton(ctx, { key: 'disconnect-confirm', variant: 'Destructive', hotspot: true, styles: ['Screen/fill'] }, [
+          label(ctx, 'disconnect-confirm/label', { textKey: 'pluggy_disconnect_confirm' }),
+        ]),
+        textButton(ctx, 'disconnect-cancel', 'pluggy_disconnect_cancel'),
+      ],
+    }),
+  ]);
 
 // Profile: who you are in Orbit, opened from the account card in Settings. It sits one level below the Settings tab,
 // so it hides the navigation bar and goes back with Back, like the Transaction screen.
@@ -3651,6 +3719,8 @@ export const frames = [
   profilePhoto,
   connectorsEmpty,
   connectors,
+  pluggy,
+  pluggyDisconnect,
   pluggySetup,
   pluggySecretHelp,
   connectorsInstitutions,
