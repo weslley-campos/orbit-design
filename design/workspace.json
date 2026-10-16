@@ -354,6 +354,14 @@
           "height": 874
         },
         {
+          "id": "mobile-pluggy-disconnect-delete",
+          "catalogId": "screens/pluggy-disconnect-delete",
+          "x": 6656,
+          "y": 966,
+          "width": 402,
+          "height": 874
+        },
+        {
           "id": "mobile-pluggy-secret-help",
           "catalogId": "screens/pluggy-secret-help",
           "x": 5120,
@@ -1063,6 +1071,50 @@
       "id": "mobile-pluggy-disconnect-cancel",
       "from": {
         "frameId": "mobile-pluggy-disconnect",
+        "hotspotId": "disconnect-cancel"
+      },
+      "to": {
+        "frameId": "mobile-pluggy"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-pluggy-disconnect-delete-select",
+      "from": {
+        "frameId": "mobile-pluggy-disconnect",
+        "hotspotId": "disconnect-delete"
+      },
+      "to": {
+        "frameId": "mobile-pluggy-disconnect-delete"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-pluggy-disconnect-delete-keep",
+      "from": {
+        "frameId": "mobile-pluggy-disconnect-delete",
+        "hotspotId": "disconnect-keep"
+      },
+      "to": {
+        "frameId": "mobile-pluggy-disconnect"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-pluggy-disconnect-delete-confirm",
+      "from": {
+        "frameId": "mobile-pluggy-disconnect-delete",
+        "hotspotId": "disconnect-confirm"
+      },
+      "to": {
+        "frameId": "mobile-connectors-empty"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-pluggy-disconnect-delete-cancel",
+      "from": {
+        "frameId": "mobile-pluggy-disconnect-delete",
         "hotspotId": "disconnect-cancel"
       },
       "to": {
