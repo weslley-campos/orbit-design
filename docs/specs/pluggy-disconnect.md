@@ -10,37 +10,39 @@ Status: Draft
 ## 2. Scope
 - Included:
   - `screens/pluggy`: a Pluggy badge, title, guidance and "Connected · 3 banks"; a Credentials card with Client ID, Client secret ("Saved encrypted · never shown"), Connector ID and Edit credentials; a note that banks are added and removed in MeuPluggy; and a Disconnect Pluggy button.
-  - `screens/pluggy-disconnect`: a confirmation sheet over the Pluggy screen with Disconnect and Cancel.
+  - `screens/pluggy-disconnect`: a confirmation sheet over the Pluggy screen with an "Imported data" choice (Keep in Orbit, default / Delete from Orbit), one Disconnect button and Cancel. The button reads "Disconnect and delete data" when Delete from Orbit is chosen.
+  - `screens/pluggy-disconnect-delete`: the same sheet with Delete from Orbit chosen.
   - Prototype links from Connectors, to Pluggy setup and back to Connectors · Not set up.
-- Excluded: removing a single bank (done in MeuPluggy), revoking the Items or the consent at Pluggy, deleting imported expenses, error and loading states, and production app changes.
-- Design: `screens/connectors` → `screens/pluggy` → `screens/pluggy-disconnect` → `screens/connectors-empty`; `screens/pluggy` → `screens/pluggy-setup`.
+- Excluded: removing a single bank (done in MeuPluggy), revoking the Items or the consent at Pluggy, error and loading states, and production app changes.
+- Design: `screens/connectors` → `screens/pluggy` → `screens/pluggy-disconnect` ⇄ `screens/pluggy-disconnect-delete` → `screens/connectors-empty`; `screens/pluggy` → `screens/pluggy-setup`.
 
 ## 3. Required behavior
 - R1: When Pluggy is connected, activating its row on Connectors opens the Pluggy screen, and Back returns to Connectors.
 - R2: The Pluggy screen shows the saved Client ID and Connector ID, never the client secret, and the number of banks. Edit credentials opens Pluggy setup.
-- R3: Disconnect Pluggy opens a confirmation sheet that says Orbit stops syncing the banks and deletes the saved client ID and secret, that expenses already imported stay in Orbit, and that the banks stay connected in MeuPluggy.
-- R4: Disconnect deletes the saved credentials and returns to Connectors · Not set up. Cancel returns to the Pluggy screen without changes.
+- R3: Disconnect Pluggy opens a confirmation sheet that says Orbit stops syncing the banks and deletes the saved client ID and secret, that the banks stay connected in MeuPluggy, and asks whether to keep or delete the imported accounts, cards and expenses. Keep in Orbit is selected by default.
+- R4: Disconnect (Keep in Orbit) deletes the saved credentials and keeps the imported data; Disconnect and delete data (Delete from Orbit) also deletes the accounts, cards and expenses imported from Pluggy. Both return to Connectors · Not set up. Cancel returns to the Pluggy screen without changes.
 - R5: Palette, light/dark mode and English/Portuguese settings apply to both frames, and no text is clipped at 402 × 874.
 
 ## 4. Constraints
 - Reuse `OrbitCard`, `HorizontalDivider`, `OrbitButton` (`Outlined` with `Settings/danger` like Sign out, `Destructive` in the sheet), `OrbitBottomSheet`, the Settings rows and the sign-out sheet layout (`EmailSent/badge`, `Settings/dangerBadge`), with declared theme tokens.
+- The "Imported data" choice reuses the Wallet sort sheet's radio rows (`Settings/stack` + `settingsRow` with a brand check).
 - The new icon is a Lucide proposal (`ic_unplug`) under `design/assets/proposed`.
 - Pluggy's own terms ("Client ID", "Client secret") stay in English in the Portuguese copy, as in Pluggy setup.
 
 ## 6. Acceptance criteria
 - [x] R1 · manual — Given Connectors in Play, when Pluggy is activated, then the Pluggy screen opens; when Back is activated, then Connectors is shown.
 - [x] R2 · manual — Given the Pluggy screen, when inspected, then Client ID and Connector ID show UUIDs and Client secret reads "Saved encrypted · never shown"; when Edit credentials is activated in Play, then Pluggy setup opens.
-- [x] R3 · manual — Given the Pluggy screen in Play, when Disconnect Pluggy is activated, then the sheet "Disconnect Pluggy?" opens over the dimmed screen with Disconnect and Cancel.
-- [x] R4 · manual — Given the disconnect sheet in Play, when Disconnect is activated, then Connectors · Not set up is shown; when Cancel is activated, then the Pluggy screen is shown.
-- [ ] R4 · unit — Given saved Pluggy credentials, when Pluggy is disconnected, then the client ID, client secret and connector ID are deleted and imported expenses remain. (Belongs to the app implementation.)
+- [ ] R3 · manual — Given the Pluggy screen in Play, when Disconnect Pluggy is activated, then the sheet "Disconnect Pluggy?" opens over the dimmed screen with Keep in Orbit selected, the Disconnect button and Cancel; when Delete from Orbit is activated, then it is selected and the button reads "Disconnect and delete data".
+- [ ] R4 · manual — Given the disconnect sheet in Play (either choice), when Disconnect or Disconnect and delete data is activated, then Connectors · Not set up is shown; when Cancel is activated, then the Pluggy screen is shown.
+- [ ] R4 · unit — Given saved Pluggy credentials, when Pluggy is disconnected, then the client ID, client secret and connector ID are deleted; with Keep the imported data remains, with Delete the imported accounts, cards and expenses are deleted too. (Belongs to the app implementation.)
 - [x] R5 · manual — Given Flamingo light and dark in English and Portuguese, when both frames are viewed at 402 × 874, then no text is clipped.
 
 ## 7. Definition of Done (Verification)
 - [x] `node design/check.mjs` passes.
-- [x] Prototype flow and both languages/themes visually verified.
+- [ ] Prototype flow and both languages/themes visually verified.
 - [ ] Gradle token/declaration checks from the Orbit checkout.
 
 ## 8. Open questions
 - Should disconnecting also delete the Items at Pluggy, or only Orbit's saved credentials? MeuPluggy keeps the banks either way. — engineering — blocks implementation.
-- Do imported expenses stay after disconnecting, or should the sheet offer to delete them? — product owner — does not block this draft.
+- Do imported expenses stay after disconnecting, or should the sheet offer to delete them? Resolved: the sheet asks; Keep is the default.
 - Assumptions: the values shown are samples; the bank count matches Connectors.

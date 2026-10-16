@@ -2168,7 +2168,7 @@ const pluggy = frame('pluggy', 'Connectors · Pluggy', { status: 'proposed', spe
   ]),
 ]));
 
-const pluggyDisconnect = sheetFrame('pluggy-disconnect', 'Connectors · Pluggy · Disconnect', PLUGGY_SPEC, pluggy, 'disconnect-sheet',
+const pluggyDisconnectSheet = (id, name, deleteData) => sheetFrame(id, name, PLUGGY_SPEC, pluggy, 'disconnect-sheet',
   'pluggy_disconnect_title', (ctx) => [
     ctx.node({
       key: 'disconnect-badge',
@@ -2180,18 +2180,38 @@ const pluggyDisconnect = sheetFrame('pluggy-disconnect', 'Connectors · Pluggy �
     gap(ctx, 'disconnect-gap-title', 'spacing.xxSmall'),
     text(ctx, 'disconnect-body', 'Screen/guidance', { textKey: 'pluggy_disconnect_body', textArgs: ['3'] }),
     gap(ctx, 'disconnect-gap-body', 'spacing.large'),
+    text(ctx, 'disconnect-data-eyebrow', 'Screen/eyebrow', { textKey: 'pluggy_disconnect_data_eyebrow' }),
+    gap(ctx, 'disconnect-gap-eyebrow', 'spacing.xxSmall'),
+    ctx.node({
+      key: 'disconnect-data',
+      styles: ['Settings/stack'],
+      attrs: { role: 'radiogroup', 'aria-label': ctx.t('pluggy_disconnect_data_eyebrow') },
+      children: [
+        settingsRow(ctx, 'disconnect-keep', 'shield_check', 'pluggy_disconnect_keep', {
+          detail: { textKey: 'pluggy_disconnect_keep_detail' },
+          trailing: deleteData ? null : icon(ctx, 'disconnect-keep/check', 'check', 'medium', 'colors.text.brand'),
+        }),
+        settingsRow(ctx, 'disconnect-delete', 'trash', 'pluggy_disconnect_delete', {
+          detail: { textKey: 'pluggy_disconnect_delete_detail' },
+          trailing: deleteData ? icon(ctx, 'disconnect-delete/check', 'check', 'medium', 'colors.text.brand') : null,
+        }),
+      ],
+    }),
+    gap(ctx, 'disconnect-gap-data', 'spacing.large'),
     // Not actions(): the Pluggy screen behind the sheet already has a node keyed `actions`.
     ctx.node({
       key: 'disconnect-actions',
       styles: ['Screen/actions'],
       children: [
         OrbitButton(ctx, { key: 'disconnect-confirm', variant: 'Destructive', hotspot: true, styles: ['Screen/fill'] }, [
-          label(ctx, 'disconnect-confirm/label', { textKey: 'pluggy_disconnect_confirm' }),
+          label(ctx, 'disconnect-confirm/label', { textKey: deleteData ? 'pluggy_disconnect_confirm_delete' : 'pluggy_disconnect_confirm' }),
         ]),
         textButton(ctx, 'disconnect-cancel', 'pluggy_disconnect_cancel'),
       ],
     }),
   ]);
+const pluggyDisconnect = pluggyDisconnectSheet('pluggy-disconnect', 'Connectors · Pluggy · Disconnect', false);
+const pluggyDisconnectDelete = pluggyDisconnectSheet('pluggy-disconnect-delete', 'Connectors · Pluggy · Disconnect · Delete data', true);
 
 // Profile: who you are in Orbit, opened from the account card in Settings. It sits one level below the Settings tab,
 // so it hides the navigation bar and goes back with Back, like the Transaction screen.
@@ -3721,6 +3741,7 @@ export const frames = [
   connectors,
   pluggy,
   pluggyDisconnect,
+  pluggyDisconnectDelete,
   pluggySetup,
   pluggySecretHelp,
   connectorsInstitutions,
