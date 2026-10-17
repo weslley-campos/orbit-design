@@ -584,6 +584,14 @@
           "y": 4830,
           "width": 402,
           "height": 874
+        },
+        {
+          "id": "mobile-profile-name",
+          "catalogId": "screens/profile-name",
+          "x": 6656,
+          "y": 1932,
+          "width": 402,
+          "height": 874
         }
       ]
     },
@@ -2593,6 +2601,50 @@
       },
       "to": {
         "frameId": "mobile-transactions"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-profile-name",
+      "from": {
+        "frameId": "mobile-profile",
+        "hotspotId": "full-name"
+      },
+      "to": {
+        "frameId": "mobile-profile-name"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-profile-short-name",
+      "from": {
+        "frameId": "mobile-profile",
+        "hotspotId": "short-name"
+      },
+      "to": {
+        "frameId": "mobile-profile-name"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-profile-name-save",
+      "from": {
+        "frameId": "mobile-profile-name",
+        "hotspotId": "name-save"
+      },
+      "to": {
+        "frameId": "mobile-profile"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-profile-name-cancel",
+      "from": {
+        "frameId": "mobile-profile-name",
+        "hotspotId": "name-cancel"
+      },
+      "to": {
+        "frameId": "mobile-profile"
       },
       "trigger": "click"
     }

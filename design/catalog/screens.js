@@ -2327,6 +2327,28 @@ const profilePhoto = sheetFrame('profile-photo', 'Profile · Photo', PROFILE_SPE
   gap(ctx, 'photo-gap-bottom', 'spacing.small'),
 ]);
 
+// Name: both names in one sheet, opened from either name row.
+const profileName = sheetFrame('profile-name', 'Profile · Name', PROFILE_SPEC, profile, 'name-sheet', 'profile_name_title', (ctx) => [
+  text(ctx, 'name-title', 'SignIn/title', { textKey: 'profile_name_title' }),
+  gap(ctx, 'name-gap-title', 'spacing.xxSmall'),
+  text(ctx, 'name-guidance', 'Screen/guidance', { textKey: 'profile_name_guidance' }),
+  gap(ctx, 'name-gap-guidance', 'spacing.medium'),
+  ...field(ctx, 'name-field', 'profile_name', { value: 'Ana Souza', placeholderKey: 'profile_name_placeholder' }),
+  gap(ctx, 'name-gap-field', 'spacing.small'),
+  ...field(ctx, 'short-name-field', 'profile_short_name', {
+    value: 'Ana', placeholderKey: 'profile_short_name_placeholder', supportingTextKey: 'profile_short_name_hint',
+  }),
+  gap(ctx, 'name-gap-short', 'spacing.large'),
+  ctx.node({
+    key: 'name-actions',
+    styles: ['Screen/actions'],
+    children: [
+      primary(ctx, 'name-save', 'profile_name_save'),
+      textButton(ctx, 'name-cancel', 'profile_name_cancel'),
+    ],
+  }),
+]);
+
 // Wallet: the cards, stacked like Apple Wallet. Art comes from assets/proposed/cards (bank artwork the user supplied);
 // the app would use the issuer's card image from Pluggy or a generated card.
 const WALLET_SPEC = 'docs/specs/wallet.md';
@@ -3734,6 +3756,7 @@ export const frames = [
   settingsSignOut,
   profile,
   profilePhoto,
+  profileName,
   connectorsEmpty,
   connectors,
   pluggy,

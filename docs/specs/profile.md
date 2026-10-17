@@ -18,8 +18,8 @@ Status: Draft
   - `screens/profile-photo`: a sheet over Profile with Take photo and Choose from library.
   - Settings: the account card opens Profile. Password and Delete account move to Profile, so Settings keeps app behavior and Profile keeps the account.
   - Prototype links: Settings ⇄ Profile, Profile → Photo and Family members, and the sheet's options and Close → Profile.
-- Excluded: the edit screens for name, email and phone, email verification after a change, changing the password, linking Google, the delete-account flow, leaving a family, production app changes.
-- Design: `screens/settings` → `screens/profile` → `screens/profile-photo`, `screens/family-members`.
+- Excluded: the edit screens for email and phone, email verification after a change, changing the password, linking Google, the delete-account flow, leaving a family, production app changes.
+- Design: `screens/settings` → `screens/profile` → `screens/profile-photo`, `screens/profile-name`, `screens/family-members`.
 
 ## 3. Required behavior
 - R1: Profile is pushed from Settings and hides the navigation bar. Back returns to Settings.
@@ -30,6 +30,7 @@ Status: Draft
 - R6: Sign-in lists the password with when it last changed, and each linked provider. Google shows Connect when it is not linked.
 - R7: Delete account is a text button in the error color, at the end of Profile.
 - R8: Palette, light/dark mode and English/Portuguese apply to both frames, and no text is clipped at 402 × 874.
+- R9: Either name row opens the Name sheet with Name and Name family members see filled in, Save and Cancel. Save keeps both and returns to Profile; Cancel returns without saving.
 
 ## 4. Constraints
 - Reuse `OrbitCard`, `HorizontalDivider`, `OrbitIconButton` (Filled), `OrbitButton` (Text), `OrbitBottomSheet`, the Transaction detail rows, the Settings rows and the Family avatars.
@@ -43,6 +44,7 @@ Status: Draft
 - [x] R5 · manual — Given Profile in Play, when Your family is activated, then Family members opens.
 - [x] R6 · manual — Given Profile, when inspected, then Password reads "Changed 2 months ago" and Google shows Connect.
 - [x] R8 · manual — Given Flamingo light and dark in English and Portuguese, when both frames are viewed at 402 × 874, then no text is clipped.
+- [ ] R9 · manual — Given Profile in Play, when Name is activated, then the Name sheet shows Ana Souza and Ana; Save and Cancel return to Profile.
 
 ## 7. Definition of Done (Verification)
 - [x] `node design/check.mjs` passes.
