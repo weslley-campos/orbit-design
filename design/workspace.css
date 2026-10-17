@@ -223,6 +223,11 @@ body.no-right { --ws-right: 0px; }
   background: var(--ws-bg) radial-gradient(circle, var(--ws-dot) 1px, transparent 1px) 0 0 / 24px 24px;
 }
 #canvas.is-panning { cursor: grabbing; }
+/* After a touch, a long press on a screen neither selects its text nor opens the system callout. */
+/* Every scroll container inside a screen would otherwise take the touch back from the canvas; finger scrolling is done in canvas.js. */
+#canvas * { touch-action: none; }
+#canvas { -webkit-tap-highlight-color: transparent; }
+#canvas.is-touch, #canvas.is-touch * { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
 .ws-stage { position: absolute; left: 0; top: 0; width: 0; height: 0; transform-origin: 0 0; }
 .ws-frame { position: absolute; }
 .ws-frame-title {
@@ -454,4 +459,20 @@ body.is-locked #left, body.is-locked #right, body.is-locked #stage-wrap, body.is
 .ws-stage.is-arranging .ws-frame, .ws-stage.is-arranging .ws-box-group { transition: left 0.18s ease, top 0.18s ease, width 0.18s ease, height 0.18s ease; }
 @media (prefers-reduced-motion: reduce) {
   .ws-stage.is-arranging .ws-frame, .ws-stage.is-arranging .ws-box-group, .ws-ghost { transition: none; }
+}
+
+/* Tablets: the panels float over the canvas instead of narrowing it, and controls get finger-sized targets. */
+@media (pointer: coarse) and (max-width: 1199px) {
+  body { grid-template-columns: 0 1fr 0; }
+  #left, #right { grid-area: main; z-index: 30; min-height: 0; max-width: calc(100% - 48px); box-shadow: var(--ws-shadow); }
+  #left { justify-self: start; width: 272px; }
+  #right { justify-self: end; width: 340px; }
+  /* The floating toolbar centers in the canvas left uncovered by the open panels. */
+  body:not(.no-left) .ws-tools { left: calc(50% + 136px); max-width: calc(100% - 296px); }
+  body:not(.no-right) .ws-tools { left: calc(50% - 170px); max-width: calc(100% - 364px); }
+  body:not(.no-left):not(.no-right) .ws-tools { left: calc(50% - 34px); max-width: calc(100% - 636px); }
+}
+@media (pointer: coarse) {
+  .ws-icon[data-icon]:not(.orbit-frame *), .ws-frame-bar .ws-icon:not(.orbit-frame *) { min-width: 40px; min-height: 40px; }
+  .ws-tools button:not(.orbit-frame *) { min-width: 44px; height: 44px; }
 }

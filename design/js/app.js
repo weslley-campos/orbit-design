@@ -732,8 +732,10 @@ async function boot() {
   });
 
   const PANELS_KEY = 'orbit.design.panels';
-  let panels = { left: true, right: true };
-  try { panels = { ...panels, ...JSON.parse(localStorage.getItem(PANELS_KEY)) }; } catch { /* defaults: both shown */ }
+  // On a tablet the panels float over the canvas, so the inspector starts hidden there until it is opened once.
+  const tablet = window.matchMedia?.('(pointer: coarse) and (max-width: 1199px)').matches;
+  let panels = { left: true, right: !tablet };
+  try { panels = { ...panels, ...JSON.parse(localStorage.getItem(PANELS_KEY)) }; } catch { /* defaults: both shown, or no inspector on a tablet */ }
   function applyPanels() {
     for (const [side, name] of [['left', 'pages'], ['right', 'inspector']]) {
       const open = panels[side] !== false;
