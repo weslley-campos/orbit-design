@@ -624,6 +624,14 @@
           "y": 1932,
           "width": 402,
           "height": 874
+        },
+        {
+          "id": "mobile-profile-phone",
+          "catalogId": "screens/profile-phone",
+          "x": 9216,
+          "y": 1932,
+          "width": 402,
+          "height": 874
         }
       ]
     },
@@ -2795,6 +2803,39 @@
       "from": {
         "frameId": "mobile-profile-photo-set",
         "hotspotId": "remove-photo"
+      },
+      "to": {
+        "frameId": "mobile-profile"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-profile-phone",
+      "from": {
+        "frameId": "mobile-profile",
+        "hotspotId": "phone"
+      },
+      "to": {
+        "frameId": "mobile-profile-phone"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-profile-phone-save",
+      "from": {
+        "frameId": "mobile-profile-phone",
+        "hotspotId": "phone-save"
+      },
+      "to": {
+        "frameId": "mobile-profile"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-profile-phone-cancel",
+      "from": {
+        "frameId": "mobile-profile-phone",
+        "hotspotId": "phone-cancel"
       },
       "to": {
         "frameId": "mobile-profile"
