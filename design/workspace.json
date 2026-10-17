@@ -592,6 +592,30 @@
           "y": 1932,
           "width": 402,
           "height": 874
+        },
+        {
+          "id": "mobile-profile-password",
+          "catalogId": "screens/profile-password",
+          "x": 7168,
+          "y": 1932,
+          "width": 402,
+          "height": 874
+        },
+        {
+          "id": "mobile-profile-google",
+          "catalogId": "screens/profile-google",
+          "x": 7680,
+          "y": 1932,
+          "width": 402,
+          "height": 874
+        },
+        {
+          "id": "mobile-profile-password-add",
+          "catalogId": "screens/profile-password-add",
+          "x": 8192,
+          "y": 1932,
+          "width": 402,
+          "height": 874
         }
       ]
     },
@@ -2645,6 +2669,83 @@
       },
       "to": {
         "frameId": "mobile-profile"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-profile-password",
+      "from": {
+        "frameId": "mobile-profile",
+        "hotspotId": "password"
+      },
+      "to": {
+        "frameId": "mobile-profile-password"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-profile-password-save",
+      "from": {
+        "frameId": "mobile-profile-password",
+        "hotspotId": "password-save"
+      },
+      "to": {
+        "frameId": "mobile-profile"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-profile-password-cancel",
+      "from": {
+        "frameId": "mobile-profile-password",
+        "hotspotId": "password-cancel"
+      },
+      "to": {
+        "frameId": "mobile-profile"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-profile-google-back",
+      "from": {
+        "frameId": "mobile-profile-google",
+        "hotspotId": "back"
+      },
+      "to": {
+        "frameId": "mobile-settings"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-profile-google-password-add",
+      "from": {
+        "frameId": "mobile-profile-google",
+        "hotspotId": "password-add"
+      },
+      "to": {
+        "frameId": "mobile-profile-password-add"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-profile-password-add-save",
+      "from": {
+        "frameId": "mobile-profile-password-add",
+        "hotspotId": "password-add-save"
+      },
+      "to": {
+        "frameId": "mobile-profile-google"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-profile-password-add-cancel",
+      "from": {
+        "frameId": "mobile-profile-password-add",
+        "hotspotId": "password-add-cancel"
+      },
+      "to": {
+        "frameId": "mobile-profile-google"
       },
       "trigger": "click"
     }
