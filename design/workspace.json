@@ -616,6 +616,14 @@
           "y": 1932,
           "width": 402,
           "height": 874
+        },
+        {
+          "id": "mobile-profile-photo-set",
+          "catalogId": "screens/profile-photo-set",
+          "x": 8704,
+          "y": 1932,
+          "width": 402,
+          "height": 874
         }
       ]
     },
@@ -2746,6 +2754,50 @@
       },
       "to": {
         "frameId": "mobile-profile-google"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-profile-photo-set-photo-close",
+      "from": {
+        "frameId": "mobile-profile-photo-set",
+        "hotspotId": "photo-close"
+      },
+      "to": {
+        "frameId": "mobile-profile"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-profile-photo-set-take-photo",
+      "from": {
+        "frameId": "mobile-profile-photo-set",
+        "hotspotId": "take-photo"
+      },
+      "to": {
+        "frameId": "mobile-profile"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-profile-photo-set-choose-photo",
+      "from": {
+        "frameId": "mobile-profile-photo-set",
+        "hotspotId": "choose-photo"
+      },
+      "to": {
+        "frameId": "mobile-profile"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-profile-photo-set-remove-photo",
+      "from": {
+        "frameId": "mobile-profile-photo-set",
+        "hotspotId": "remove-photo"
+      },
+      "to": {
+        "frameId": "mobile-profile"
       },
       "trigger": "click"
     }

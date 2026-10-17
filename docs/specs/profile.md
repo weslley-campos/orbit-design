@@ -16,6 +16,7 @@ Status: Draft
     - Sign-in: password (moved from Settings), and Google with Connect.
     - Delete account (moved from Settings).
   - `screens/profile-photo`: a sheet over Profile with Take photo and Choose from library.
+  - `screens/profile-photo-set`: the same sheet once a photo is set, with Remove photo in the error color.
   - `screens/profile-google`: Profile for an account that signs in with Google only.
   - `screens/profile-password` and `screens/profile-password-add`: sheets to change the password or add one.
   - Settings: the account card opens Profile. Password and Delete account move to Profile, so Settings keeps app behavior and Profile keeps the account.
@@ -25,7 +26,7 @@ Status: Draft
 
 ## 3. Required behavior
 - R1: Profile is pushed from Settings and hides the navigation bar. Back returns to Settings.
-- R2: The avatar shows the photo, or the first initial when there is none. The camera button opens the photo sheet.
+- R2: The avatar shows the photo, or the first initial when there is none. The camera button opens the photo sheet. Take photo opens the camera and Choose from library the system photo picker; the chosen photo uploads to orbit-api and the sheet closes. Remove photo shows only once a photo is set and goes back to the initial. Desktop and web have no camera, so they hide Take photo.
 - R3: Each personal information row shows its label and current value. Rows that can be edited open their edit sheet and end in a chevron. The email is the account's sign-in address, so its row shows Verified once confirmed and has no chevron and no action. An empty phone shows "Add a phone number" in the brand color.
 - R4: "Name family members see" is the short name shown next to your expenses in shared lists, like "Transport · Today · Marina" on Home.
 - R5: Your family shows its members' avatars, who created it and pending invites, and opens Family members.
@@ -47,6 +48,7 @@ Status: Draft
 - [x] R5 · manual — Given Profile in Play, when Your family is activated, then Family members opens.
 - [ ] R6 · manual — Given Profile and Profile · Google sign-in, when inspected, then the first reads "Change the password you sign in with" with Connect, and the second reads "Not set" with Add and Google Connected.
 - [x] R8 · manual — Given Flamingo light and dark in English and Portuguese, when both frames are viewed at 402 × 874, then no text is clipped.
+- [ ] R2 · manual — Given Profile · Photo · Remove, when inspected, then it lists Take photo, Choose from library and Remove photo in the error color, and each returns to Profile in Play.
 - [ ] R9 · manual — Given Profile in Play, when Name is activated, then the Name sheet shows Ana Souza and Ana; Save and Cancel return to Profile.
 - [ ] R10 · manual — Given Profile in Play, when Password is activated, then the password sheet shows Current password and New password; given Profile · Google sign-in, when Add is activated, then the add sheet shows New password for ana@example.com; Save and Cancel return to the Profile they came from.
 

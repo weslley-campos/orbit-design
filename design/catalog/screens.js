@@ -2319,7 +2319,9 @@ const profileFrame = (id, name, google) => frame(id, name, { status: 'proposed',
 const profile = profileFrame('profile', 'Profile', false);
 const profileGoogle = profileFrame('profile-google', 'Profile · Google sign-in', true);
 
-const profilePhoto = sheetFrame('profile-photo', 'Profile · Photo', PROFILE_SPEC, profile, 'photo-sheet', 'profile_photo_title', (ctx) => [
+// Photo: Take photo opens the camera and Choose from library the system picker; the chosen photo uploads and the
+// sheet closes. Remove photo appears once a photo is set. Take photo is hidden on desktop and web, which have no camera.
+const profilePhotoSheet = (id, name, withPhoto) => sheetFrame(id, name, PROFILE_SPEC, profile, 'photo-sheet', 'profile_photo_title', (ctx) => [
   ctx.node({
     key: 'photo-header',
     styles: ['Home/spread'],
@@ -2336,9 +2338,14 @@ const profilePhoto = sheetFrame('profile-photo', 'Profile · Photo', PROFILE_SPE
   settingsCard(ctx, 'photo-options', [
     settingsRow(ctx, 'take-photo', 'camera', 'profile_photo_take', { trailing: null }),
     settingsRow(ctx, 'choose-photo', 'image', 'profile_photo_choose', { trailing: null }),
-  ]),
+    withPhoto && settingsRow(ctx, 'remove-photo', 'trash', {
+      textKey: 'profile_photo_remove', bind: { color: { token: 'colors.text.error' } },
+    }, { trailing: null }),
+  ].filter(Boolean)),
   gap(ctx, 'photo-gap-bottom', 'spacing.small'),
 ]);
+const profilePhoto = profilePhotoSheet('profile-photo', 'Profile · Photo', false);
+const profilePhotoSet = profilePhotoSheet('profile-photo-set', 'Profile · Photo · Remove', true);
 
 // Name: both names in one sheet, opened from either name row.
 const profileName = sheetFrame('profile-name', 'Profile · Name', PROFILE_SPEC, profile, 'name-sheet', 'profile_name_title', (ctx) => [
@@ -3808,6 +3815,7 @@ export const frames = [
   profile,
   profileGoogle,
   profilePhoto,
+  profilePhotoSet,
   profileName,
   profilePassword,
   profilePasswordAdd,
