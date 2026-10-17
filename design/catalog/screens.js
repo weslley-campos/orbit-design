@@ -2228,7 +2228,23 @@ const avatarStack = (ctx, key, initials) => ctx.node({
   children: initials.map((initial, i) => text(ctx, `${key}/${i}`, 'Family/avatar', { text: initial }, { styles: ['Family/avatar', i > 0 && 'Profile/stacked'] })),
 });
 
-const profile = frame('profile', 'Profile', { status: 'proposed', spec: PROFILE_SPEC }, (ctx) => screenFrame(ctx, [
+// The sign-in rows follow how the user signs in: with an email and password they can change the password and connect
+// Google; with Google only, Google is connected and they can add a password.
+const passwordRow = (ctx, google) => (google
+  ? settingsRow(ctx, 'password', 'key_round', 'profile_password', {
+    detail: { textKey: 'profile_password_none' },
+    hotspot: false,
+    trailing: textButton(ctx, 'password-add', 'profile_password_add', []),
+  })
+  : settingsRow(ctx, 'password', 'key_round', 'profile_password', { detail: { textKey: 'profile_password_detail' } }));
+const googleRow = (ctx, google) => settingsRow(ctx, 'google', null, 'profile_google', {
+  detail: { textKey: google ? 'profile_google_connected' : 'profile_google_detail' },
+  leading: googleBadge(ctx),
+  hotspot: false,
+  trailing: google ? null : textButton(ctx, 'google-connect', 'profile_connect', []),
+});
+
+const profileFrame = (id, name, google) => frame(id, name, { status: 'proposed', spec: PROFILE_SPEC }, (ctx) => screenFrame(ctx, [
   content(ctx, [
     ctx.node({ key: 'toolbar', styles: ['Screen/toolbar'], children: [backButton(ctx)] }),
     gap(ctx, 'gap-toolbar', 'spacing.xxSmall'),
@@ -2289,14 +2305,9 @@ const profile = frame('profile', 'Profile', { status: 'proposed', spec: PROFILE_
     text(ctx, 'sign-in-eyebrow', 'Screen/eyebrow', { textKey: 'profile_sign_in_eyebrow' }),
     gap(ctx, 'gap-sign-in-eyebrow', 'spacing.xxSmall'),
     OrbitCard(ctx, { key: 'sign-in-card', variant: 'Base', styles: ['Charts/card'] }, [
-      settingsRow(ctx, 'password', 'key_round', 'profile_password', { detail: { textKey: 'profile_password_detail' } }),
+      passwordRow(ctx, google),
       HorizontalDivider(ctx, { key: 'sign-in-card/divider-1' }),
-      settingsRow(ctx, 'google', null, 'profile_google', {
-        detail: { textKey: 'profile_google_detail' },
-        leading: googleBadge(ctx),
-        hotspot: false,
-        trailing: textButton(ctx, 'google-connect', 'profile_connect', []),
-      }),
+      googleRow(ctx, google),
     ]),
     gap(ctx, 'gap-sign-in', 'spacing.small'),
     OrbitButton(ctx, { key: 'delete-account', variant: 'Text', hotspot: true, styles: ['Screen/fill'] }, [
@@ -2305,6 +2316,8 @@ const profile = frame('profile', 'Profile', { status: 'proposed', spec: PROFILE_
     gap(ctx, 'gap-bottom', 'spacing.small'),
   ]),
 ]));
+const profile = profileFrame('profile', 'Profile', false);
+const profileGoogle = profileFrame('profile-google', 'Profile · Google sign-in', true);
 
 const profilePhoto = sheetFrame('profile-photo', 'Profile · Photo', PROFILE_SPEC, profile, 'photo-sheet', 'profile_photo_title', (ctx) => [
   ctx.node({
@@ -2347,6 +2360,44 @@ const profileName = sheetFrame('profile-name', 'Profile · Name', PROFILE_SPEC, 
       textButton(ctx, 'name-cancel', 'profile_name_cancel'),
     ],
   }),
+]);
+
+// Password: changing it asks for the current one; a Google-only account adds one without it.
+const passwordField = (ctx, key, labelKey, placeholderKey, supportingTextKey) => field(ctx, key, labelKey, {
+  placeholderKey,
+  supportingTextKey,
+  password: true,
+  trailingIcon: OrbitIconButton(ctx, {
+    key: `${key}/show`, contentDescription: ctx.t('password_show'),
+  }, [icon(ctx, `${key}/show/icon`, 'eye', 'medium', 'colors.text.secondary')]),
+});
+const passwordActions = (ctx, key) => ctx.node({
+  key: `${key}-actions`,
+  styles: ['Screen/actions'],
+  children: [
+    primary(ctx, `${key}-save`, 'profile_password_save'),
+    textButton(ctx, `${key}-cancel`, 'profile_password_cancel'),
+  ],
+});
+const profilePassword = sheetFrame('profile-password', 'Profile · Password', PROFILE_SPEC, profile, 'password-sheet', 'profile_password_title', (ctx) => [
+  text(ctx, 'password-title', 'SignIn/title', { textKey: 'profile_password_title' }),
+  gap(ctx, 'password-gap-title', 'spacing.xxSmall'),
+  text(ctx, 'password-guidance', 'Screen/guidance', { textKey: 'profile_password_guidance' }),
+  gap(ctx, 'password-gap-guidance', 'spacing.medium'),
+  ...passwordField(ctx, 'current-password', 'profile_password_current', 'profile_password_current_placeholder'),
+  gap(ctx, 'password-gap-current', 'spacing.small'),
+  ...passwordField(ctx, 'new-password', 'profile_password_new', 'profile_password_new_placeholder', 'profile_password_hint'),
+  gap(ctx, 'password-gap-new', 'spacing.large'),
+  passwordActions(ctx, 'password'),
+]);
+const profilePasswordAdd = sheetFrame('profile-password-add', 'Profile · Add password', PROFILE_SPEC, profileGoogle, 'password-add-sheet', 'profile_password_add_title', (ctx) => [
+  text(ctx, 'password-add-title', 'SignIn/title', { textKey: 'profile_password_add_title' }),
+  gap(ctx, 'password-add-gap-title', 'spacing.xxSmall'),
+  text(ctx, 'password-add-guidance', 'Screen/guidance', { textKey: 'profile_password_add_guidance', textArgs: ['ana@example.com'] }),
+  gap(ctx, 'password-add-gap-guidance', 'spacing.medium'),
+  ...passwordField(ctx, 'add-password', 'profile_password_new', 'profile_password_new_placeholder', 'profile_password_hint'),
+  gap(ctx, 'password-add-gap-new', 'spacing.large'),
+  passwordActions(ctx, 'password-add'),
 ]);
 
 // Wallet: the cards, stacked like Apple Wallet. Art comes from assets/proposed/cards (bank artwork the user supplied);
@@ -3755,8 +3806,11 @@ export const frames = [
   settingsTheme,
   settingsSignOut,
   profile,
+  profileGoogle,
   profilePhoto,
   profileName,
+  profilePassword,
+  profilePasswordAdd,
   connectorsEmpty,
   connectors,
   pluggy,
