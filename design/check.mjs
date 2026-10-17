@@ -7,6 +7,7 @@ import {
   pendingMerge, uniqueId, validateWorkspace,
 } from './js/store.js';
 import { createHistory } from './js/history.js';
+import { arrangeRects } from './js/arrange.js';
 
 const root = dirname(fileURLToPath(import.meta.url));
 const tokens = {
@@ -189,6 +190,22 @@ const stored = memory();
 assert.ok(saveDraft(stored, seed));
 assert.deepEqual(loadWorkspace({ storage: stored, seed: doc(), context }).ws, normalize(doc()), 'a valid draft wins over the seed');
 assert.equal(saveDraft({ setItem() { throw new Error('quota'); } }, seed), false, 'a failed write reports false');
+
+const box = (id, x, y, width, height) => ({ id, x, y, width, height });
+const trio = [box('a', 0, 0, 100, 50), box('b', 150, 40, 60, 80), box('c', 300, 20, 40, 30)];
+const placed = (op, rects = trio, gap) => arrangeRects(rects, op, gap).map((p) => `${p.id}:${p.x},${p.y}`).join(' ');
+assert.equal(placed('left'), 'a:0,0 b:0,40 c:0,20', 'align left');
+assert.equal(placed('right'), 'a:240,0 b:280,40 c:300,20', 'align right');
+assert.equal(placed('centerX'), 'a:120,0 b:140,40 c:150,20', 'align horizontal center');
+assert.equal(placed('top'), 'a:0,0 b:150,0 c:300,0', 'align top');
+assert.equal(placed('bottom'), 'a:0,70 b:150,40 c:300,90', 'align bottom');
+assert.equal(placed('centerY'), 'a:0,35 b:150,20 c:300,45', 'align vertical center');
+assert.equal(placed('spaceX'), 'a:0,0 b:170,40 c:300,20', 'equal horizontal gaps keep the ends');
+assert.equal(placed('spaceY'), 'a:0,0 b:150,40 c:300,30', 'equal vertical gaps keep the ends');
+assert.equal(placed('spaceX', [box('a', 0, 0, 100, 50), box('b', 20, 0, 100, 50), box('c', 60, 0, 100, 50)]), 'a:0,0 b:30,0 c:60,0', 'overlapping rects get a negative gap');
+assert.equal(placed('spaceX', trio.slice(0, 2)), 'a:0,0 b:150,40', 'two rects are left alone');
+assert.equal(placed('gapX', trio, 20), 'a:0,0 b:120,40 c:200,20', 'fixed horizontal gap from the first');
+assert.equal(placed('gapY', trio, 10), 'a:0,0 b:150,100 c:300,60', 'fixed vertical gap in center order');
 
 const catalogDir = join(root, 'catalog');
 const guards = [

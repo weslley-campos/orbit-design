@@ -1,5 +1,6 @@
 import { deviceFrame, deviceOf, h, kids, outerSize, tintDevice } from './dom.js';
 import { icon } from './icons.js';
+import { arrangeRects } from './arrange.js';
 import { setConnection } from './store.js';
 import { renderFrame, inspectInfo } from '../catalog/core.js';
 
@@ -15,6 +16,8 @@ export function createCanvas(app) {
   const stage = h('div', { class: 'ws-stage' });
   const hover = h('div', { class: 'ws-box ws-box-hover', hidden: true });
   const selected = h('div', { class: 'ws-box ws-box-selected', hidden: true });
+  const group = h('div', { class: 'ws-box ws-box-group', hidden: true });
+  const ghosts = h('div', { class: 'ws-ghosts' });
   const svg = document.createElementNS(SVG_NS, 'svg');
   svg.setAttribute('class', 'ws-arrows');
   const emptyText = h('p');
@@ -87,22 +90,29 @@ export function createCanvas(app) {
     return wrap;
   }
 
-  function moved(frame) {
-    place(frame);
+  const selectedFrames = () => {
+    const ids = app.selectedIds();
+    return (app.canvasPage()?.frames ?? []).filter((frame) => ids.includes(frame.id));
+  };
+  const isToggle = (e) => e.shiftKey || e.metaKey || e.ctrlKey;
+
+  function nudgeFrames(list, dx, dy, quiet) {
+    for (const frame of list) { frame.x += dx; frame.y += dy; place(frame); }
     updateSelection();
     paint();
     app.save();
+    if (!quiet) app.inspector.render();
   }
 
-  function drag(e, frame, handle) {
+  // Moves the frames together; a release without movement collapses a group to `collapse`.
+  function drag(e, list, handle, collapse) {
     e.preventDefault();
-    app.select({ frameId: frame.id, key: null });
     handle.setPointerCapture(e.pointerId);
-    const start = { x: e.clientX, y: e.clientY, fx: frame.x, fy: frame.y };
+    const starts = list.map((frame) => [frame, frame.x, frame.y]);
     const move = (ev) => {
-      frame.x = Math.round(start.fx + (ev.clientX - start.x) / zoom());
-      frame.y = Math.round(start.fy + (ev.clientY - start.y) / zoom());
-      place(frame);
+      const dx = Math.round((ev.clientX - e.clientX) / zoom());
+      const dy = Math.round((ev.clientY - e.clientY) / zoom());
+      for (const [frame, x, y] of starts) { frame.x = x + dx; frame.y = y + dy; place(frame); }
       updateSelection();
       schedulePaint();
     };
@@ -110,7 +120,8 @@ export function createCanvas(app) {
       handle.removeEventListener('pointermove', move);
       handle.removeEventListener('pointerup', up);
       handle.removeEventListener('pointercancel', up);
-      if (frame.x !== start.fx || frame.y !== start.fy) moved(frame);
+      if (starts.some(([frame, x, y]) => frame.x !== x || frame.y !== y)) { paint(); app.save(); }
+      else if (collapse) { app.select({ frameId: collapse.id, key: null }); return; }
       app.inspector.render();
     };
     handle.addEventListener('pointermove', move);
@@ -118,22 +129,27 @@ export function createCanvas(app) {
     handle.addEventListener('pointercancel', up);
   }
 
+  // Drags the whole selection when the frame belongs to a group, else selects just that frame.
+  function startDrag(e, frame, handle) {
+    const grouped = app.selectedIds().length > 1 && app.selectedIds().includes(frame.id);
+    if (!grouped) app.select({ frameId: frame.id, key: null });
+    drag(e, grouped ? selectedFrames() : [frame], handle, grouped ? frame : null);
+  }
+
   function bindTitle(title, frame) {
     title.addEventListener('pointerdown', (e) => {
       if (e.button !== 0 || link) return;
       title.focus();
       if (readOnly()) { app.select({ frameId: frame.id, key: null }); return; }
-      drag(e, frame, title);
+      if (isToggle(e)) { e.preventDefault(); app.toggleFrame(frame.id); return; }
+      startDrag(e, frame, title);
     });
     title.addEventListener('keydown', (e) => {
       const step = e.shiftKey ? 10 : 1;
       const delta = { ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, -step], ArrowDown: [0, step] }[e.key];
       if (delta && !readOnly()) {
         e.preventDefault();
-        frame.x += delta[0];
-        frame.y += delta[1];
-        moved(frame);
-        app.inspector.render();
+        nudgeFrames(app.selectedIds().includes(frame.id) ? selectedFrames() : [frame], ...delta);
       } else if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
         app.select({ frameId: frame.id, key: null });
@@ -161,17 +177,74 @@ export function createCanvas(app) {
 
   function updateSelection() {
     const sel = app.selection;
-    for (const [id, e] of els) e.wrap.classList.toggle('is-selected', sel?.frameId === id && (!sel.key || app.mode === 'move'));
+    const ids = app.selectedIds();
+    for (const [id, e] of els) e.wrap.classList.toggle('is-selected', ids.includes(id) && (ids.length > 1 || !sel.key || app.mode === 'move'));
     box(selected, app.mode === 'move' || readOnly() ? null : nodeOf(sel));
+    group.hidden = ids.length < 2;
+    if (!group.hidden) {
+      const r = bounds(rects());
+      Object.assign(group.style, { left: `${r.x}px`, top: `${r.y}px`, width: `${r.width}px`, height: `${r.height}px` });
+    }
     renderBar();
     schedulePaint();
+  }
+
+  const outer = (frame, page) => outerSize(frame, host(frame, page), app.ws.settings);
+  function rects() {
+    const page = app.canvasPage();
+    return selectedFrames().map((frame) => ({ id: frame.id, x: frame.x, y: frame.y, ...outer(frame, page) }));
+  }
+  function bounds(list) {
+    const x = Math.min(...list.map((r) => r.x));
+    const y = Math.min(...list.map((r) => r.y));
+    return { x, y, width: Math.max(...list.map((r) => r.x + r.width)) - x, height: Math.max(...list.map((r) => r.y + r.height)) - y };
+  }
+
+  // Dashed outlines at the positions an arrange op would give; null clears them.
+  function preview(positions) {
+    const page = app.canvasPage();
+    const frames = new Map((page?.frames ?? []).map((frame) => [frame.id, frame]));
+    ghosts.replaceChildren(...(positions ?? []).filter((p) => frames.has(p.id) && (frames.get(p.id).x !== p.x || frames.get(p.id).y !== p.y)).map((p) => {
+      const size = outer(frames.get(p.id), page);
+      const kind = deviceOf(host(frames.get(p.id), page), app.ws.settings);
+      const ghost = h('div', { class: kind ? `ws-ghost is-${kind}` : 'ws-ghost' });
+      Object.assign(ghost.style, { left: `${p.x}px`, top: `${p.y}px`, width: `${size.width}px`, height: `${size.height}px` });
+      return ghost;
+    }));
+  }
+
+  let arranging = 0;
+  function arrange(op, gap = 0) {
+    const frames = new Map(selectedFrames().map((frame) => [frame.id, frame]));
+    const next = arrangeRects(rects(), op, gap).filter((p) => frames.get(p.id).x !== p.x || frames.get(p.id).y !== p.y);
+    preview(null);
+    if (next.length) {
+      stage.classList.add('is-arranging');
+      clearTimeout(arranging);
+      arranging = setTimeout(() => stage.classList.remove('is-arranging'), 220);
+      for (const p of next) {
+        const frame = frames.get(p.id);
+        Object.assign(frame, { x: p.x, y: p.y });
+        place(frame);
+      }
+      paint();
+      updateSelection();
+      app.save();
+    }
+    app.inspector.render();
+  }
+
+  function nudge(dx, dy, quiet) {
+    const list = readOnly() ? [] : selectedFrames();
+    if (list.length) nudgeFrames(list, dx, dy, quiet);
+    return list.length > 0;
   }
 
   const barButton = (name, label, onclick) => h('button', { class: 'ws-icon', 'aria-label': label, title: label, 'data-f': `bar-${name}`, onclick }, icon(name));
   function renderBar() {
     const id = app.selection?.frameId;
     const page = app.canvasPage();
-    if (!id || !els.has(id) || link || (page?.readOnly && !page.shelf)) { bar.hidden = true; return; }
+    if (!id || !els.has(id) || link || app.selectedIds().length > 1 || (page?.readOnly && !page.shelf)) { bar.hidden = true; return; }
     const share = app.shareAction?.(id);
     const shelf = app.canvasPage()?.shelf;
     bar.replaceChildren(...kids(shelf ? [
@@ -387,9 +460,49 @@ export function createCanvas(app) {
   root.addEventListener('gesturestart', (e) => { e.preventDefault(); gestureStart = zoom(); });
   root.addEventListener('gesturechange', (e) => { e.preventDefault(); zoomAt(gestureStart * e.scale, e.clientX, e.clientY); });
 
+  // Shift+drag on the empty canvas adds the screens it touches to the selection held when it started.
+  function marquee(e) {
+    const base = app.selectedIds();
+    const o = stage.getBoundingClientRect();
+    const z = zoom();
+    const rect = h('div', { class: 'ws-marquee' });
+    let last = base.join();
+    let moved = false;
+    root.setPointerCapture(e.pointerId);
+    const move = (ev) => {
+      if (!moved && Math.hypot(ev.clientX - e.clientX, ev.clientY - e.clientY) < 3) return;
+      moved = true;
+      const x = (Math.min(e.clientX, ev.clientX) - o.left) / z;
+      const y = (Math.min(e.clientY, ev.clientY) - o.top) / z;
+      const width = Math.abs(ev.clientX - e.clientX) / z;
+      const height = Math.abs(ev.clientY - e.clientY) / z;
+      Object.assign(rect.style, { left: `${x}px`, top: `${y}px`, width: `${width}px`, height: `${height}px` });
+      stage.append(rect);
+      const page = app.canvasPage();
+      const hit = page.frames.filter((frame) => {
+        const size = outer(frame, page);
+        return frame.x < x + width && frame.x + size.width > x && frame.y < y + height && frame.y + size.height > y;
+      }).map((frame) => frame.id);
+      const ids = [...base, ...hit.filter((id) => !base.includes(id))];
+      if (ids.join() === last) return;
+      last = ids.join();
+      app.selectFrames(ids);
+    };
+    const up = () => {
+      root.removeEventListener('pointermove', move);
+      root.removeEventListener('pointerup', up);
+      root.removeEventListener('pointercancel', up);
+      rect.remove();
+    };
+    root.addEventListener('pointermove', move);
+    root.addEventListener('pointerup', up);
+    root.addEventListener('pointercancel', up);
+  }
+
   root.addEventListener('pointerdown', (e) => {
     const v = view();
     if (e.button !== 0 || !v || e.target.closest('.ws-frame, .ws-empty, .ws-frame-bar')) return;
+    if (e.shiftKey && app.mode === 'move' && !readOnly()) { marquee(e); return; }
     const start = { x: e.clientX, y: e.clientY, vx: v.x, vy: v.y, moved: false };
     root.setPointerCapture(e.pointerId);
     root.classList.add('is-panning');
@@ -419,7 +532,9 @@ export function createCanvas(app) {
     if (e.button !== 0 || !wrap || link || app.mode !== 'move' || readOnly()) return;
     e.stopPropagation();
     const frame = app.canvasPage()?.frames.find((f) => f.id === wrap.dataset.frameId);
-    if (frame) drag(e, frame, wrap);
+    if (!frame) return;
+    if (isToggle(e)) { e.preventDefault(); app.toggleFrame(frame.id); return; }
+    startDrag(e, frame, wrap);
   }, true);
 
   stage.addEventListener('click', (e) => {
@@ -490,6 +605,10 @@ export function createCanvas(app) {
     fit,
     nodeOf,
     place,
+    rects,
+    preview,
+    arrange,
+    nudge,
     paint,
     updateSelection,
     viewport: (frameId) => els.get(frameId)?.vp,
@@ -497,7 +616,8 @@ export function createCanvas(app) {
       const page = app.canvasPage();
       if (link && !page?.frames.some((f) => f.id === link.frameId)) endLink();
       els.clear();
-      stage.replaceChildren(...(page?.frames ?? []).map((frame) => frameEl(frame, page)), svg, hover, selected);
+      ghosts.replaceChildren();
+      stage.replaceChildren(...(page?.frames ?? []).map((frame) => frameEl(frame, page)), svg, ghosts, group, hover, selected);
       empty.hidden = Boolean(page?.frames.length);
       emptyText.textContent = app.review ? app.reviewEmptyText() : page?.shelf ? `${page.name} is empty.` : page ? 'This page is empty.' : 'There are no pages.';
       emptyAction.textContent = page ? 'Add frame' : 'New page';
