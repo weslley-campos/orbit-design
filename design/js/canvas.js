@@ -3,12 +3,15 @@ import { icon } from './icons.js';
 import { arrangeRects } from './arrange.js';
 import { setConnection } from './store.js';
 import { renderFrame, inspectInfo } from '../catalog/core.js';
+import { pinchView } from './gestures.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 const MIN_ZOOM = 0.1;
 const MAX_ZOOM = 4;
 const TITLE_HEIGHT = 28;
 const STUB = 64;
+// A finger must travel this far (CSS px) before a touch counts as a pan instead of a tap.
+const TAP_SLOP = 8;
 const clamp = (value, low, high) => Math.min(Math.max(value, low), high);
 
 export function createCanvas(app) {
@@ -27,6 +30,8 @@ export function createCanvas(app) {
   root.append(stage, empty, bar);
   // A pending prototype connection: source frame and hotspot (null for the whole frame) and the last pointer position.
   let link = null;
+  // The one-pointer pan, drag or marquee in progress, so a second finger can cancel it and pinch instead.
+  let action = null;
 
   const els = new Map();
   // Shelf frames carry their own platform, since one shelf view mixes screens from several pages.
@@ -110,20 +115,28 @@ export function createCanvas(app) {
     handle.setPointerCapture(e.pointerId);
     const starts = list.map((frame) => [frame, frame.x, frame.y]);
     const move = (ev) => {
+      if (ev.pointerId !== e.pointerId) return;
       const dx = Math.round((ev.clientX - e.clientX) / zoom());
       const dy = Math.round((ev.clientY - e.clientY) / zoom());
       for (const [frame, x, y] of starts) { frame.x = x + dx; frame.y = y + dy; place(frame); }
       updateSelection();
       schedulePaint();
     };
-    const up = () => {
+    const stop = () => {
+      action = null;
       handle.removeEventListener('pointermove', move);
       handle.removeEventListener('pointerup', up);
       handle.removeEventListener('pointercancel', up);
+    };
+    const up = (ev) => {
+      if (ev.pointerId !== e.pointerId) return;
+      stop();
       if (starts.some(([frame, x, y]) => frame.x !== x || frame.y !== y)) { paint(); app.save(); }
       else if (collapse) { app.select({ frameId: collapse.id, key: null }); return; }
       app.inspector.render();
     };
+    // A second finger puts the frames back where they started.
+    action = { cancel() { stop(); for (const [frame, x, y] of starts) { frame.x = x; frame.y = y; place(frame); } updateSelection(); schedulePaint(); } };
     handle.addEventListener('pointermove', move);
     handle.addEventListener('pointerup', up);
     handle.addEventListener('pointercancel', up);
@@ -429,16 +442,17 @@ export function createCanvas(app) {
     app.save();
   }
 
-  function scrollsNatively(e) {
+  // The scrollable element inside a screen that can still scroll by this delta, if any.
+  function scrollerFor(e) {
     const vertical = Math.abs(e.deltaY) >= Math.abs(e.deltaX);
     for (let el = e.target; el instanceof Element && el.closest('.orbit-frame'); el = el.parentElement) {
       const s = getComputedStyle(el);
       const [overflow, size, client, pos, delta] = vertical
         ? [s.overflowY, el.scrollHeight, el.clientHeight, el.scrollTop, e.deltaY]
         : [s.overflowX, el.scrollWidth, el.clientWidth, el.scrollLeft, e.deltaX];
-      if (/auto|scroll/.test(overflow) && size > client && (delta < 0 ? pos > 0 : pos + client < size - 1)) return true;
+      if (/auto|scroll/.test(overflow) && size > client && (delta < 0 ? pos > 0 : pos + client < size - 1)) return el;
     }
-    return false;
+    return null;
   }
 
   root.addEventListener('wheel', (e) => {
@@ -447,7 +461,7 @@ export function createCanvas(app) {
     if (e.ctrlKey || e.metaKey) {
       e.preventDefault();
       zoomAt(v.zoom * Math.exp(-clamp(e.deltaY, -50, 50) * 0.01), e.clientX, e.clientY);
-    } else if (!scrollsNatively(e)) {
+    } else if (!scrollerFor(e)) {
       e.preventDefault();
       v.x -= e.deltaX;
       v.y -= e.deltaY;
@@ -457,8 +471,60 @@ export function createCanvas(app) {
   }, { passive: false });
 
   let gestureStart = 1;
+  // Safari's gesture events also fire for touch pinches, which the pointer handling below already zooms.
   root.addEventListener('gesturestart', (e) => { e.preventDefault(); gestureStart = zoom(); });
-  root.addEventListener('gesturechange', (e) => { e.preventDefault(); zoomAt(gestureStart * e.scale, e.clientX, e.clientY); });
+  root.addEventListener('gesturechange', (e) => { e.preventDefault(); if (fingers.size < 2) zoomAt(gestureStart * e.scale, e.clientX, e.clientY); });
+
+  // Touch: every finger on the canvas by pointer id. Two fingers pan and zoom together and cancel any one-finger action;
+  // a click that ends a pinch or a touch pan is swallowed so it neither selects nor deselects.
+  const fingers = new Map();
+  let pinch = null;
+  let swallowClick = false;
+  const local = (e) => {
+    const r = root.getBoundingClientRect();
+    return { x: e.clientX - r.left, y: e.clientY - r.top };
+  };
+  root.addEventListener('pointerdown', (e) => {
+    const touch = e.pointerType === 'touch';
+    root.classList.toggle('is-touch', touch);
+    if (!fingers.size) swallowClick = false;
+    if (!touch) return;
+    fingers.set(e.pointerId, local(e));
+    if (fingers.size < 2) return;
+    e.stopImmediatePropagation();
+    root.setPointerCapture(e.pointerId);
+    if (fingers.size > 2 || pinch || !view()) return;
+    action?.cancel();
+    action = null;
+    hover.hidden = true;
+    const [a, b] = [...fingers.values()];
+    pinch = { start: { ...view() }, ids: [...fingers.keys()], a, b };
+  }, true);
+  root.addEventListener('pointermove', (e) => {
+    if (!fingers.has(e.pointerId)) return;
+    fingers.set(e.pointerId, local(e));
+    if (!pinch) return;
+    e.stopImmediatePropagation();
+    const [a, b] = pinch.ids.map((id) => fingers.get(id));
+    Object.assign(view(), pinchView(pinch.start, pinch.a, pinch.b, a, b, MIN_ZOOM, MAX_ZOOM));
+    applyView();
+  }, true);
+  const lift = (e) => {
+    if (!fingers.delete(e.pointerId)) return;
+    if (pinch) {
+      e.stopImmediatePropagation();
+      swallowClick = true;
+      if (pinch.ids.includes(e.pointerId)) { pinch = null; app.save(); }
+    }
+  };
+  root.addEventListener('pointerup', lift, true);
+  root.addEventListener('pointercancel', lift, true);
+  root.addEventListener('click', (e) => {
+    if (!swallowClick) return;
+    swallowClick = false;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+  }, true);
 
   // Shift+drag on the empty canvas adds the screens it touches to the selection held when it started.
   function marquee(e) {
@@ -470,6 +536,7 @@ export function createCanvas(app) {
     let moved = false;
     root.setPointerCapture(e.pointerId);
     const move = (ev) => {
+      if (ev.pointerId !== e.pointerId) return;
       if (!moved && Math.hypot(ev.clientX - e.clientX, ev.clientY - e.clientY) < 3) return;
       moved = true;
       const x = (Math.min(e.clientX, ev.clientX) - o.left) / z;
@@ -488,39 +555,71 @@ export function createCanvas(app) {
       last = ids.join();
       app.selectFrames(ids);
     };
-    const up = () => {
+    const up = (ev) => {
+      if (ev && ev.pointerId !== e.pointerId) return;
+      action = null;
       root.removeEventListener('pointermove', move);
       root.removeEventListener('pointerup', up);
       root.removeEventListener('pointercancel', up);
       rect.remove();
     };
+    action = { cancel: () => up() };
     root.addEventListener('pointermove', move);
     root.addEventListener('pointerup', up);
     root.addEventListener('pointercancel', up);
   }
 
+  // Dragging the empty canvas pans it. With a finger, dragging a screen pans too (or scrolls the screen's own list),
+  // since screens fill most of a tablet; a tap without movement is left to the click that selects.
   root.addEventListener('pointerdown', (e) => {
     const v = view();
-    if (e.button !== 0 || !v || e.target.closest('.ws-frame, .ws-empty, .ws-frame-bar')) return;
+    const touch = e.pointerType === 'touch';
+    if (e.button !== 0 || !v || e.target.closest(touch ? '.ws-frame-title, .ws-empty, .ws-frame-bar' : '.ws-frame, .ws-empty, .ws-frame-bar')) return;
     if (e.shiftKey && app.mode === 'move' && !readOnly()) { marquee(e); return; }
-    const start = { x: e.clientX, y: e.clientY, vx: v.x, vy: v.y, moved: false };
+    const onScreen = Boolean(e.target.closest('.ws-frame'));
+    const start = { x: e.clientX, y: e.clientY, vx: v.x, vy: v.y, moved: false, scroller: null };
     root.setPointerCapture(e.pointerId);
-    root.classList.add('is-panning');
+    if (!onScreen) root.classList.add('is-panning');
     hover.hidden = true;
     const move = (ev) => {
-      start.moved = true;
-      v.x = start.vx + ev.clientX - start.x;
-      v.y = start.vy + ev.clientY - start.y;
+      if (ev.pointerId !== e.pointerId) return;
+      const dx = ev.clientX - start.x;
+      const dy = ev.clientY - start.y;
+      if (!start.moved) {
+        if (touch && Math.hypot(dx, dy) < TAP_SLOP) return;
+        start.moved = true;
+        root.classList.add('is-panning');
+        const scroller = onScreen && scrollerFor({ target: e.target, deltaX: -dx, deltaY: -dy });
+        if (scroller) start.scroller = { el: scroller, left: scroller.scrollLeft, top: scroller.scrollTop };
+      }
+      if (start.scroller) {
+        start.scroller.el.scrollLeft = start.scroller.left - dx / zoom();
+        start.scroller.el.scrollTop = start.scroller.top - dy / zoom();
+        return;
+      }
+      v.x = start.vx + dx;
+      v.y = start.vy + dy;
       applyView();
     };
-    const up = () => {
+    const stop = () => {
+      action = null;
       root.removeEventListener('pointermove', move);
       root.removeEventListener('pointerup', up);
       root.removeEventListener('pointercancel', up);
       root.classList.remove('is-panning');
-      if (start.moved) app.save();
-      else if (!link) app.select(null);
     };
+    const up = (ev) => {
+      if (ev.pointerId !== e.pointerId) return;
+      stop();
+      if (start.moved) {
+        if (touch) swallowClick = true;
+        if (!start.scroller) app.save();
+      } else if (onScreen) {
+        // The click that follows selects inside the screen.
+      } else if (!link) app.select(null);
+      else if (touch) endLink();
+    };
+    action = { cancel: stop };
     root.addEventListener('pointermove', move);
     root.addEventListener('pointerup', up);
     root.addEventListener('pointercancel', up);
@@ -560,7 +659,7 @@ export function createCanvas(app) {
 
   stage.addEventListener('pointermove', (e) => {
     const inside = e.target.closest?.('.orbit-frame');
-    if (link || app.mode === 'move' || !inside || readOnly()) box(hover, null);
+    if (e.pointerType === 'touch' || link || app.mode === 'move' || !inside || readOnly()) box(hover, null);
     else if (app.mode === 'prototype') box(hover, e.target.closest('[data-hotspot]'));
     else box(hover, inspectInfo(e.target)?.el);
   });

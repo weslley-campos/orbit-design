@@ -8,6 +8,7 @@ import {
 } from './js/store.js';
 import { createHistory } from './js/history.js';
 import { arrangeRects } from './js/arrange.js';
+import { pinchView } from './js/gestures.js';
 
 const root = dirname(fileURLToPath(import.meta.url));
 const tokens = {
@@ -206,6 +207,14 @@ assert.equal(placed('spaceX', [box('a', 0, 0, 100, 50), box('b', 20, 0, 100, 50)
 assert.equal(placed('spaceX', trio.slice(0, 2)), 'a:0,0 b:150,40', 'two rects are left alone');
 assert.equal(placed('gapX', trio, 20), 'a:0,0 b:120,40 c:200,20', 'fixed horizontal gap from the first');
 assert.equal(placed('gapY', trio, 10), 'a:0,0 b:150,100 c:300,60', 'fixed vertical gap in center order');
+
+const pt = (x, y) => ({ x, y });
+const at1 = { x: 0, y: 0, zoom: 1 };
+assert.deepEqual(pinchView(at1, pt(100, 100), pt(200, 100), pt(50, 100), pt(250, 100), 0.1, 4), { x: -150, y: -100, zoom: 2 }, 'spreading two fingers zooms about their midpoint');
+assert.deepEqual(pinchView(at1, pt(100, 100), pt(200, 100), pt(130, 120), pt(230, 120), 0.1, 4), { x: 30, y: 20, zoom: 1 }, 'moving two fingers together pans');
+assert.equal(pinchView({ x: 40, y: 40, zoom: 0.3 }, pt(100, 100), pt(110, 100), pt(0, 100), pt(1000, 100), 0.1, 4).zoom, 4, 'pinch zoom stops at the maximum');
+assert.equal(pinchView({ x: 40, y: 40, zoom: 0.3 }, pt(0, 100), pt(1000, 100), pt(500, 100), pt(510, 100), 0.1, 4).zoom, 0.1, 'pinch zoom stops at the minimum');
+assert.deepEqual(pinchView(at1, pt(5, 5), pt(5, 5), pt(15, 5), pt(15, 5), 0.1, 4), { x: 10, y: 0, zoom: 1 }, 'fingers on one spot only pan');
 
 const catalogDir = join(root, 'catalog');
 const guards = [
