@@ -2369,6 +2369,26 @@ const profileName = sheetFrame('profile-name', 'Profile · Name', PROFILE_SPEC, 
   }),
 ]);
 
+// Phone: one field with the country code. Saving it empty removes the number.
+const profilePhone = sheetFrame('profile-phone', 'Profile · Phone', PROFILE_SPEC, profile, 'phone-sheet', 'profile_phone_title', (ctx) => [
+  text(ctx, 'phone-title', 'SignIn/title', { textKey: 'profile_phone_title' }),
+  gap(ctx, 'phone-gap-title', 'spacing.xxSmall'),
+  text(ctx, 'phone-guidance', 'Screen/guidance', { textKey: 'profile_phone_guidance' }),
+  gap(ctx, 'phone-gap-guidance', 'spacing.medium'),
+  ...field(ctx, 'phone-field', 'profile_phone', {
+    placeholderKey: 'profile_phone_placeholder', supportingTextKey: 'profile_phone_hint',
+  }),
+  gap(ctx, 'phone-gap-field', 'spacing.large'),
+  ctx.node({
+    key: 'phone-actions',
+    styles: ['Screen/actions'],
+    children: [
+      primary(ctx, 'phone-save', 'profile_phone_save'),
+      textButton(ctx, 'phone-cancel', 'profile_phone_cancel'),
+    ],
+  }),
+]);
+
 // Password: changing it asks for the current one; a Google-only account adds one without it.
 const passwordField = (ctx, key, labelKey, placeholderKey, supportingTextKey) => field(ctx, key, labelKey, {
   placeholderKey,
@@ -3817,6 +3837,7 @@ export const frames = [
   profilePhoto,
   profilePhotoSet,
   profileName,
+  profilePhone,
   profilePassword,
   profilePasswordAdd,
   connectorsEmpty,
