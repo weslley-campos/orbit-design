@@ -475,11 +475,14 @@ export function createCanvas(app) {
   root.addEventListener('gesturestart', (e) => { e.preventDefault(); gestureStart = zoom(); });
   root.addEventListener('gesturechange', (e) => { e.preventDefault(); if (fingers.size < 2) zoomAt(gestureStart * e.scale, e.clientX, e.clientY); });
 
-  // Touch: every finger on the canvas by pointer id. Two fingers pan and zoom together and cancel any one-finger action;
-  // a click that ends a pinch or a touch pan is swallowed so it neither selects nor deselects.
+  // Touch: every finger on the canvas by pointer id. Two fingers pan and zoom together and cancel any one-finger action.
+  // The browser gets no touch of its own here: no page zoom, scrolling, text selection, callout or click. Instead a tap,
+  // one finger that lifts within TAP_SLOP of where it landed, is replayed as a click on what it landed on.
   const fingers = new Map();
   let pinch = null;
-  let swallowClick = false;
+  let tap = null;
+  const native = (target) => target.closest?.('.ws-frame-bar, .ws-empty');
+  root.addEventListener('touchstart', (e) => { if (!native(e.target)) e.preventDefault(); }, { passive: false });
   const local = (e) => {
     const r = root.getBoundingClientRect();
     return { x: e.clientX - r.left, y: e.clientY - r.top };
@@ -487,9 +490,9 @@ export function createCanvas(app) {
   root.addEventListener('pointerdown', (e) => {
     const touch = e.pointerType === 'touch';
     root.classList.toggle('is-touch', touch);
-    if (!fingers.size) swallowClick = false;
     if (!touch) return;
     fingers.set(e.pointerId, local(e));
+    tap = fingers.size === 1 && !native(e.target) ? { id: e.pointerId, x: e.clientX, y: e.clientY, target: e.target } : null;
     if (fingers.size < 2) return;
     e.stopImmediatePropagation();
     root.setPointerCapture(e.pointerId);
@@ -503,6 +506,7 @@ export function createCanvas(app) {
   root.addEventListener('pointermove', (e) => {
     if (!fingers.has(e.pointerId)) return;
     fingers.set(e.pointerId, local(e));
+    if (tap?.id === e.pointerId && Math.hypot(e.clientX - tap.x, e.clientY - tap.y) >= TAP_SLOP) tap = null;
     if (!pinch) return;
     e.stopImmediatePropagation();
     const [a, b] = pinch.ids.map((id) => fingers.get(id));
@@ -511,20 +515,20 @@ export function createCanvas(app) {
   }, true);
   const lift = (e) => {
     if (!fingers.delete(e.pointerId)) return;
+    const tapped = e.type === 'pointerup' && tap?.id === e.pointerId ? tap : null;
+    tap = null;
     if (pinch) {
       e.stopImmediatePropagation();
-      swallowClick = true;
       if (pinch.ids.includes(e.pointerId)) { pinch = null; app.save(); }
     }
+    // After the pointerup handlers (a pan's release, a frame drag's collapse) have run, as a real click would.
+    if (tapped) setTimeout(() => {
+      if (!tapped.target.isConnected) return;
+      tapped.target.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window, clientX: e.clientX, clientY: e.clientY }));
+    });
   };
   root.addEventListener('pointerup', lift, true);
   root.addEventListener('pointercancel', lift, true);
-  root.addEventListener('click', (e) => {
-    if (!swallowClick) return;
-    swallowClick = false;
-    e.preventDefault();
-    e.stopImmediatePropagation();
-  }, true);
 
   // Shift+drag on the empty canvas adds the screens it touches to the selection held when it started.
   function marquee(e) {
@@ -612,10 +616,9 @@ export function createCanvas(app) {
       if (ev.pointerId !== e.pointerId) return;
       stop();
       if (start.moved) {
-        if (touch) swallowClick = true;
         if (!start.scroller) app.save();
       } else if (onScreen) {
-        // The click that follows selects inside the screen.
+        // The tap's click selects inside the screen.
       } else if (!link) app.select(null);
       else if (touch) endLink();
     };

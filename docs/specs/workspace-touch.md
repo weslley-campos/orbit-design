@@ -23,7 +23,7 @@ Extends: [Design workspace](design-workspace.md) R2, R3, R4 and R10.
 - R7: On a touch screen narrower than 1200 px, the panels must float over the canvas instead of narrowing it, and the inspector starts hidden until it is opened once. On touch screens, icon buttons are at least 40 px and toolbar buttons 44 px.
 
 ## 4. Constraints
-- Pointer Events only, with `touch-action: none` on the canvas and everything in it; mouse, pen, trackpad, wheel and keyboard paths stay as they were. Safari's trackpad pinch (`gesturechange`) still zooms, but is ignored while two fingers are down so a touch pinch is not applied twice.
+- Pointer Events for every gesture, with `touch-action: none` on the canvas and everything in it, and `touchstart` cancelled there (except the screen toolbar and Add frame) so Safari starts no page zoom, selection or callout and sends no click of its own; a tap is replayed as a click on what it landed on; mouse, pen, trackpad, wheel and keyboard paths stay as they were. Safari's trackpad pinch (`gesturechange`) still zooms, but is ignored while two fingers are down so a touch pinch is not applied twice.
 - Pan and zoom are not edits (design-workspace R9): a pinch saves the view without an undo step.
 
 ## 6. Acceptance criteria
