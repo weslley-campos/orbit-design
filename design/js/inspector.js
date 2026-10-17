@@ -1,4 +1,6 @@
 import { h, preserveFocus } from './dom.js';
+import { icon } from './icons.js';
+import { arrangeRects } from './arrange.js';
 import {
   composeSnippet, describeBinding, inspectInfo, scopeOf, tokenEntry, validateBindingOverride, validateTokenOverride, validProp,
 } from '../catalog/core.js';
@@ -18,6 +20,14 @@ async function copyText(text) {
     return ok;
   }
 }
+
+// [op, icon, label, shortcut]
+const ALIGN = [['left', 'alignLeft', 'Align left', 'Alt+A'], ['centerX', 'alignCenterX', 'Align horizontal centers', 'Alt+H'], ['right', 'alignRight', 'Align right', 'Alt+D']];
+const ALIGN_Y = [['top', 'alignTop', 'Align top', 'Alt+W'], ['centerY', 'alignCenterY', 'Align vertical centers', 'Alt+V'], ['bottom', 'alignBottom', 'Align bottom', 'Alt+S']];
+const DISTRIBUTE = [['spaceX', 'spaceX', 'Distribute horizontal spacing', 'Alt+Shift+H'], ['spaceY', 'spaceY', 'Distribute vertical spacing', 'Alt+Shift+V']];
+const GAPS = [['gapX', 'gapX', 'Apply gap horizontally'], ['gapY', 'gapY', 'Apply gap vertically']];
+// Kept across renders so the next selection reuses it.
+let gap = 96;
 
 export function createInspector(app) {
   const panel = document.getElementById('panel');
@@ -50,20 +60,21 @@ export function createInspector(app) {
     return { el, sync, fail: (message) => { error.textContent = message ?? ''; } };
   }
 
+  const number = (frame, label, prop, min) => h('label', {}, h('span', {}, label), h('input', {
+    type: 'number', step: 1, min, value: frame[prop], 'data-f': `frame-${prop}`,
+    oninput: (e) => {
+      const value = e.target.valueAsNumber;
+      if (!Number.isFinite(value) || (min != null && value < min)) return;
+      frame[prop] = Math.round(value);
+      app.canvas.place(frame);
+      app.canvas.paint();
+      app.canvas.updateSelection();
+      app.save();
+    },
+  }));
+
   function frameView({ frame, page }) {
     const entry = app.entries.get(frame.catalogId);
-    const number = (label, prop, min) => h('label', {}, h('span', {}, label), h('input', {
-      type: 'number', step: 1, min, value: frame[prop], 'data-f': `frame-${prop}`,
-      oninput: (e) => {
-        const value = e.target.valueAsNumber;
-        if (!Number.isFinite(value) || (min != null && value < min)) return;
-        frame[prop] = Math.round(value);
-        app.canvas.place(frame);
-        app.canvas.paint();
-        app.canvas.updateSelection();
-        app.save();
-      },
-    }));
     return [
       h('h3', {}, app.frameName(frame)),
       pairs([
@@ -73,7 +84,7 @@ export function createInspector(app) {
         ['Page', page.name],
         ['Frame id', frame.id],
       ]),
-      h('div', { class: 'ws-geometry' }, number('X', 'x'), number('Y', 'y'), number('Width', 'width', 1), number('Height', 'height', 1)),
+      h('div', { class: 'ws-geometry' }, number(frame, 'X', 'x'), number(frame, 'Y', 'y'), number(frame, 'Width', 'width', 1), number(frame, 'Height', 'height', 1)),
     ];
   }
 
@@ -272,10 +283,69 @@ export function createInspector(app) {
     return node ? nodeView(inspectInfo(node)) : frameView(loc);
   }
 
+  // Move mode's version of the Inspect tab: align, distribute and space the selected screens.
+  function arrangeView() {
+    const ids = app.selectedIds();
+    const n = ids.length;
+    if (!n) {
+      return [
+        hint('Select a screen to arrange it. Shift-click screens or Shift-drag on the canvas to select several; Ctrl/Cmd+A selects them all.'),
+        h('button', { type: 'button', 'data-f': 'arrange-all', disabled: !app.canvasPage()?.frames.length, onclick: () => app.selectAll() }, 'Select all screens'),
+      ];
+    }
+    const button = ([op, name, label, keys], off) => h('button', {
+      type: 'button',
+      'aria-label': keys ? `${label} (${keys})` : label,
+      title: keys ? `${label} (${keys})` : label,
+      'data-f': `arrange-${op}`,
+      disabled: off,
+      onpointerenter: () => app.canvas.preview(arrangeRects(app.canvas.rects(), op, gap)),
+      onfocus: () => app.canvas.preview(arrangeRects(app.canvas.rects(), op, gap)),
+      onpointerleave: () => app.canvas.preview(null),
+      onblur: () => app.canvas.preview(null),
+      onclick: () => app.canvas.arrange(op, gap),
+    }, icon(name));
+    const group = (list, off) => h('div', { class: 'ws-arrange-group', role: 'group' }, ...list.map((item) => button(item, off)));
+    const title = (text) => h('h4', { class: 'ws-arrange-title' }, text);
+    const rects = app.canvas.rects();
+    const x = Math.min(...rects.map((r) => r.x));
+    const y = Math.min(...rects.map((r) => r.y));
+    // Shifts every selected screen by the change of the group's corner, read fresh on each input event.
+    const field = (label, axis, from) => h('label', {}, h('span', {}, label), h('input', {
+      type: 'number', step: 1, value: from, 'data-f': `group-${axis}`,
+      oninput: (e) => {
+        if (!Number.isFinite(e.target.valueAsNumber)) return;
+        const now = Math.min(...app.canvas.rects().map((r) => r[axis]));
+        const d = Math.round(e.target.valueAsNumber) - now;
+        app.canvas.nudge(axis === 'x' ? d : 0, axis === 'y' ? d : 0, true);
+      },
+    }));
+    const frame = n === 1 && app.canvasPage().frames.find((f) => f.id === ids[0]);
+    return [
+      h('h3', {}, frame ? app.frameName(frame) : `${n} screens`),
+      title('Align'),
+      h('div', { class: 'ws-arrange-row' }, group(ALIGN, n < 2), group(ALIGN_Y, n < 2)),
+      title('Distribute'),
+      h('div', { class: 'ws-arrange-row' }, group(DISTRIBUTE, n < 3)),
+      title('Spacing'),
+      h('div', { class: 'ws-arrange-row' },
+        h('label', { class: 'ws-arrange-gap' }, h('span', {}, 'Gap'), h('input', {
+          type: 'number', step: 1, value: gap, 'data-f': 'arrange-gap',
+          oninput: (e) => { if (Number.isFinite(e.target.valueAsNumber)) gap = Math.round(e.target.valueAsNumber); },
+        }), h('span', { class: 'ws-unit' }, 'px')),
+        group(GAPS, n < 2)),
+      title('Position'),
+      h('div', { class: 'ws-geometry' }, ...(frame
+        ? [number(frame, 'X', 'x'), number(frame, 'Y', 'y'), number(frame, 'Width', 'width', 1), number(frame, 'Height', 'height', 1)]
+        : [field('X', 'x', x), field('Y', 'y', y)])),
+      hint('Shift-click to add or remove screens · Arrow keys nudge, Shift for 10.'),
+    ];
+  }
+
   function render() {
     const view = app.review ? app.commentsView()
       : app.canvasPage()?.shelf ? app.shelfInfo()
-        : tab === 'comments' ? app.commentsView() : tab === 'inspect' ? inspectView() : prototypeView();
+        : tab === 'comments' ? app.commentsView() : tab === 'inspect' ? (app.mode === 'move' ? arrangeView() : inspectView()) : prototypeView();
     preserveFocus(panel, () => panel.replaceChildren(...view));
   }
 

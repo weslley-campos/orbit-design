@@ -164,6 +164,29 @@ async function boot() {
     app.inspector.render();
     syncShare();
   };
+  app.readOnly = () => Boolean(app.canvasPage()?.shelf || app.canvasPage()?.readOnly);
+  // The selected screens on the canvas page; stale ids (undo, shelving, page switch) are dropped.
+  app.selectedIds = () => {
+    const frames = app.canvasPage()?.frames ?? [];
+    return app.selection ? (app.selection.frameIds ?? [app.selection.frameId]).filter((id) => frames.some((frame) => frame.id === id)) : [];
+  };
+  app.selectFrames = (ids) => {
+    if (ids.length < 2) { app.select(ids.length ? { frameId: ids[0], key: null } : null); return; }
+    app.select({ frameId: ids.at(-1), key: null, frameIds: ids });
+    if (app.mode === 'move' && app.inspector.tab() !== 'inspect') app.inspector.showTab('inspect');
+  };
+  app.toggleFrame = (frameId) => {
+    if (app.readOnly()) return;
+    const ids = app.selectedIds();
+    const next = ids.includes(frameId) ? ids.filter((id) => id !== frameId) : [...ids, frameId];
+    if (next.length > 1 && app.mode !== 'move') app.setMode('move');
+    app.selectFrames(next);
+  };
+  app.selectAll = () => {
+    const ids = (app.canvasPage()?.frames ?? []).map((frame) => frame.id);
+    if (app.mode !== 'move') app.setMode('move');
+    app.selectFrames(ids);
+  };
   // Share in the inspector header, like Figma: shares the selected screen once it is saved to the cloud.
   function syncShare() {
     const button = $('share');
@@ -184,10 +207,13 @@ async function boot() {
     button.onclick = () => action?.run();
   }
   app.setMode = (mode) => {
+    if (mode !== 'move' && app.selection?.frameIds) app.selection = { frameId: app.selection.frameId, key: null };
     app.mode = mode;
     if (mode !== 'move' && app.inspector.tab() !== mode) app.inspector.showTab(mode);
     app.canvas.setMode(mode);
     syncModes();
+    renderSidebar();
+    app.inspector.render();
   };
 
   const SHELF_NAMES = { archived: 'Archived', trash: 'Trash' };
@@ -238,6 +264,13 @@ async function boot() {
     app.change();
     app.inspector.render();
     showToast('Link removed.', { label: 'Undo', run: app.undo });
+  };
+  app.shelveMany = (ids, shelf) => {
+    for (const id of ids) shelveFrame(app.ws, id, shelf);
+    app.selection = null;
+    shelvesOpen.add(shelf);
+    app.commit();
+    showToast(`${ids.length} screens moved to ${SHELF_NAMES[shelf]}.`, { label: 'Undo', run: app.undo });
   };
   app.moveShelf = (frameId, from, to) => {
     moveShelfItem(app.ws, frameId, from, to);
@@ -389,9 +422,11 @@ async function boot() {
   app.onZoom = (zoom) => { zoomText.textContent = `${Math.round(zoom * 100)}%`; };
   function syncModes() {
     for (const key of ['move', 'inspect', 'prototype']) tools[key].setAttribute('aria-pressed', String(key === app.mode));
+    $('tab-inspect').textContent = app.mode === 'move' ? 'Arrange' : 'Inspect';
   }
   // Choosing a tab in the inspector switches the canvas to that mode too.
-  app.onTab = (name) => { if (name !== 'comments' && app.mode !== name) app.setMode(name); };
+  // In Move mode the Inspect slot is the Arrange tab, so it keeps the mode.
+  app.onTab = (name) => { if (name !== 'comments' && app.mode !== name && !(name === 'inspect' && app.mode === 'move')) app.setMode(name); };
   function syncToolbar() {
     const { palette, mode, language, device = 'ios' } = app.ws.settings;
     const label = (key, text) => { tools[key].title = text; tools[key].setAttribute('aria-label', text); };
@@ -510,6 +545,7 @@ async function boot() {
     preserveFocus(left, () => {
       const { ws } = app;
       const page = app.page();
+      const selectedIds = app.selectedIds();
       const swap = (index, offset) => {
         [ws.pages[index], ws.pages[index + offset]] = [ws.pages[index + offset], ws.pages[index]];
         app.commit();
@@ -540,11 +576,11 @@ async function boot() {
         page && !page.frames.length ? h('p', { class: 'ws-hint' }, 'This page has no frames.') : null,
         page && h('ul', { class: 'ws-rows' }, ...page.frames.map((frame) => {
           const name = app.frameName(frame);
-          const selected = app.selection?.frameId === frame.id;
+          const selected = selectedIds.includes(frame.id);
           return h('li', { class: selected ? 'ws-row is-selected' : 'ws-row' },
             h('button', {
               class: 'ws-row-main', 'data-f': `frame-${frame.id}`, 'aria-current': selected ? 'true' : null,
-              onclick: () => { if (app.shelfView) { app.shelfView = null; app.selection = { frameId: frame.id, key: null }; app.refresh(); } else app.select({ frameId: frame.id, key: null }); },
+              onclick: (e) => { if (!app.shelfView && (e.shiftKey || e.metaKey || e.ctrlKey)) app.toggleFrame(frame.id); else if (app.shelfView) { app.shelfView = null; app.selection = { frameId: frame.id, key: null }; app.refresh(); } else app.select({ frameId: frame.id, key: null }); },
             }, h('span', { class: 'ws-glyph', 'aria-hidden': 'true' }), h('span', { class: 'ws-row-name' }, name),
             entryMap.get(frame.catalogId)?.status === 'proposed' ? h('span', { class: 'ws-tag' }, 'proposed') : null),
             moreButton(`Actions for frame ${name}`, `frame-more-${frame.id}`, [
@@ -649,6 +685,12 @@ async function boot() {
   document.addEventListener('keydown', (e) => {
     if (e.defaultPrevented || !(e.ctrlKey || e.metaKey) || e.altKey || e.target.closest?.('input, textarea, select, [contenteditable], dialog')) return;
     const key = e.key.toLowerCase();
+    if (key === 'a' && !e.shiftKey) {
+      if (app.review || app.readOnly() || !app.canvasPage()?.frames.length) return;
+      e.preventDefault();
+      app.selectAll();
+      return;
+    }
     const direction = key === 'z' ? (e.shiftKey ? 'redo' : 'undo') : key === 'y' && !e.shiftKey ? 'redo' : null;
     if (!direction) return;
     e.preventDefault();
@@ -658,12 +700,18 @@ async function boot() {
     if (e.defaultPrevented || e.ctrlKey || e.metaKey || e.altKey || e.target.closest?.('input, textarea, select, [contenteditable], dialog')) return;
     if (e.key === 'Escape' && (app.canvas.endLink() || app.closeShelf())) { e.preventDefault(); return; }
     if (app.review) return;
+    const inMenu = e.target.closest?.('[role="menu"]');
+    if (e.key === 'Escape' && app.selection && !inMenu) { e.preventDefault(); app.select(null); return; }
+    const step = e.shiftKey ? 10 : 1;
+    const delta = app.mode === 'move' && { ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, -step], ArrowDown: [0, step] }[e.key];
+    if (delta && app.canvas.nudge(...delta)) { e.preventDefault(); return; }
     const mode = !e.shiftKey && { v: 'inspect', h: 'move', p: 'prototype' }[e.key.toLowerCase()];
     if (mode) { e.preventDefault(); app.setMode(mode); return; }
-    const frameId = app.selection?.frameId;
-    if ((e.key === 'Delete' || e.key === 'Backspace') && frameId && app.locate(frameId) && !e.target.closest?.('[role="menu"]')) {
+    const ids = app.readOnly() ? [] : app.selectedIds();
+    if ((e.key === 'Delete' || e.key === 'Backspace') && ids.length && !inMenu) {
       e.preventDefault();
-      app.shelve(frameId, 'trash');
+      if (ids.length > 1) app.shelveMany(ids, 'trash');
+      else app.shelve(ids[0], 'trash');
       return;
     }
     const run = { '+': app.canvas.zoomIn, '=': app.canvas.zoomIn, '-': app.canvas.zoomOut, ')': app.canvas.zoomReset, '!': app.canvas.fit }[e.key]
@@ -671,6 +719,16 @@ async function boot() {
     if (!run) return;
     e.preventDefault();
     run();
+  });
+  // Move mode with 2+ screens selected: Alt (Option) aligns, Alt+Shift+H/V distributes; e.code ignores the macOS Option characters.
+  const ALIGN = { KeyA: 'left', KeyD: 'right', KeyH: 'centerX', KeyW: 'top', KeyS: 'bottom', KeyV: 'centerY' };
+  const DISTRIBUTE = { KeyH: 'spaceX', KeyV: 'spaceY' };
+  document.addEventListener('keydown', (e) => {
+    if (e.defaultPrevented || !e.altKey || e.ctrlKey || e.metaKey || app.review || app.mode !== 'move' || app.readOnly() || e.target.closest?.('input, textarea, select, [contenteditable], dialog')) return;
+    const op = (e.shiftKey ? DISTRIBUTE : ALIGN)[e.code];
+    if (!op || app.selectedIds().length < 2) return;
+    e.preventDefault();
+    app.canvas.arrange(op);
   });
 
   const PANELS_KEY = 'orbit.design.panels';
