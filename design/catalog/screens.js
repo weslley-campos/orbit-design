@@ -2263,8 +2263,6 @@ const profile = frame('profile', 'Profile', { status: 'proposed', spec: PROFILE_
       ctx.node({
         key: 'email-row',
         styles: ['Family/row'],
-        hotspot: true,
-        attrs: { role: 'button', tabindex: 0 },
         children: [
           neutralBadge(ctx, 'email-row/badge', 'mail'),
           ctx.node({
@@ -2276,7 +2274,6 @@ const profile = frame('profile', 'Profile', { status: 'proposed', spec: PROFILE_
             ],
           }),
           status(ctx, 'email-row/verified', 'circle_check', 'colors.text.success', 'profile_verified'),
-          chevron(ctx, 'email-row'),
         ],
       }),
       HorizontalDivider(ctx, { key: 'personal/divider-3' }),

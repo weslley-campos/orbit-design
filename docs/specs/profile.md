@@ -24,7 +24,7 @@ Status: Draft
 ## 3. Required behavior
 - R1: Profile is pushed from Settings and hides the navigation bar. Back returns to Settings.
 - R2: The avatar shows the photo, or the first initial when there is none. The camera button opens the photo sheet.
-- R3: Each personal information row shows its label and current value and opens its edit screen. An empty phone shows "Add a phone number" in the brand color. The email shows Verified once confirmed.
+- R3: Each personal information row shows its label and current value. Rows that can be edited open their edit sheet and end in a chevron. The email is the account's sign-in address, so its row shows Verified once confirmed and has no chevron and no action. An empty phone shows "Add a phone number" in the brand color.
 - R4: "Name family members see" is the short name shown next to your expenses in shared lists, like "Transport · Today · Marina" on Home.
 - R5: Your family shows its members' avatars, who created it and pending invites, and opens Family members.
 - R6: Sign-in lists the password with when it last changed, and each linked provider. Google shows Connect when it is not linked.
