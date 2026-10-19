@@ -2656,7 +2656,7 @@ const walletCard = frame('wallet-card', 'Wallet · Card', { status: 'proposed', 
 });
 
 const SORTS = [['manual', 'grip_vertical'], ['bill', 'trending_up'], ['due', 'calendar_days'], ['name', 'arrow_up_down']];
-const walletSort = sheetFrame('wallet-sort', 'Wallet · Sort', WALLET_SPEC, wallet, 'sort-sheet', 'wallet_sort', (ctx) => [
+const walletSortSheet = sheetFrame('wallet-sort', 'Wallet · Sort', WALLET_SPEC, wallet, 'sort-sheet', 'wallet_sort', (ctx) => [
   ctx.node({
     key: 'sort-header',
     styles: ['Home/spread'],
@@ -2683,13 +2683,10 @@ const walletSort = sheetFrame('wallet-sort', 'Wallet · Sort', WALLET_SPEC, wall
 ]);
 
 // Reordering: Bradesco is being dragged above Amazon.
-const editRow = (ctx, c, dragging = false) => ctx.node({
+const sortRow = (ctx, c, dragging = false) => ctx.node({
   key: `edit-${c.key}`,
   styles: ['Family/row', dragging && 'Wallet/dragging'],
   children: [
-    OrbitIconButton(ctx, { key: `edit-${c.key}/remove`, hotspot: true, contentDescription: ctx.t('wallet_remove_card', c.name) }, [
-      icon(ctx, `edit-${c.key}/remove/icon`, 'circle_minus', 'medium', 'colors.text.error'),
-    ]),
     thumb(ctx, `edit-${c.key}/thumb`, c),
     cardInfo(ctx, `edit-${c.key}`, c, { textKey: 'wallet_number', textArgs: [c.network, c.last4] }),
     ctx.node({
@@ -2698,16 +2695,15 @@ const editRow = (ctx, c, dragging = false) => ctx.node({
     }),
   ],
 });
-const walletEdit = frame('wallet-edit', 'Wallet · Edit cards', { status: 'proposed', spec: WALLET_SPEC }, (ctx) => screenFrame(ctx, [
+const walletSort = frame('wallet-edit', 'Wallet · Sort cards', { status: 'proposed', spec: WALLET_SPEC }, (ctx) => screenFrame(ctx, [
   content(ctx, [
-    ...header(ctx, 'wallet_edit_title', 'wallet_edit_guidance'),
+    ...header(ctx, 'wallet_sort', 'wallet_sort_guidance'),
     OrbitCard(ctx, { key: 'cards', variant: 'Base', styles: ['Charts/card'] }, [
-      editRow(ctx, card('azul')),
-      HorizontalDivider(ctx, { key: 'cards/divider-1' }),
-      editRow(ctx, card('bradesco'), true),
-      editRow(ctx, card('amazon')),
+      sortRow(ctx, card('azul')),
+      sortRow(ctx, card('bradesco'), true),
+      sortRow(ctx, card('amazon')),
       HorizontalDivider(ctx, { key: 'cards/divider-3' }),
-      editRow(ctx, card('amex')),
+      sortRow(ctx, card('amex')),
     ]),
     ctx.node({ key: 'spacer', styles: ['Screen/grow'] }),
     actions(ctx, [
@@ -4027,8 +4023,8 @@ export const frames = [
   chartsCategory,
   wallet,
   walletCard,
+  walletSortSheet,
   walletSort,
-  walletEdit,
   walletAdd,
   walletRemove,
   walletCardEdit,

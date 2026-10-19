@@ -4,7 +4,7 @@ Status: Draft
 
 ## 1. Outcome
 - User: anyone whose cards come from the bank through Open Finance.
-- Problem: an imported card keeps the bank's raw name (e.g. "MASTERCARD BLACK PTS") and a card Orbit draws, so cards in Wallet are hard to tell apart. Edit cards only reorders and removes them.
+- Problem: an imported card keeps the bank's raw name (e.g. "MASTERCARD BLACK PTS") and a card Orbit draws, so cards in Wallet are hard to tell apart. Sort cards only reorders them.
 - Desired result: an Edit card screen where the user renames a card and chooses its image or a color, or lets the image follow the name, and saves them to orbit-api.
 
 ## 2. Scope
@@ -15,8 +15,8 @@ Status: Draft
   - `screens/wallet-card-edit-color`: the Card color sheet, with nine colors.
   - `screens/wallet-card-edit-saving`: Save with a spinner while orbit-api saves.
   - `screens/wallet-card-edit-failed`: the save failed; the changes stay, with an Error snackbar.
-  - Prototype links: Edit on Wallet · Card → Edit card (it used to open Edit cards); back → Wallet · Card; Save (Edit card, Chosen color, Couldn't save) → Wallet · Card; the name field (From the bank) → Edit card; Color (Edit card, Chosen color) → Card color; Azure → Chosen color; close → Edit card; Match the name and Azul Itaú (Chosen color) → Edit card.
-- Excluded: uploading a photo of the card, a color of the user's own (hex or a color wheel), editing the number, limit, network or dates, editing manual cards, reordering and removing (Edit cards, [wallet.md](wallet.md)), production app and orbit-api changes (the contract below is a proposal).
+  - Prototype links: Edit on Wallet · Card → Edit card (it used to open Sort cards); back → Wallet · Card; Save (Edit card, Chosen color, Couldn't save) → Wallet · Card; the name field (From the bank) → Edit card; Color (Edit card, Chosen color) → Card color; Azure → Chosen color; close → Edit card; Match the name and Azul Itaú (Chosen color) → Edit card.
+- Excluded: uploading a photo of the card, a color of the user's own (hex or a color wheel), editing the number, limit, network or dates, editing manual cards, reordering (Sort cards, [wallet.md](wallet.md)) and removing (Remove on Wallet · Card), production app and orbit-api changes (the contract below is a proposal).
 - Design: `screens/wallet-card` → `screens/wallet-card-edit`, `screens/wallet-card-edit-imported`, `screens/wallet-card-edit-chosen`, `screens/wallet-card-edit-color`, `screens/wallet-card-edit-saving`, `screens/wallet-card-edit-failed`.
 
 ## 3. Required behavior

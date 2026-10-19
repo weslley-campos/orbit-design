@@ -15,7 +15,7 @@ Status: Draft
     - Edit (opens Edit card, [card-edit.md](card-edit.md)) and Remove, and recent transactions;
     - the other cards waiting in a short deck above the bar.
   - `screens/wallet-sort`: a sheet with Manual, Highest bill first, Next due date and A–Z (the selected one has a check), plus Edit order.
-  - `screens/wallet-edit`: reorder by dragging a handle (one card is mid-drag), remove from each row, and Add card.
+  - `screens/wallet-edit`: Sort cards, reordering by dragging a handle (one card is mid-drag), and Add card.
   - `screens/wallet-add`: import from the bank through Pluggy, or a manual form (name, last 4 digits, optional limit, network, closing and due days) with a live card preview.
   - `screens/wallet-remove`: confirmation that a card's expenses stay in history.
   - Prototype links among all six, the Wallet tab from Home, Charts and Settings, and Import → Connectors.
@@ -26,7 +26,7 @@ Status: Draft
 - R1: The Wallet tab opens Wallet with Wallet selected. Each card behind the last shows a 64dp strip, and the last card is shown whole.
 - R2: Tapping a card opens it on top. The bill shows its closing and due dates, the limit used as a bar, and the amount available; in use counts future installments, so it is more than the bill. Back or the deck returns to the stack. An Open bills row opens that account's bill ([bill.md](bill.md)).
 - R3: Sort offers Manual, Highest bill first, Next due date and A–Z. Choosing one closes the sheet and reorders both the stack and Open bills. The header of Open bills names the current order and opens the sheet.
-- R4: Edit order lists the cards with a remove button and a drag handle. Dragging lifts the row and changes the Manual order. Done returns to Wallet.
+- R4: Edit order opens Sort cards, which lists the cards with a drag handle. Dragging lifts the row and changes the Manual order. Done returns to Wallet.
 - R5: Add card offers Import from your bank first (opens Connectors). The manual form never asks for the full card number or the security code, and the preview shows the typed name, last 4 digits and network.
 - R6: Removing a card asks for confirmation and says its expenses stay in history. Cancel returns to the card.
 - R7: Palette, light/dark mode and English/Portuguese apply to all six frames, and no text is clipped at 402 × 874.
@@ -35,12 +35,13 @@ Status: Draft
 - Reuse `OrbitCard`, `OrbitButton`, `OrbitIconButton`, `OrbitBottomSheet`, `OrbitFilterChip`, `OrbitOutlineTextField`, `OrbitLinearProgressIndicator`, `OrbitNavigationBar`, the Settings rows and the Home expense rows.
 - Card art (`assets/proposed/cards/*.jpg`) is artwork the product owner supplied, cropped to the 1.586 card ratio. It belongs to its issuers and is used only as sample data. The app would use the issuer's image from Pluggy, or a generated card like the Add card preview.
 - New literals are proposals: the 64dp stack strip (-169dp overlap), the deck strips, the 1dp card edge (keeps the white Amazon card visible on light surfaces) and the preview width. New icons are Lucide proposals (`ic_arrow_up_down`, `ic_grip_vertical`, `ic_circle_minus`, `ic_pencil`, `ic_check`).
+- Sort cards keeps the catalog id `screens/wallet-edit`, so saved drafts and cloud copies still load.
 
 ## 6. Acceptance criteria
 - [x] R1 · manual — Given Home in Play, when Wallet in the bar is activated, then four stacked cards show with Amex Green whole and "4 cards · R$ 4.812,40 in open bills".
 - [x] R2 · manual — Given Wallet in Play, when the Azul Itaú card is activated, then it opens with R$ 2.140,20, "Closes Oct 12 · due Oct 20" and four transactions; the deck returns to Wallet.
 - [x] R3 · manual — Given Wallet in Play, when Sort is activated, then the sheet shows four orders with Manual checked.
-- [x] R4 · manual — Given the sort sheet, when Edit order is activated, then Edit cards shows Bradesco Diners lifted mid-drag.
+- [x] R4 · manual — Given the sort sheet, when Edit order is activated, then Sort cards shows Bradesco Diners lifted mid-drag.
 - [x] R5 · manual — Given Add card, when inspected, then Import from your bank comes first and the preview reads "Nubank Ultravioleta •••• 6620 Mastercard".
 - [x] R6 · manual — Given a card, when Remove is activated, then "Remove Azul Itaú?" asks for confirmation.
 - [x] R7 · manual — Given Flamingo light and dark in English and Portuguese, when each frame is viewed at 402 × 874, then no text is clipped.
