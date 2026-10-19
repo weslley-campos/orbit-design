@@ -1,6 +1,6 @@
 import {
   AnimatedOrbitLogo, Checkbox, CodeField, HorizontalDivider, OrbitBottomSheet, OrbitButton, OrbitCard, OrbitFilterChip, OrbitIconButton,
-  OrbitLinearProgressIndicator, OrbitNavigationBar, OrbitOutlineTextField, OrbitScaffold, OrbitTopAppBar,
+  OrbitLinearProgressIndicator, OrbitNavigationBar, OrbitOutlineTextField, OrbitScaffold, OrbitSnackbar, OrbitTopAppBar,
 } from './components.js';
 
 const AUTH = 'feature/auth/src/commonMain/kotlin/br/com/weslleycampos/orbit/feature/auth';
@@ -2808,10 +2808,12 @@ const walletRemove = sheetFrame('wallet-remove', 'Wallet · Remove card', WALLET
     ]),
   ]);
 
-// Edit card: the bank keeps the number, limit and dates; the name and image are the user's, and apply on leaving, like
-// Card sync. With Match the name on, the image follows the name as it is typed: the design that matches it, else a card
-// Orbit draws with the name. Choosing an image turns matching off. An empty name uses the bank's, shown as placeholder.
-// The art is the Wallet sample art; Orbit and Dark are drawn cards.
+// Edit card: the bank keeps the number, limit and dates; the name and image are the user's. Save sends them to orbit-api
+// and is off until something changes; Back without saving drops the changes. With Match the name on, the image follows
+// the name as it is typed: the design that matches it, else a card Orbit draws with the name. Choosing an image turns
+// matching off. An empty name uses the bank's, shown as placeholder. The art is the Wallet sample art; Orbit is a drawn
+// card. Color opens a sheet of fixed card colors (the eight palettes' primaries and Black, the same in every theme), for a
+// card with no image or a user who'd rather have a color; picking one draws the card in it and turns matching off.
 const CARD_EDIT_SPEC = 'docs/specs/card-edit.md';
 const BANK_CARD_NAME = 'MASTERCARD BLACK PTS';
 const DESIGNS = [
@@ -2820,30 +2822,42 @@ const DESIGNS = [
   { key: 'diners', name: 'Diners Club', art: 'bradesco-diners' },
   { key: 'amex', name: 'Amex Green', art: 'amex-green' },
   { key: 'orbit', nameKey: 'card_edit_design_orbit', styles: ['Wallet/generated'] },
-  { key: 'dark', nameKey: 'card_edit_design_dark', styles: ['Wallet/generatedDark'] },
+  { key: 'color', nameKey: 'card_edit_design_color' },
 ];
-const designTile = (ctx, d, selected) => ctx.node({
-  key: `design-${d.key}`,
+const CARD_COLORS = [...PALETTES, 'black'];
+const cardColorName = (color) => (color === 'black' ? 'card_edit_color_black' : `settings_palette_${color}`);
+// A card-shaped tile with its name below, for an image (design-*) or a card color (color-*).
+const cardTile = (ctx, key, { styles = [], art, glyph, nameContent, selected }) => ctx.node({
+  key,
   styles: ['Wallet/design'],
   hotspot: true,
   attrs: { role: 'radio', 'aria-checked': String(selected), tabindex: 0 },
   children: [
     ctx.node({
-      key: `design-${d.key}/card`,
-      styles: ['Wallet/card', 'Wallet/tile', ...(d.styles ?? []), selected && 'Wallet/designSelected'],
+      key: `${key}/card`,
+      styles: ['Wallet/card', 'Wallet/tile', ...styles, glyph && 'Wallet/colorEmpty', selected && 'Wallet/designSelected'],
       children: [
-        d.art && ctx.node({ key: `design-${d.key}/art`, tag: 'img', styles: ['Wallet/art'], attrs: { src: `assets/proposed/cards/${d.art}.jpg`, alt: '', draggable: 'false' } }),
+        art && ctx.node({ key: `${key}/art`, tag: 'img', styles: ['Wallet/art'], attrs: { src: `assets/proposed/cards/${art}.jpg`, alt: '', draggable: 'false' } }),
+        glyph && icon(ctx, `${key}/glyph`, glyph, 'large', 'colors.text.secondary'),
         selected && ctx.node({
-          key: `design-${d.key}/check`,
+          key: `${key}/check`,
           styles: ['Wallet/designCheck'],
-          children: [icon(ctx, `design-${d.key}/check/icon`, 'check', 'xSmall', 'colors.text.onBrand')],
+          children: [icon(ctx, `${key}/check/icon`, 'check', 'xSmall', 'colors.text.onBrand')],
         }),
       ],
     }),
-    text(ctx, `design-${d.key}/name`, 'Settings/paletteName', d.nameKey ? { textKey: d.nameKey } : { text: d.name }, clipped('Settings/paletteName')),
+    text(ctx, `${key}/name`, 'Settings/paletteName', nameContent, clipped('Settings/paletteName')),
   ],
 });
-const cardEditFrame = (id, name, { value, design, match, note }) => frame(id, name, { status: 'proposed', spec: CARD_EDIT_SPEC }, (ctx) => {
+// The Color tile shows the picked color, or the palette icon until one is picked.
+const designTile = (ctx, d, selected, color) => cardTile(ctx, `design-${d.key}`, {
+  styles: d.key === 'color' && color ? [`Wallet/color/${color}`] : d.styles,
+  art: d.art,
+  glyph: d.key === 'color' && !color ? 'palette' : null,
+  nameContent: d.nameKey ? { textKey: d.nameKey } : { text: d.name },
+  selected,
+});
+const cardEditFrame = (id, name, { value, design, color, match, note, save = 'enabled', failed = false }) => frame(id, name, { status: 'proposed', spec: CARD_EDIT_SPEC }, (ctx) => {
   const c = card('azul');
   const d = DESIGNS.find((option) => option.key === design);
   return screenFrame(ctx, [
@@ -2851,8 +2865,8 @@ const cardEditFrame = (id, name, { value, design, match, note }) => frame(id, na
       ...header(ctx, 'card_edit_title', 'card_edit_guidance'),
       d.art
         ? cardArt(ctx, 'preview', { art: d.art, name: value }, ['Wallet/raised', 'Wallet/previewArt'])
-        : generatedCard(ctx, 'preview', { name: value, last4: c.last4, network: c.network }, d.key === 'dark' ? ['Wallet/generatedDark'] : []),
-      gap(ctx, 'gap-preview', 'spacing.medium'),
+        : generatedCard(ctx, 'preview', { name: value, last4: c.last4, network: c.network }, ['Wallet/previewArt', color && `Wallet/color/${color}`]),
+      gap(ctx, 'gap-preview', 'spacing.small'),
       ...field(ctx, 'card-name', 'wallet_name_label', {
         value,
         placeholder: BANK_CARD_NAME,
@@ -2885,23 +2899,72 @@ const cardEditFrame = (id, name, { value, design, match, note }) => frame(id, na
         children: [DESIGNS.slice(0, 3), DESIGNS.slice(3)].map((row, i) => ctx.node({
           key: `designs-row-${i}`,
           styles: ['Home/gridRow'],
-          children: row.map((option) => designTile(ctx, option, option === d)),
+          children: row.map((option) => designTile(ctx, option, option === d, color)),
         })),
       }),
       gap(ctx, 'gap-designs', 'spacing.small'),
       text(ctx, 'image-note', 'Screen/tertiary', note),
+      gap(ctx, 'gap-note', 'spacing.small'),
+      ctx.node({ key: 'spacer', styles: ['Screen/grow'] }),
+      actions(ctx, [
+        OrbitButton(ctx, { key: 'save', enabled: save !== 'disabled', loading: save === 'loading', hotspot: true, styles: ['Screen/fill'] }, [
+          label(ctx, 'save/label', { textKey: 'card_edit_save' }),
+        ]),
+      ]),
     ]),
+    failed && OrbitSnackbar(ctx, {
+      key: 'save-error',
+      type: 'Error',
+      titleKey: 'card_edit_error_title',
+      textKey: 'card_edit_error_body',
+      styles: ['Wallet/saveError'],
+      attrs: { role: 'alert' },
+    }),
   ]);
 });
 const walletCardEdit = cardEditFrame('wallet-card-edit', 'Wallet · Edit card', {
   value: 'Azul Itaú', design: 'azul', match: true, note: { textKey: 'card_edit_note_match', textArgs: ['Azul Itaú'] },
 });
 const walletCardEditImported = cardEditFrame('wallet-card-edit-imported', 'Wallet · Edit card · From the bank', {
-  value: BANK_CARD_NAME, design: 'orbit', match: true, note: { textKey: 'card_edit_note_none' },
+  value: BANK_CARD_NAME, design: 'orbit', match: true, note: { textKey: 'card_edit_note_none' }, save: 'disabled',
 });
-const walletCardEditChosen = cardEditFrame('wallet-card-edit-chosen', 'Wallet · Edit card · Chosen image', {
-  value: 'Azul Itaú', design: 'dark', match: false, note: { textKey: 'card_edit_note_chosen' },
+const walletCardEditChosen = cardEditFrame('wallet-card-edit-chosen', 'Wallet · Edit card · Chosen color', {
+  value: 'Azul Itaú', design: 'color', color: 'azure', match: false, note: { textKey: 'card_edit_note_color' },
 });
+const walletCardEditSaving = cardEditFrame('wallet-card-edit-saving', 'Wallet · Edit card · Saving', {
+  value: 'Azul Itaú', design: 'azul', match: true, note: { textKey: 'card_edit_note_match', textArgs: ['Azul Itaú'] }, save: 'loading',
+});
+const walletCardEditFailed = cardEditFrame('wallet-card-edit-failed', 'Wallet · Edit card · Couldn’t save', {
+  value: 'Azul Itaú', design: 'azul', match: true, note: { textKey: 'card_edit_note_match', textArgs: ['Azul Itaú'] }, failed: true,
+});
+// Opened from the Color tile. Tapping a color picks it and closes the sheet; nothing is picked yet over Edit card.
+const walletCardEditColor = sheetFrame('wallet-card-edit-color', 'Wallet · Edit card · Color', CARD_EDIT_SPEC, walletCardEdit, 'color-sheet', 'card_edit_color_title', (ctx) => [
+  ctx.node({
+    key: 'color-header',
+    styles: ['Home/spread'],
+    children: [
+      text(ctx, 'color-title', 'SignIn/title', { textKey: 'card_edit_color_title' }),
+      OrbitIconButton(ctx, { key: 'color-close', hotspot: true, contentDescription: ctx.t('home_picker_close') }, [
+        icon(ctx, 'color-close/icon', 'x', 'medium', 'colors.text.secondary'),
+      ]),
+    ],
+  }),
+  gap(ctx, 'color-gap-title', 'spacing.xxSmall'),
+  text(ctx, 'color-guidance', 'Screen/guidance', { textKey: 'card_edit_color_guidance' }),
+  gap(ctx, 'color-gap-guidance', 'spacing.medium'),
+  ctx.node({
+    key: 'colors',
+    styles: ['Wallet/designs'],
+    attrs: { role: 'radiogroup', 'aria-label': ctx.t('card_edit_color_title') },
+    children: [0, 3, 6].map((start) => ctx.node({
+      key: `colors-row-${start / 3}`,
+      styles: ['Home/gridRow'],
+      children: CARD_COLORS.slice(start, start + 3).map((option) => cardTile(ctx, `color-${option}`, {
+        styles: [`Wallet/color/${option}`], nameContent: { textKey: cardColorName(option) }, selected: false,
+      })),
+    })),
+  }),
+]);
 
 // Transactions: one list for a day, week, month or year. The period picks the grouping: by time for a day, by day for a week
 // or month, by month for a year. Search and the filter chips keep applying when the period changes.
@@ -3971,6 +4034,9 @@ export const frames = [
   walletCardEdit,
   walletCardEditImported,
   walletCardEditChosen,
+  walletCardEditSaving,
+  walletCardEditFailed,
+  walletCardEditColor,
   walletBillJuly,
   walletBillAugust,
   walletBillSeptember,

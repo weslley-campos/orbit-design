@@ -3554,8 +3554,8 @@
     "Wallet/previewArt": {
       "bind": {
         "width": {
-          "literal": "220dp",
-          "proposal": "same width as the Add card preview"
+          "literal": "180dp",
+          "proposal": "Edit card preview; smaller than the 220dp Add card preview so Save fits on the screen"
         }
       },
       "css": {
@@ -3569,17 +3569,89 @@
         }
       }
     },
-    "Wallet/generatedDark": {
+    "Wallet/color/spruce": {
       "bind": {
         "background": {
-          "token": "colors.brand.ink"
+          "literal": "#0E6E5C",
+          "proposal": "card color: the Spruce palette's light primary, the same in every theme"
         }
+      }
+    },
+    "Wallet/color/indigo": {
+      "bind": {
+        "background": {
+          "literal": "#3A4FC4",
+          "proposal": "card color: the Indigo palette's light primary, the same in every theme"
+        }
+      }
+    },
+    "Wallet/color/plum": {
+      "bind": {
+        "background": {
+          "literal": "#6D3FF0",
+          "proposal": "card color: the Plum palette's light primary, the same in every theme"
+        }
+      }
+    },
+    "Wallet/color/orchid": {
+      "bind": {
+        "background": {
+          "literal": "#6A4C93",
+          "proposal": "card color: the Orchid palette's light primary, the same in every theme"
+        }
+      }
+    },
+    "Wallet/color/flamingo": {
+      "bind": {
+        "background": {
+          "literal": "#C0396B",
+          "proposal": "card color: the Flamingo palette's light primary, the same in every theme"
+        }
+      }
+    },
+    "Wallet/color/azure": {
+      "bind": {
+        "background": {
+          "literal": "#0F6FA8",
+          "proposal": "card color: the Azure palette's light primary, the same in every theme"
+        }
+      }
+    },
+    "Wallet/color/ember": {
+      "bind": {
+        "background": {
+          "literal": "#B4501E",
+          "proposal": "card color: the Ember palette's light primary, the same in every theme"
+        }
+      }
+    },
+    "Wallet/color/graphite": {
+      "bind": {
+        "background": {
+          "literal": "#2E4A5E",
+          "proposal": "card color: the Graphite palette's light primary, the same in every theme"
+        }
+      }
+    },
+    "Wallet/color/black": {
+      "bind": {
+        "background": {
+          "literal": "#18181B",
+          "proposal": "card color: black, for black cards"
+        }
+      }
+    },
+    "Wallet/colorEmpty": {
+      "css": {
+        "display": "flex",
+        "align-items": "center",
+        "justify-content": "center"
       }
     },
     "Wallet/designs": {
       "bind": {
         "gap": {
-          "token": "spacing.small"
+          "token": "spacing.xSmall"
         }
       },
       "css": {
@@ -3662,6 +3734,23 @@
         "display": "flex",
         "align-items": "center",
         "justify-content": "center"
+      }
+    },
+    "Wallet/saveError": {
+      "bind": {
+        "left": {
+          "token": "spacing.medium"
+        },
+        "right": {
+          "token": "spacing.medium"
+        },
+        "bottom": {
+          "literal": "88dp",
+          "proposal": "snackbar above Save: the 48dp button, a 16dp gap and the 24dp screen padding"
+        }
+      },
+      "css": {
+        "position": "absolute"
       }
     },
     "Icon/sliders_horizontal": {

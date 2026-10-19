@@ -586,6 +586,30 @@
           "height": 874
         },
         {
+          "id": "mobile-wallet-card-edit-saving",
+          "catalogId": "screens/wallet-card-edit-saving",
+          "x": 11264,
+          "y": 3864,
+          "width": 402,
+          "height": 874
+        },
+        {
+          "id": "mobile-wallet-card-edit-failed",
+          "catalogId": "screens/wallet-card-edit-failed",
+          "x": 11776,
+          "y": 3864,
+          "width": 402,
+          "height": 874
+        },
+        {
+          "id": "mobile-wallet-card-edit-color",
+          "catalogId": "screens/wallet-card-edit-color",
+          "x": 12288,
+          "y": 3864,
+          "width": 402,
+          "height": 874
+        },
+        {
           "id": "mobile-wallet-bill-closed",
           "catalogId": "screens/wallet-bill-closed",
           "x": 7680,
@@ -3105,13 +3129,46 @@
       "trigger": "click"
     },
     {
-      "id": "mobile-wallet-card-edit-design-dark",
+      "id": "mobile-wallet-card-edit-design-color",
       "from": {
         "frameId": "mobile-wallet-card-edit",
-        "hotspotId": "design-dark"
+        "hotspotId": "design-color"
+      },
+      "to": {
+        "frameId": "mobile-wallet-card-edit-color"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-card-edit-color-color-azure",
+      "from": {
+        "frameId": "mobile-wallet-card-edit-color",
+        "hotspotId": "color-azure"
       },
       "to": {
         "frameId": "mobile-wallet-card-edit-chosen"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-card-edit-color-color-close",
+      "from": {
+        "frameId": "mobile-wallet-card-edit-color",
+        "hotspotId": "color-close"
+      },
+      "to": {
+        "frameId": "mobile-wallet-card-edit"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-card-edit-chosen-design-color",
+      "from": {
+        "frameId": "mobile-wallet-card-edit-chosen",
+        "hotspotId": "design-color"
+      },
+      "to": {
+        "frameId": "mobile-wallet-card-edit-color"
       },
       "trigger": "click"
     },
@@ -3145,6 +3202,50 @@
       },
       "to": {
         "frameId": "mobile-wallet-card-edit"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-card-edit-save",
+      "from": {
+        "frameId": "mobile-wallet-card-edit",
+        "hotspotId": "save"
+      },
+      "to": {
+        "frameId": "mobile-wallet-card"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-card-edit-chosen-save",
+      "from": {
+        "frameId": "mobile-wallet-card-edit-chosen",
+        "hotspotId": "save"
+      },
+      "to": {
+        "frameId": "mobile-wallet-card"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-card-edit-failed-save",
+      "from": {
+        "frameId": "mobile-wallet-card-edit-failed",
+        "hotspotId": "save"
+      },
+      "to": {
+        "frameId": "mobile-wallet-card"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-card-edit-failed-back",
+      "from": {
+        "frameId": "mobile-wallet-card-edit-failed",
+        "hotspotId": "back"
+      },
+      "to": {
+        "frameId": "mobile-wallet-card"
       },
       "trigger": "click"
     }
