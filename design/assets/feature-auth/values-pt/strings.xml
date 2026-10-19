@@ -43,4 +43,13 @@
     <string name="email_validation_code_expired">Este código não vale mais. Peça um novo.</string>
     <string name="email_validation_send_error">Não foi possível enviar o código. Tente novamente mais tarde.</string>
     <string name="email_validation_confirm_error">Não foi possível confirmar o código. Tente novamente mais tarde.</string>
+    <string name="forgot_password_title">Recuperar senha</string>
+    <string name="forgot_password_guidance">Digite seu e-mail para receber as instruções de recuperação.</string>
+    <string name="forgot_password_send">Enviar link</string>
+    <string name="forgot_password_email_error">Digite um e-mail válido.</string>
+    <string name="forgot_password_sent_title">Verifique seu e-mail</string>
+    <string name="forgot_password_sent_guidance">Se este e-mail estiver cadastrado com uma senha, você receberá um link para redefinir sua senha.</string>
+    <string name="forgot_password_resend">Reenviar link</string>
+    <string name="forgot_password_back_to_sign_in">Voltar para o login</string>
+    <string name="forgot_password_send_error">Não foi possível enviar o link. Tente novamente mais tarde.</string>
 </resources>

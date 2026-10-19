@@ -1,12 +1,12 @@
 <resources>
-    <string name="palette_spruce">Green</string>
-    <string name="palette_indigo">Dark Blue</string>
-    <string name="palette_plum">Purple</string>
-    <string name="palette_orchid">Violet</string>
-    <string name="palette_flamingo">Pink</string>
-    <string name="palette_azure">Light Blue</string>
-    <string name="palette_ember">Amber</string>
-    <string name="palette_graphite">Gray</string>
+    <string name="palette_spruce">Spruce</string>
+    <string name="palette_indigo">Indigo</string>
+    <string name="palette_plum">Plum</string>
+    <string name="palette_orchid">Orchid</string>
+    <string name="palette_flamingo">Flamingo</string>
+    <string name="palette_azure">Azure</string>
+    <string name="palette_ember">Ember</string>
+    <string name="palette_graphite">Graphite</string>
     <string name="snackbar_close">Close</string>
     <string name="password_show">Show password</string>
     <string name="password_hide">Hide password</string>
@@ -16,6 +16,7 @@
     <string name="common_add">Add</string>
     <string name="common_wallet">Wallet</string>
     <string name="common_settings">Settings</string>
+    <string name="common_refresh">Refresh</string>
 
     <string name="add_expense_title">Add expense</string>
     <string name="add_expense_close">Close</string>
@@ -26,4 +27,5 @@
     <string name="a11y_icon_add_description">Add an expense</string>
     <string name="a11y_icon_wallet_description">Open wallet</string>
     <string name="a11y_icon_settings_description">Open settings</string>
+    <string name="a11y_icon_chevron_right_description">Open</string>
 </resources>

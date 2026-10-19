@@ -1,12 +1,12 @@
 <resources>
-    <string name="palette_spruce">Verde</string>
-    <string name="palette_indigo">Azul-escuro</string>
-    <string name="palette_plum">Roxo</string>
-    <string name="palette_orchid">Violeta</string>
-    <string name="palette_flamingo">Rosa</string>
-    <string name="palette_azure">Azul-claro</string>
-    <string name="palette_ember">Âmbar</string>
-    <string name="palette_graphite">Cinza</string>
+    <string name="palette_spruce">Pinheiro</string>
+    <string name="palette_indigo">Índigo</string>
+    <string name="palette_plum">Ameixa</string>
+    <string name="palette_orchid">Orquídea</string>
+    <string name="palette_flamingo">Flamingo</string>
+    <string name="palette_azure">Celeste</string>
+    <string name="palette_ember">Brasa</string>
+    <string name="palette_graphite">Grafite</string>
     <string name="snackbar_close">Fechar</string>
     <string name="password_show">Mostrar senha</string>
     <string name="password_hide">Ocultar senha</string>
@@ -16,6 +16,7 @@
     <string name="common_add">Adicionar</string>
     <string name="common_wallet">Carteira</string>
     <string name="common_settings">Configurações</string>
+    <string name="common_refresh">Atualizar</string>
 
     <string name="add_expense_title">Adicionar despesa</string>
     <string name="add_expense_close">Fechar</string>
@@ -26,4 +27,5 @@
     <string name="a11y_icon_add_description">Adicionar despesa</string>
     <string name="a11y_icon_wallet_description">Abrir carteira</string>
     <string name="a11y_icon_settings_description">Abrir configurações</string>
+    <string name="a11y_icon_chevron_right_description">Abrir</string>
 </resources>

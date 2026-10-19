@@ -43,4 +43,13 @@
     <string name="email_validation_code_expired">This code is no longer valid. Request a new one.</string>
     <string name="email_validation_send_error">Couldn’t send the code. Try again later.</string>
     <string name="email_validation_confirm_error">Couldn’t confirm the code. Try again later.</string>
+    <string name="forgot_password_title">Reset password</string>
+    <string name="forgot_password_guidance">Enter your email address to receive reset instructions.</string>
+    <string name="forgot_password_send">Send reset link</string>
+    <string name="forgot_password_email_error">Enter a valid email.</string>
+    <string name="forgot_password_sent_title">Check your email</string>
+    <string name="forgot_password_sent_guidance">If this email is registered with a password, you’ll receive a link to reset it.</string>
+    <string name="forgot_password_resend">Resend link</string>
+    <string name="forgot_password_back_to_sign_in">Back to sign in</string>
+    <string name="forgot_password_send_error">Couldn’t send the link. Try again later.</string>
 </resources>
