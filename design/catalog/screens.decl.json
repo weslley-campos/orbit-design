@@ -3551,6 +3551,119 @@
         "flex-shrink": "0"
       }
     },
+    "Wallet/previewArt": {
+      "bind": {
+        "width": {
+          "literal": "220dp",
+          "proposal": "same width as the Add card preview"
+        }
+      },
+      "css": {
+        "align-self": "center"
+      }
+    },
+    "Wallet/generated": {
+      "bind": {
+        "background": {
+          "token": "gradients.primary"
+        }
+      }
+    },
+    "Wallet/generatedDark": {
+      "bind": {
+        "background": {
+          "token": "colors.brand.ink"
+        }
+      }
+    },
+    "Wallet/designs": {
+      "bind": {
+        "gap": {
+          "token": "spacing.small"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "flex-direction": "column",
+        "flex-shrink": "0"
+      }
+    },
+    "Wallet/design": {
+      "bind": {
+        "gap": {
+          "token": "spacing.xxSmall"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "flex-direction": "column",
+        "align-items": "center",
+        "flex": "1",
+        "min-width": "0",
+        "cursor": "pointer"
+      }
+    },
+    "Wallet/tile": {
+      "bind": {
+        "border-radius": {
+          "token": "shapes.chip"
+        },
+        "box-shadow": {
+          "token": "elevation.flatShadow"
+        }
+      },
+      "css": {
+        "width": "100%"
+      }
+    },
+    "Wallet/designSelected": {
+      "bind": {
+        "outline": [
+          {
+            "literal": "2dp",
+            "proposal": "selected image ring, like the selected palette"
+          },
+          {
+            "token": "colors.border.primary"
+          }
+        ],
+        "outline-offset": {
+          "literal": "2dp",
+          "proposal": "gap between the card edge and the selected image ring"
+        }
+      },
+      "css": {
+        "outline-style": "solid"
+      }
+    },
+    "Wallet/designCheck": {
+      "bind": {
+        "top": {
+          "token": "spacing.xxxSmall"
+        },
+        "right": {
+          "token": "spacing.xxxSmall"
+        },
+        "width": {
+          "token": "sizes.medium"
+        },
+        "height": {
+          "token": "sizes.medium"
+        },
+        "border-radius": {
+          "token": "shapes.pill"
+        },
+        "background": {
+          "token": "colors.brand.primary"
+        }
+      },
+      "css": {
+        "position": "absolute",
+        "display": "flex",
+        "align-items": "center",
+        "justify-content": "center"
+      }
+    },
     "Icon/sliders_horizontal": {
       "bind": {
         "icon": {

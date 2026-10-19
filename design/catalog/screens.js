@@ -2722,23 +2722,25 @@ const walletEdit = frame('wallet-edit', 'Wallet · Edit cards', { status: 'propo
 
 const NETWORKS = ['Mastercard', 'Visa', 'Elo', 'Amex', null];
 const halfField = (ctx, key, labelKey, options) => ctx.node({ key: `${key}/column`, styles: ['Wallet/fieldColumn'], children: field(ctx, key, labelKey, options) });
+// A card Orbit draws itself, with the name and last 4 digits, for cards without art.
+const generatedCard = (ctx, key, { name, last4, network }, styles = []) => ctx.node({
+  key,
+  styles: ['Wallet/preview', ...styles],
+  attrs: { role: 'img', 'aria-label': name },
+  children: [
+    text(ctx, `${key}/name`, 'Wallet/previewName', { text: name }),
+    ctx.node({ key: `${key}/spacer`, styles: ['Screen/grow'] }),
+    ctx.node({
+      key: `${key}/bottom`,
+      styles: ['Home/spread'],
+      children: [text(ctx, `${key}/number`, 'Wallet/previewNumber', { text: `•••• ${last4}` }), text(ctx, `${key}/network`, 'Wallet/previewName', { text: network })],
+    }),
+  ],
+});
 const walletAdd = frame('wallet-add', 'Wallet · Add card', { status: 'proposed', spec: WALLET_SPEC }, (ctx) => screenFrame(ctx, [
   content(ctx, [
     ...header(ctx, 'wallet_add', 'wallet_add_guidance'),
-    ctx.node({
-      key: 'preview',
-      styles: ['Wallet/preview'],
-      attrs: { role: 'img', 'aria-label': 'Nubank Ultravioleta' },
-      children: [
-        text(ctx, 'preview/name', 'Wallet/previewName', { text: 'Nubank Ultravioleta' }),
-        ctx.node({ key: 'preview/spacer', styles: ['Screen/grow'] }),
-        ctx.node({
-          key: 'preview/bottom',
-          styles: ['Home/spread'],
-          children: [text(ctx, 'preview/number', 'Wallet/previewNumber', { text: '•••• 6620' }), text(ctx, 'preview/network', 'Wallet/previewName', { text: 'Mastercard' })],
-        }),
-      ],
-    }),
+    generatedCard(ctx, 'preview', { name: 'Nubank Ultravioleta', last4: '6620', network: 'Mastercard' }),
     gap(ctx, 'gap-preview', 'spacing.medium'),
     OrbitCard(ctx, { key: 'import-card', variant: 'Base', styles: ['Charts/card'] }, [
       settingsRow(ctx, 'import', 'plug', 'wallet_import', { detail: { textKey: 'wallet_import_detail' } }),
@@ -2805,6 +2807,101 @@ const walletRemove = sheetFrame('wallet-remove', 'Wallet · Remove card', WALLET
       textButton(ctx, 'remove-cancel', 'wallet_cancel'),
     ]),
   ]);
+
+// Edit card: the bank keeps the number, limit and dates; the name and image are the user's, and apply on leaving, like
+// Card sync. With Match the name on, the image follows the name as it is typed: the design that matches it, else a card
+// Orbit draws with the name. Choosing an image turns matching off. An empty name uses the bank's, shown as placeholder.
+// The art is the Wallet sample art; Orbit and Dark are drawn cards.
+const CARD_EDIT_SPEC = 'docs/specs/card-edit.md';
+const BANK_CARD_NAME = 'MASTERCARD BLACK PTS';
+const DESIGNS = [
+  { key: 'azul', name: 'Azul Itaú', art: 'azul' },
+  { key: 'amazon', name: 'Amazon', art: 'amazon' },
+  { key: 'diners', name: 'Diners Club', art: 'bradesco-diners' },
+  { key: 'amex', name: 'Amex Green', art: 'amex-green' },
+  { key: 'orbit', nameKey: 'card_edit_design_orbit', styles: ['Wallet/generated'] },
+  { key: 'dark', nameKey: 'card_edit_design_dark', styles: ['Wallet/generatedDark'] },
+];
+const designTile = (ctx, d, selected) => ctx.node({
+  key: `design-${d.key}`,
+  styles: ['Wallet/design'],
+  hotspot: true,
+  attrs: { role: 'radio', 'aria-checked': String(selected), tabindex: 0 },
+  children: [
+    ctx.node({
+      key: `design-${d.key}/card`,
+      styles: ['Wallet/card', 'Wallet/tile', ...(d.styles ?? []), selected && 'Wallet/designSelected'],
+      children: [
+        d.art && ctx.node({ key: `design-${d.key}/art`, tag: 'img', styles: ['Wallet/art'], attrs: { src: `assets/proposed/cards/${d.art}.jpg`, alt: '', draggable: 'false' } }),
+        selected && ctx.node({
+          key: `design-${d.key}/check`,
+          styles: ['Wallet/designCheck'],
+          children: [icon(ctx, `design-${d.key}/check/icon`, 'check', 'xSmall', 'colors.text.onBrand')],
+        }),
+      ],
+    }),
+    text(ctx, `design-${d.key}/name`, 'Settings/paletteName', d.nameKey ? { textKey: d.nameKey } : { text: d.name }, clipped('Settings/paletteName')),
+  ],
+});
+const cardEditFrame = (id, name, { value, design, match, note }) => frame(id, name, { status: 'proposed', spec: CARD_EDIT_SPEC }, (ctx) => {
+  const c = card('azul');
+  const d = DESIGNS.find((option) => option.key === design);
+  return screenFrame(ctx, [
+    content(ctx, [
+      ...header(ctx, 'card_edit_title', 'card_edit_guidance'),
+      d.art
+        ? cardArt(ctx, 'preview', { art: d.art, name: value }, ['Wallet/raised', 'Wallet/previewArt'])
+        : generatedCard(ctx, 'preview', { name: value, last4: c.last4, network: c.network }, d.key === 'dark' ? ['Wallet/generatedDark'] : []),
+      gap(ctx, 'gap-preview', 'spacing.medium'),
+      ...field(ctx, 'card-name', 'wallet_name_label', {
+        value,
+        placeholder: BANK_CARD_NAME,
+        hotspot: true,
+        ...(value === BANK_CARD_NAME ? { supportingTextKey: 'card_edit_bank_name_kept' } : { supportingText: ctx.t('card_edit_bank_name', BANK_CARD_NAME) }),
+      }),
+      gap(ctx, 'gap-name', 'spacing.small'),
+      ctx.node({
+        key: 'image-header',
+        styles: ['Home/spread'],
+        children: [
+          text(ctx, 'image-eyebrow', 'Screen/eyebrow', { textKey: 'card_edit_image_eyebrow' }),
+          ctx.node({
+            key: 'match',
+            styles: ['Screen/toggleRow'],
+            hotspot: true,
+            attrs: { role: 'checkbox', 'aria-checked': String(match), tabindex: 0 },
+            children: [
+              Checkbox(ctx, { key: 'match/checkbox', checked: match, attrs: { 'aria-hidden': 'true' } }),
+              text(ctx, 'match/label', 'SignIn/remember', { textKey: 'card_edit_match' }),
+            ],
+          }),
+        ],
+      }),
+      gap(ctx, 'gap-image-header', 'spacing.xxSmall'),
+      ctx.node({
+        key: 'designs',
+        styles: ['Wallet/designs'],
+        attrs: { role: 'radiogroup', 'aria-label': ctx.t('card_edit_image_eyebrow') },
+        children: [DESIGNS.slice(0, 3), DESIGNS.slice(3)].map((row, i) => ctx.node({
+          key: `designs-row-${i}`,
+          styles: ['Home/gridRow'],
+          children: row.map((option) => designTile(ctx, option, option === d)),
+        })),
+      }),
+      gap(ctx, 'gap-designs', 'spacing.small'),
+      text(ctx, 'image-note', 'Screen/tertiary', note),
+    ]),
+  ]);
+});
+const walletCardEdit = cardEditFrame('wallet-card-edit', 'Wallet · Edit card', {
+  value: 'Azul Itaú', design: 'azul', match: true, note: { textKey: 'card_edit_note_match', textArgs: ['Azul Itaú'] },
+});
+const walletCardEditImported = cardEditFrame('wallet-card-edit-imported', 'Wallet · Edit card · From the bank', {
+  value: BANK_CARD_NAME, design: 'orbit', match: true, note: { textKey: 'card_edit_note_none' },
+});
+const walletCardEditChosen = cardEditFrame('wallet-card-edit-chosen', 'Wallet · Edit card · Chosen image', {
+  value: 'Azul Itaú', design: 'dark', match: false, note: { textKey: 'card_edit_note_chosen' },
+});
 
 // Transactions: one list for a day, week, month or year. The period picks the grouping: by time for a day, by day for a week
 // or month, by month for a year. Search and the filter chips keep applying when the period changes.
@@ -3871,6 +3968,9 @@ export const frames = [
   walletEdit,
   walletAdd,
   walletRemove,
+  walletCardEdit,
+  walletCardEditImported,
+  walletCardEditChosen,
   walletBillJuly,
   walletBillAugust,
   walletBillSeptember,

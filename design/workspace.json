@@ -562,6 +562,30 @@
           "height": 874
         },
         {
+          "id": "mobile-wallet-card-edit",
+          "catalogId": "screens/wallet-card-edit",
+          "x": 9728,
+          "y": 3864,
+          "width": 402,
+          "height": 874
+        },
+        {
+          "id": "mobile-wallet-card-edit-imported",
+          "catalogId": "screens/wallet-card-edit-imported",
+          "x": 10240,
+          "y": 3864,
+          "width": 402,
+          "height": 874
+        },
+        {
+          "id": "mobile-wallet-card-edit-chosen",
+          "catalogId": "screens/wallet-card-edit-chosen",
+          "x": 10752,
+          "y": 3864,
+          "width": 402,
+          "height": 874
+        },
+        {
           "id": "mobile-wallet-bill-closed",
           "catalogId": "screens/wallet-bill-closed",
           "x": 7680,
@@ -1690,7 +1714,7 @@
         "hotspotId": "edit-card"
       },
       "to": {
-        "frameId": "mobile-wallet-edit"
+        "frameId": "mobile-wallet-card-edit"
       },
       "trigger": "click"
     },
@@ -3044,6 +3068,83 @@
       },
       "to": {
         "frameId": "mobile-connectors-connect-bank"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-card-edit-back",
+      "from": {
+        "frameId": "mobile-wallet-card-edit",
+        "hotspotId": "back"
+      },
+      "to": {
+        "frameId": "mobile-wallet-card"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-card-edit-imported-back",
+      "from": {
+        "frameId": "mobile-wallet-card-edit-imported",
+        "hotspotId": "back"
+      },
+      "to": {
+        "frameId": "mobile-wallet-card"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-card-edit-chosen-back",
+      "from": {
+        "frameId": "mobile-wallet-card-edit-chosen",
+        "hotspotId": "back"
+      },
+      "to": {
+        "frameId": "mobile-wallet-card"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-card-edit-design-dark",
+      "from": {
+        "frameId": "mobile-wallet-card-edit",
+        "hotspotId": "design-dark"
+      },
+      "to": {
+        "frameId": "mobile-wallet-card-edit-chosen"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-card-edit-chosen-match",
+      "from": {
+        "frameId": "mobile-wallet-card-edit-chosen",
+        "hotspotId": "match"
+      },
+      "to": {
+        "frameId": "mobile-wallet-card-edit"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-card-edit-chosen-design-azul",
+      "from": {
+        "frameId": "mobile-wallet-card-edit-chosen",
+        "hotspotId": "design-azul"
+      },
+      "to": {
+        "frameId": "mobile-wallet-card-edit"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-wallet-card-edit-imported-card-name",
+      "from": {
+        "frameId": "mobile-wallet-card-edit-imported",
+        "hotspotId": "card-name"
+      },
+      "to": {
+        "frameId": "mobile-wallet-card-edit"
       },
       "trigger": "click"
     }
