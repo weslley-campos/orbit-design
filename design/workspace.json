@@ -370,6 +370,46 @@
           "height": 874
         },
         {
+          "id": "mobile-connectors-no-banks",
+          "catalogId": "screens/connectors-no-banks",
+          "x": 7168,
+          "y": 966,
+          "width": 402,
+          "height": 874
+        },
+        {
+          "id": "mobile-connectors-institutions",
+          "catalogId": "screens/connectors-institutions",
+          "x": 7680,
+          "y": 966,
+          "width": 402,
+          "height": 874
+        },
+        {
+          "id": "mobile-connectors-choose-bank-help",
+          "catalogId": "screens/connectors-choose-bank-help",
+          "x": 8192,
+          "y": 966,
+          "width": 402,
+          "height": 874
+        },
+        {
+          "id": "mobile-connectors-connect-bank",
+          "catalogId": "screens/connectors-connect-bank",
+          "x": 8704,
+          "y": 966,
+          "width": 402,
+          "height": 874
+        },
+        {
+          "id": "mobile-connectors-connect-bank-help",
+          "catalogId": "screens/connectors-connect-bank-help",
+          "x": 9216,
+          "y": 966,
+          "width": 402,
+          "height": 874
+        },
+        {
           "id": "mobile-settings",
           "catalogId": "screens/settings",
           "x": 3584,
@@ -1199,7 +1239,7 @@
         "hotspotId": "save"
       },
       "to": {
-        "frameId": "mobile-connectors"
+        "frameId": "mobile-connectors-no-banks"
       },
       "trigger": "click"
     },
@@ -2841,6 +2881,171 @@
         "frameId": "mobile-profile"
       },
       "trigger": "click"
+    },
+    {
+      "id": "mobile-connectors-no-banks-back",
+      "from": {
+        "frameId": "mobile-connectors-no-banks",
+        "hotspotId": "back"
+      },
+      "to": {
+        "frameId": "mobile-settings"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-connectors-no-banks-pluggy-row",
+      "from": {
+        "frameId": "mobile-connectors-no-banks",
+        "hotspotId": "pluggy-row"
+      },
+      "to": {
+        "frameId": "mobile-pluggy"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-connectors-no-banks-add-first-bank",
+      "from": {
+        "frameId": "mobile-connectors-no-banks",
+        "hotspotId": "add-first-bank"
+      },
+      "to": {
+        "frameId": "mobile-connectors-institutions"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-connectors-add-bank",
+      "from": {
+        "frameId": "mobile-connectors",
+        "hotspotId": "add-bank"
+      },
+      "to": {
+        "frameId": "mobile-connectors-institutions"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-connectors-institutions-back",
+      "from": {
+        "frameId": "mobile-connectors-institutions",
+        "hotspotId": "back"
+      },
+      "to": {
+        "frameId": "mobile-connectors"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-connectors-institutions-how-it-works",
+      "from": {
+        "frameId": "mobile-connectors-institutions",
+        "hotspotId": "how-it-works"
+      },
+      "to": {
+        "frameId": "mobile-connectors-choose-bank-help"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-connectors-institutions-c6-bank",
+      "from": {
+        "frameId": "mobile-connectors-institutions",
+        "hotspotId": "c6-bank"
+      },
+      "to": {
+        "frameId": "mobile-connectors-connect-bank"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-connectors-choose-bank-help-bank-help-close",
+      "from": {
+        "frameId": "mobile-connectors-choose-bank-help",
+        "hotspotId": "bank-help-close"
+      },
+      "to": {
+        "frameId": "mobile-connectors-institutions"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-connectors-choose-bank-help-bank-help-done",
+      "from": {
+        "frameId": "mobile-connectors-choose-bank-help",
+        "hotspotId": "bank-help-done"
+      },
+      "to": {
+        "frameId": "mobile-connectors-institutions"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-connectors-connect-bank-back",
+      "from": {
+        "frameId": "mobile-connectors-connect-bank",
+        "hotspotId": "back"
+      },
+      "to": {
+        "frameId": "mobile-connectors-institutions"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-connectors-connect-bank-help",
+      "from": {
+        "frameId": "mobile-connectors-connect-bank",
+        "hotspotId": "help"
+      },
+      "to": {
+        "frameId": "mobile-connectors-connect-bank-help"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-connectors-connect-bank-connect",
+      "from": {
+        "frameId": "mobile-connectors-connect-bank",
+        "hotspotId": "connect"
+      },
+      "to": {
+        "frameId": "mobile-connectors"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-connectors-connect-bank-cancel",
+      "from": {
+        "frameId": "mobile-connectors-connect-bank",
+        "hotspotId": "cancel"
+      },
+      "to": {
+        "frameId": "mobile-connectors"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-connectors-connect-bank-help-bank-help-close",
+      "from": {
+        "frameId": "mobile-connectors-connect-bank-help",
+        "hotspotId": "bank-help-close"
+      },
+      "to": {
+        "frameId": "mobile-connectors-connect-bank"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-connectors-connect-bank-help-bank-help-done",
+      "from": {
+        "frameId": "mobile-connectors-connect-bank-help",
+        "hotspotId": "bank-help-done"
+      },
+      "to": {
+        "frameId": "mobile-connectors-connect-bank"
+      },
+      "trigger": "click"
     }
   ],
   "overrides": {
@@ -2848,36 +3053,6 @@
     "frames": {}
   },
   "archived": [
-    {
-      "frame": {
-        "id": "mobile-connectors-institutions",
-        "catalogId": "screens/connectors-institutions",
-        "x": 6656,
-        "y": 966,
-        "width": 402,
-        "height": 874
-      },
-      "pageId": "page-mobile",
-      "pageName": "Screens / Mobile",
-      "index": 17,
-      "platform": "mobile",
-      "connections": [
-        {
-          "id": "mobile-connectors-institutions-back",
-          "from": {
-            "frameId": "mobile-connectors-institutions",
-            "hotspotId": "back"
-          },
-          "to": {
-            "frameId": "mobile-connectors"
-          },
-          "trigger": "click"
-        }
-      ],
-      "overrides": {},
-      "start": false,
-      "at": "2026-10-15T12:00:00.000Z"
-    },
     {
       "frame": {
         "id": "mobile-wallet-bill-v1-september",

@@ -21,7 +21,7 @@ Status: Draft
 - R1: The fifth navigation tab reads Settings (Ajustes). It opens Settings, which marks it selected; Home in the bar returns to Home.
 - R2: The Theme row shows the current palette's name and mark and opens the Theme sheet. The sheet lists Spruce, Indigo, Plum, Orchid, Flamingo, Azure, Ember and Graphite, with the current palette selected. Apply and Close return to Settings.
 - R3: Dark mode offers System, Light and Dark as a single choice, with System selected by default. It is independent of the palette.
-- R4: Family members shows "2 members · 1 invite pending" and opens Family members. Invite to family opens Invite. Connectors shows "Pluggy · 3 banks" and opens Connectors, whose Back returns to Settings.
+- R4: Family members shows "2 members · 1 invite pending" and opens Family members. Invite to family opens Invite. Connectors shows "Pluggy · 4 banks" and opens Connectors, whose Back returns to Settings.
 - R5: Sign out opens a confirmation sheet. Sign out returns to Sign in. Cancel returns to Settings. Delete account lives in Profile.
 - R6: Language shows the language in use (English or Português (Brasil)). Palette, light/dark mode and English/Portuguese apply to all three frames, and no text is clipped at 402 × 874.
 

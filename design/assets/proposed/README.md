@@ -10,3 +10,5 @@ Orbit has no icon set for these yet. They are design proposals, not app resource
 The navigation bar's Home, Charts and Wallet pairs (`ic_home_filled`, `ic_home_outline`, `ic_chart_pie_filled`, `ic_chart_pie_outline`, `ic_wallet_filled`, `ic_wallet_outline`) come from Heroicons (https://heroicons.com, MIT, https://github.com/tailwindlabs/heroicons/blob/master/LICENSE), like the Settings cog in core-ui: filled when selected, outlined otherwise.
 
 `cards/` holds sample credit card art supplied by the product owner (Amazon Mastercard, Azul Itaú, Bradesco Diners Club Elo, American Express Green), cropped to the 1.586 card ratio for the Wallet frames. The artwork and marks belong to their issuers and networks; it is sample data, not an app resource.
+
+`banks/` holds Orbit's own bank logos for ten sample banks (Banco do Brasil, Bradesco, C6 Bank, Caixa, Inter, Itaú, Mercado Pago, Nubank, PicPay, Santander), copied from orbit-api `src/static/images/banks`: the `bg_<uuid>.svg` variant (the mark on its brand color) that `GET /connectors` sends as `logo.background`, renamed after the bank. They're the API's assets, not app resources; the marks belong to their banks.

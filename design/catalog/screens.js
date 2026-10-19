@@ -38,9 +38,9 @@ const backButton = (ctx, glyph) => OrbitIconButton(ctx, {
 }, [glyph ?? icon(ctx, 'back/icon', 'chevron_left', 'large', 'colors.text.primary')]);
 const heading = (ctx, titleKey, subtitleKey, badge, under) => [
   ...(badge ? [badge, gap(ctx, 'gap-badge', 'spacing.medium')] : []),
-  text(ctx, 'title', 'SignIn/title', { textKey: titleKey }),
+  text(ctx, 'title', 'SignIn/title', typeof titleKey === 'string' ? { textKey: titleKey } : titleKey),
   gap(ctx, 'gap-title', 'spacing.small'),
-  text(ctx, 'subtitle', 'SignIn/subtitle', { textKey: subtitleKey }),
+  text(ctx, 'subtitle', 'SignIn/subtitle', typeof subtitleKey === 'string' ? { textKey: subtitleKey } : subtitleKey),
   ...(under ? [gap(ctx, 'gap-under', 'spacing.xxxSmall'), under] : []),
   gap(ctx, 'gap-subtitle', 'spacing.small'),
 ];
@@ -449,8 +449,38 @@ const chevron = (ctx, key) => icon(ctx, `${key}/chevron`, 'chevron_right', 'medi
 const pluggyLogo = (ctx) => ctx.node({
   key: 'pluggy/logo', styles: ['Family/avatar'], children: [icon(ctx, 'pluggy/logo-icon', 'plug', 'medium', 'colors.text.brand')],
 });
-const bankLogo = (ctx, key, initials) => text(ctx, `${key}/logo`, 'Institution/logo', { text: initials }, {
-  styles: ['Institution/logo', `Institution/${key}`],
+// Orbit's bank logos (orbit-api images/banks, the bg_ variant GET /connectors sends as logo.background),
+// copied for a sample of banks into assets/proposed/banks. Names are the catalog's.
+const BANKS = {
+  'banco-do-brasil': 'Banco do Brasil',
+  bradesco: 'Bradesco',
+  'c6-bank': 'C6 Bank',
+  caixa: 'Caixa Econômica Federal',
+  inter: 'Inter',
+  itau: 'Itaú',
+  'mercado-pago': 'Mercado Pago',
+  nubank: 'Nubank',
+  picpay: 'PicPay',
+  santander: 'Santander',
+};
+const bankLogo = (ctx, key, bank = key, styles = []) => ctx.node({
+  key: `${key}/logo`,
+  styles: ['Institution/logo', ...styles],
+  attrs: { role: 'img', 'aria-label': ctx.t('connectors_logo', BANKS[bank]) },
+  children: [ctx.node({
+    key: `${key}/logo-art`, tag: 'img', styles: ['Institution/art'], attrs: { src: `assets/proposed/banks/${bank}.svg`, alt: '', draggable: 'false' },
+  })],
+});
+const addBankRow = (ctx) => ctx.node({
+  key: 'add-bank',
+  styles: ['Family/row'],
+  hotspot: true,
+  attrs: { role: 'button', tabindex: 0 },
+  children: [
+    ctx.node({ key: 'add-bank/ring', styles: ['Family/addRing'], children: [icon(ctx, 'add-bank/icon', 'plus', 'small', 'colors.text.tertiary')] }),
+    text(ctx, 'add-bank/label', 'Family/addPlaceholder', { textKey: 'connectors_add_bank' }),
+    chevron(ctx, 'add-bank'),
+  ],
 });
 const connectorsHeader = (ctx) => [
   ...header(ctx, 'connectors_title', 'connectors_guidance'),
@@ -483,33 +513,26 @@ const connectors = frame('connectors', 'Connectors', { status: 'proposed', spec:
     ...connectorsHeader(ctx),
     OrbitCard(ctx, { key: 'pluggy', variant: 'Base', styles: ['Institutions/list'] }, [
       row(ctx, 'pluggy-row', pluggyLogo(ctx), 'Pluggy',
-        status(ctx, 'pluggy/status', 'circle_check', 'colors.text.success', 'connectors_connected', ['3']), chevron(ctx, 'pluggy-row')),
+        status(ctx, 'pluggy/status', 'circle_check', 'colors.text.success', 'connectors_connected', ['4']), chevron(ctx, 'pluggy-row')),
       HorizontalDivider(ctx, { key: 'pluggy-divider' }),
       text(ctx, 'banks-eyebrow', 'Connectors/subhead', { textKey: 'connectors_banks_eyebrow' }),
-      row(ctx, 'nubank', bankLogo(ctx, 'nubank', 'Nu'), 'Nubank',
+      row(ctx, 'nubank', bankLogo(ctx, 'nubank'), 'Nubank',
         status(ctx, 'nubank/status', 'circle_check', 'colors.text.success', 'connectors_synced', ['5']), chevron(ctx, 'nubank')),
       // Paused with reconnect AUTHORIZATION: the user fixes it in MeuPluggy, which Orbit can't do, so a status pill and no button.
-      row(ctx, 'itau', bankLogo(ctx, 'itau', 'It'), 'Itaú',
+      row(ctx, 'itau', bankLogo(ctx, 'itau'), 'Itaú',
         status(ctx, 'itau/status', 'triangle_alert', 'colors.text.warning', 'connectors_sync_paused'),
         text(ctx, 'itau/authorize', 'Family/youPill', { textKey: 'connectors_authorize_in_meupluggy' }, {
           styles: ['Family/youPill', 'Connectors/authorizePill'],
         }), false),
       // Paused with reconnect CREDENTIALS: Pluggy rejects the saved client ID or secret, so Reconnect opens Pluggy setup.
-      row(ctx, 'inter', bankLogo(ctx, 'inter', 'In'), 'Inter',
+      row(ctx, 'inter', bankLogo(ctx, 'inter'), 'Inter',
         status(ctx, 'inter/status', 'triangle_alert', 'colors.text.warning', 'connectors_sync_paused'),
         textButton(ctx, 'reconnect', 'connectors_reconnect', []), false),
-      // Orbit can't add a bank itself: Add a bank opens MeuPluggy in the browser, and the next sync brings the bank in.
-      ctx.node({
-        key: 'add-bank',
-        styles: ['Family/row'],
-        hotspot: true,
-        attrs: { role: 'link', tabindex: 0 },
-        children: [
-          ctx.node({ key: 'add-bank/ring', styles: ['Family/addRing'], children: [icon(ctx, 'add-bank/icon', 'plus', 'small', 'colors.text.tertiary')] }),
-          text(ctx, 'add-bank/label', 'Family/addPlaceholder', { textKey: 'connectors_add_bank' }),
-          icon(ctx, 'add-bank/external', 'external_link', 'small', 'colors.text.tertiary'),
-        ],
-      }),
+      // Just added with its Item ID: Orbit knows the bank the user picked, but nothing about it until the first import.
+      row(ctx, 'c6-bank', bankLogo(ctx, 'c6-bank'), 'C6 Bank',
+        status(ctx, 'c6-bank/status', 'clock', 'colors.text.tertiary', 'connectors_pending'), null, false),
+      // Each bank is its own Pluggy Item: Add a bank picks the bank, then asks for that Item's ID.
+      addBankRow(ctx),
     ]),
     ...connectorsFooter(ctx),
   ]),
@@ -534,7 +557,31 @@ const connectorsEmpty = frame('connectors-empty', 'Connectors · Not set up', { 
   ]),
 ]));
 
-// Opened from the Pluggy row: the credentials Orbit needs to call Pluggy's API.
+const connectorsNoBanks = frame('connectors-no-banks', 'Connectors · No banks yet', { status: 'proposed', spec: 'docs/specs/pluggy-banks.md' }, (ctx) => screenFrame(ctx, [
+  content(ctx, [
+    ...connectorsHeader(ctx),
+    OrbitCard(ctx, { key: 'pluggy', variant: 'Base', styles: ['Institutions/list'] }, [
+      row(ctx, 'pluggy-row', pluggyLogo(ctx), 'Pluggy',
+        status(ctx, 'pluggy/status', 'circle_check', 'colors.text.success', 'connectors_connected_none'), chevron(ctx, 'pluggy-row')),
+      HorizontalDivider(ctx, { key: 'pluggy-divider' }),
+      ctx.node({
+        key: 'pluggy-body',
+        styles: ['Connectors/body', 'Connectors/bodyTop'],
+        children: [
+          text(ctx, 'pluggy-body/text', 'Screen/guidance', { textKey: 'connectors_no_banks_body' }),
+          OrbitButton(ctx, { key: 'add-first-bank', hotspot: true, styles: ['Screen/fill'] }, [
+            icon(ctx, 'add-first-bank/icon', 'plus', 'medium', 'colors.text.onBrand', ['Screen/leadingIcon']),
+            label(ctx, 'add-first-bank/label', { textKey: 'connectors_add_bank' }),
+          ]),
+        ],
+      }),
+    ]),
+    ...connectorsFooter(ctx),
+  ]),
+]));
+
+// Opened from Set up Pluggy, Edit credentials or Reconnect: the credentials Orbit needs to call Pluggy's API.
+// Banks are added one by one afterwards, each with its own Item ID.
 const pluggySetup = frame('pluggy-setup', 'Connectors · Pluggy setup', { status: 'proposed', spec: 'docs/specs/pluggy-setup.md' }, (ctx) => screenFrame(ctx, [
   content(ctx, [
     ...header(ctx, 'pluggy_setup_title', 'pluggy_setup_guidance', ctx.node({
@@ -562,11 +609,7 @@ const pluggySetup = frame('pluggy-setup', 'Connectors · Pluggy setup', { status
         key: 'show-secret', contentDescription: ctx.t('password_show'),
       }, [icon(ctx, 'show-secret/icon', 'eye', 'medium', 'colors.text.secondary')]),
     }),
-    gap(ctx, 'gap-client-secret', 'spacing.small'),
-    ...field(ctx, 'connector-id', 'pluggy_connector_id_label', {
-      value: 'c3b1e2f4-7a9d-4e60-b8f5-1d2a6c9e0b47', placeholderKey: 'pluggy_connector_id_placeholder',
-    }),
-    gap(ctx, 'gap-connector-id', 'spacing.medium'),
+    gap(ctx, 'gap-client-secret', 'spacing.medium'),
     ctx.node({ key: 'help', styles: ['Screen/guidance', 'Screen/link'], textKey: 'pluggy_setup_help', hotspot: true }),
     ctx.node({ key: 'spacer', styles: ['Screen/grow'] }),
     actions(ctx, [
@@ -634,86 +677,68 @@ const pluggySecretHelp = frame('pluggy-secret-help', 'Connectors · Pluggy setup
   ],
 }));
 
-// Archived: Orbit can't add banks, so Add a bank opens MeuPluggy instead of this list.
-// Sample of what Pluggy's GET /connectors returns: [key, initials, name, type, health.status, already connected].
-const INSTITUTIONS = [
-  ['banco-do-brasil', 'BB', 'Banco do Brasil', 'PERSONAL_BANK', 'ONLINE'],
-  ['bradesco', 'Br', 'Bradesco', 'PERSONAL_BANK', 'ONLINE'],
-  ['c6-bank', 'C6', 'C6 Bank', 'PERSONAL_BANK', 'ONLINE'],
-  ['caixa', 'Cx', 'Caixa', 'PERSONAL_BANK', 'UNSTABLE'],
-  ['inter', 'In', 'Inter', 'PERSONAL_BANK', 'ONLINE'],
-  ['itau', 'It', 'Itaú', 'PERSONAL_BANK', 'ONLINE', true],
-  ['nubank', 'Nu', 'Nubank', 'PERSONAL_BANK', 'ONLINE', true],
-  ['santander', 'Sa', 'Santander', 'PERSONAL_BANK', 'OFFLINE'],
-  ['xp', 'XP', 'XP Investimentos', 'INVESTMENT', 'ONLINE'],
-];
-const TYPE_KEYS = { PERSONAL_BANK: 'institutions_type_personal_bank', INVESTMENT: 'institutions_type_investment' };
-const FILTERS = ['all', 'banks', 'investments'];
+// Choose a bank: Orbit's catalog of banks and payment institutions (GET /institutions?types=BANK,PAYMENTS), with Orbit's
+// logos. No status: a bank's state is only known once an Item is linked to it, so the list never says Connected or Offline.
+// Kept under the old connectors-institutions id so saved drafts still load.
+const BANK_SPEC = 'docs/specs/pluggy-banks.md';
+const bankRow = (ctx, bank) => row(ctx, bank, bankLogo(ctx, bank), BANKS[bank], null, chevron(ctx, bank));
+const bankHelpLink = (ctx, key, textKey) => ctx.node({
+  key,
+  styles: ['Screen/guidance', 'Screen/link', 'Pluggy/helpLink'],
+  hotspot: true,
+  attrs: { role: 'button', tabindex: 0 },
+  children: [
+    icon(ctx, `${key}/icon`, 'circle_help', 'small', 'colors.text.brand'),
+    ctx.node({ key: `${key}/text`, tag: 'span', textKey }),
+  ],
+});
 
-const institutionRow = (ctx, [key, initials, name, type, health, connected]) => {
-  const offline = health === 'OFFLINE';
-  const detail = health === 'ONLINE'
-    ? text(ctx, `${key}/type`, 'Family/pending', { textKey: TYPE_KEYS[type] })
-    : status(ctx, `${key}/health`, 'triangle_alert', offline ? 'colors.text.tertiary' : 'colors.text.warning',
-      offline ? 'institutions_offline' : 'institutions_unstable');
-  return ctx.node({
-    key,
-    styles: ['Family/row', offline && 'Institutions/offline'],
-    hotspot: !offline,
-    attrs: offline ? { 'aria-disabled': 'true' } : { role: 'button', tabindex: 0 },
-    children: [
-      text(ctx, `${key}/logo`, 'Institution/logo', { text: initials }, { styles: ['Institution/logo', `Institution/${key}`] }),
-      ctx.node({
-        key: `${key}/info`,
-        styles: ['Family/info'],
-        children: [text(ctx, `${key}/name`, 'Family/name', { text: name }), detail],
-      }),
-      connected
-        ? text(ctx, `${key}/connected`, 'Family/youPill', { textKey: 'institutions_connected' })
-        : !offline && icon(ctx, `${key}/chevron`, 'chevron_right', 'medium', 'colors.text.tertiary'),
-    ],
-  });
-};
-
-const connectorsInstitutions = frame('connectors-institutions', 'Connectors · Institutions', {
-  status: 'proposed', spec: 'docs/specs/connectors.md',
-}, (ctx) => screenFrame(ctx, [
+const connectorsInstitutions = frame('connectors-institutions', 'Connectors · Choose a bank', { status: 'proposed', spec: BANK_SPEC }, (ctx) => screenFrame(ctx, [
   content(ctx, [
-    ...header(ctx, 'institutions_title', 'institutions_guidance'),
+    ...header(ctx, 'choose_bank_title', 'choose_bank_guidance', null, bankHelpLink(ctx, 'how-it-works', 'choose_bank_help')),
     OrbitOutlineTextField(ctx, {
       key: 'search-field',
-      placeholderKey: 'institutions_search',
+      placeholderKey: 'choose_bank_search',
       leadingIcon: icon(ctx, 'search-field/icon', 'search', 'medium', 'colors.text.tertiary'),
     }),
-    gap(ctx, 'gap-search', 'spacing.small'),
-    ctx.node({
-      key: 'filters',
-      styles: ['Institutions/chips'],
-      attrs: { role: 'group', 'aria-label': ctx.t('institutions_filters') },
-      children: FILTERS.map((filter, i) => OrbitFilterChip(ctx, {
-        key: `filter-${filter}`,
-        labelKey: `institutions_filter_${filter}`,
-        selected: i === 0,
-        hotspot: true,
-        attrs: { role: 'button', 'aria-pressed': i === 0, tabindex: 0 },
-      })),
-    }),
-    gap(ctx, 'gap-filters', 'spacing.large'),
-    text(ctx, 'eyebrow', 'Screen/eyebrow', { textKey: 'institutions_eyebrow', textArgs: [String(INSTITUTIONS.length)] }),
+    gap(ctx, 'gap-search', 'spacing.large'),
+    text(ctx, 'eyebrow', 'Screen/eyebrow', { textKey: 'choose_bank_eyebrow', textArgs: [String(Object.keys(BANKS).length)] }),
     gap(ctx, 'gap-eyebrow', 'spacing.xxSmall'),
-    OrbitCard(ctx, { key: 'institutions', variant: 'Base', styles: ['Institutions/list'] }, INSTITUTIONS.flatMap((row, i) => [
-      i > 0 && HorizontalDivider(ctx, { key: `divider-${row[0]}` }),
-      institutionRow(ctx, row),
+    OrbitCard(ctx, { key: 'banks', variant: 'Base', styles: ['Institutions/list'] }, Object.keys(BANKS).flatMap((bank, i) => [
+      i > 0 && HorizontalDivider(ctx, { key: `divider-${bank}` }),
+      bankRow(ctx, bank),
     ])),
     gap(ctx, 'gap-card', 'spacing.small'),
     ctx.node({
       key: 'note',
       styles: ['Family/note'],
       children: [
-        icon(ctx, 'note/icon', 'shield_check', 'medium', 'colors.text.tertiary'),
-        ctx.node({ key: 'note/text', textKey: 'institutions_note' }),
+        icon(ctx, 'note/icon', 'credit_card', 'medium', 'colors.text.tertiary'),
+        ctx.node({ key: 'note/text', textKey: 'choose_bank_note' }),
       ],
     }),
+  ]),
+]));
+
+// Connect <bank>: the Item ID of the one Pluggy Item that reads this bank. Through MeuPluggy every Item reports the same
+// MeuPluggy connector, so the bank picked on the previous screen is what names the row until the first import.
+const CONNECT_BANK = 'c6-bank';
+const connectBank = frame('connectors-connect-bank', 'Connectors · Connect bank', { status: 'proposed', spec: BANK_SPEC }, (ctx) => screenFrame(ctx, [
+  content(ctx, [
+    ...header(ctx,
+      { textKey: 'connect_bank_title', textArgs: [BANKS[CONNECT_BANK]] },
+      { textKey: 'connect_bank_guidance', textArgs: [BANKS[CONNECT_BANK]] },
+      bankLogo(ctx, 'badge', CONNECT_BANK, ['Institution/badge'])),
+    ...field(ctx, 'item-id', 'connect_bank_item_label', {
+      value: 'c3b1e2f4-7a9d-4e60-b8f5-1d2a6c9e0b47', placeholderKey: 'connect_bank_item_placeholder',
+    }),
+    gap(ctx, 'gap-item-id', 'spacing.medium'),
+    bankHelpLink(ctx, 'help', 'connect_bank_help'),
+    ctx.node({ key: 'spacer', styles: ['Screen/grow'] }),
+    actions(ctx, [
+      primary(ctx, 'connect', 'connect_bank_save'),
+      textButton(ctx, 'cancel', 'connect_bank_cancel'),
+    ]),
   ]),
 ]));
 
@@ -2023,7 +2048,7 @@ const settings = frame('settings', 'Settings', { status: 'proposed', spec: 'docs
       ]),
       ...settingsSection(ctx, 'connections', 'settings_connections_eyebrow', [
         settingsRow(ctx, 'connectors', 'plug', 'settings_connectors', {
-          detail: { textKey: 'settings_connectors_detail', textArgs: ['3'] },
+          detail: { textKey: 'settings_connectors_detail', textArgs: ['4'] },
         }),
       ]),
       ...settingsSection(ctx, 'preferences', 'settings_preferences_eyebrow', [
@@ -2141,13 +2166,12 @@ const pluggy = frame('pluggy', 'Connectors · Pluggy', { status: 'proposed', spe
   content(ctx, [
     ...header(ctx, 'pluggy_title', 'pluggy_guidance', ctx.node({
       key: 'badge', styles: ['EmailSent/badge'], children: [icon(ctx, 'badge/icon', 'plug', 'xLarge', 'colors.text.brand')],
-    }), status(ctx, 'pluggy/status', 'circle_check', 'colors.text.success', 'connectors_connected', ['3'])),
+    }), status(ctx, 'pluggy/status', 'circle_check', 'colors.text.success', 'connectors_connected', ['4'])),
     text(ctx, 'eyebrow', 'Screen/eyebrow', { textKey: 'pluggy_credentials_eyebrow' }),
     gap(ctx, 'gap-eyebrow', 'spacing.xxSmall'),
     OrbitCard(ctx, { key: 'credentials', variant: 'Base', styles: ['Institutions/list'] }, [
       credential(ctx, 'client-id', 'key_round', 'pluggy_client_id_label', { text: '8f3c2a71-5d4e-4b9a-a1c6-2e7f90b3d415' }),
       credential(ctx, 'client-secret', 'lock', 'pluggy_client_secret_label', { textKey: 'pluggy_secret_saved' }),
-      credential(ctx, 'connector-id', 'plug', 'pluggy_connector_id_label', { text: 'c3b1e2f4-7a9d-4e60-b8f5-1d2a6c9e0b47' }),
       settingsRow(ctx, 'edit', 'pencil', 'pluggy_edit'),
     ].flatMap((row, i) => [i > 0 && HorizontalDivider(ctx, { key: `credentials/divider-${i}` }), row])),
     ctx.node({
@@ -2178,7 +2202,7 @@ const pluggyDisconnectSheet = (id, name, deleteData) => sheetFrame(id, name, PLU
     gap(ctx, 'disconnect-gap-badge', 'spacing.medium'),
     text(ctx, 'disconnect-title', 'SignIn/title', { textKey: 'pluggy_disconnect_title' }),
     gap(ctx, 'disconnect-gap-title', 'spacing.xxSmall'),
-    text(ctx, 'disconnect-body', 'Screen/guidance', { textKey: 'pluggy_disconnect_body', textArgs: ['3'] }),
+    text(ctx, 'disconnect-body', 'Screen/guidance', { textKey: 'pluggy_disconnect_body', textArgs: ['4'] }),
     gap(ctx, 'disconnect-gap-body', 'spacing.large'),
     text(ctx, 'disconnect-data-eyebrow', 'Screen/eyebrow', { textKey: 'pluggy_disconnect_data_eyebrow' }),
     gap(ctx, 'disconnect-gap-eyebrow', 'spacing.xxSmall'),
@@ -2212,6 +2236,41 @@ const pluggyDisconnectSheet = (id, name, deleteData) => sheetFrame(id, name, PLU
   ]);
 const pluggyDisconnect = pluggyDisconnectSheet('pluggy-disconnect', 'Connectors · Pluggy · Disconnect', false);
 const pluggyDisconnectDelete = pluggyDisconnectSheet('pluggy-disconnect-delete', 'Connectors · Pluggy · Disconnect · Delete data', true);
+
+// How connecting a bank works, from Choose a bank or Connect bank: the bank is added in MeuPluggy, shared with the user's
+// Pluggy application through the MeuPluggy connector, and that Item's ID is what Orbit asks for.
+const bankHelpSheet = (id, name, background) => sheetFrame(id, name, BANK_SPEC, background, 'bank-help-sheet', 'bank_help_title', (ctx) => [
+  ctx.node({
+    key: 'bank-help-header',
+    styles: ['Home/spread'],
+    children: [
+      text(ctx, 'bank-help-title', 'SignIn/title', { textKey: 'bank_help_title' }),
+      OrbitIconButton(ctx, { key: 'bank-help-close', hotspot: true, contentDescription: ctx.t('home_picker_close') }, [
+        icon(ctx, 'bank-help-close/icon', 'x', 'medium', 'colors.text.secondary'),
+      ]),
+    ],
+  }),
+  gap(ctx, 'bank-help-gap-title', 'spacing.xxSmall'),
+  text(ctx, 'bank-help-intro', 'Screen/guidance', { textKey: 'bank_help_intro' }),
+  gap(ctx, 'bank-help-gap-intro', 'spacing.small'),
+  helpPoint(ctx, 'bank-help-meupluggy', 'landmark', 'bank_help_meupluggy_title', 'bank_help_meupluggy_body'),
+  helpPoint(ctx, 'bank-help-dashboard', 'plug', 'bank_help_dashboard_title', 'bank_help_dashboard_body'),
+  helpPoint(ctx, 'bank-help-copy', 'copy', 'bank_help_copy_title', 'bank_help_copy_body'),
+  ctx.node({
+    key: 'bank-help-note',
+    styles: ['Family/note'],
+    children: [
+      icon(ctx, 'bank-help-note/icon', 'circle_help', 'medium', 'colors.text.tertiary'),
+      ctx.node({ key: 'bank-help-note/text', textKey: 'bank_help_note' }),
+    ],
+  }),
+  gap(ctx, 'bank-help-gap-button', 'spacing.small'),
+  OrbitButton(ctx, { key: 'bank-help-done', hotspot: true, styles: ['Screen/fill'] }, [
+    label(ctx, 'bank-help-done/label', { textKey: 'bank_help_done' }),
+  ]),
+]);
+const chooseBankHelp = bankHelpSheet('connectors-choose-bank-help', 'Connectors · Choose a bank · How it works', connectorsInstitutions);
+const connectBankHelp = bankHelpSheet('connectors-connect-bank-help', 'Connectors · Connect bank · How it works', connectBank);
 
 // Profile: who you are in Orbit, opened from the account card in Settings. It sits one level below the Settings tab,
 // so it hides the navigation bar and goes back with Back, like the Transaction screen.
@@ -3841,6 +3900,7 @@ export const frames = [
   profilePassword,
   profilePasswordAdd,
   connectorsEmpty,
+  connectorsNoBanks,
   connectors,
   pluggy,
   pluggyDisconnect,
@@ -3848,4 +3908,7 @@ export const frames = [
   pluggySetup,
   pluggySecretHelp,
   connectorsInstitutions,
+  chooseBankHelp,
+  connectBank,
+  connectBankHelp,
 ];

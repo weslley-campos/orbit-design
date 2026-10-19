@@ -2214,91 +2214,37 @@
         "border-radius": {
           "token": "shapes.pill"
         },
-        "font": {
-          "token": "typography.titleSmall"
-        },
-        "color": {
-          "literal": "#FFFFFF",
-          "proposal": "initials over the institution color; the app shows the connector's imageUrl instead"
+        "background": {
+          "token": "colors.brand.subtleSolid"
         }
       },
       "css": {
         "display": "flex",
-        "align-items": "center",
-        "justify-content": "center",
-        "flex-shrink": "0"
+        "flex-shrink": "0",
+        "overflow": "hidden"
       }
     },
-    "Institution/banco-do-brasil": {
-      "bind": {
-        "background": {
-          "literal": "#0038A8",
-          "proposal": "sample Pluggy primaryColor for Banco do Brasil; real value comes from GET /connectors"
-        }
+    "Institution/art": {
+      "css": {
+        "display": "block",
+        "width": "100%",
+        "height": "100%",
+        "object-fit": "cover"
       }
     },
-    "Institution/bradesco": {
+    "Institution/badge": {
       "bind": {
-        "background": {
-          "literal": "#CC092F",
-          "proposal": "sample Pluggy primaryColor for Bradesco; real value comes from GET /connectors"
+        "width": {
+          "literal": "56dp",
+          "proposal": "circular badge sized for the hero icon; no size token"
+        },
+        "height": {
+          "literal": "56dp",
+          "proposal": "circular badge sized for the hero icon; no size token"
         }
-      }
-    },
-    "Institution/c6-bank": {
-      "bind": {
-        "background": {
-          "literal": "#242424",
-          "proposal": "sample Pluggy primaryColor for C6 Bank; real value comes from GET /connectors"
-        }
-      }
-    },
-    "Institution/caixa": {
-      "bind": {
-        "background": {
-          "literal": "#005CA9",
-          "proposal": "sample Pluggy primaryColor for Caixa; real value comes from GET /connectors"
-        }
-      }
-    },
-    "Institution/inter": {
-      "bind": {
-        "background": {
-          "literal": "#FF7A00",
-          "proposal": "sample Pluggy primaryColor for Inter; real value comes from GET /connectors"
-        }
-      }
-    },
-    "Institution/itau": {
-      "bind": {
-        "background": {
-          "literal": "#EC7000",
-          "proposal": "sample Pluggy primaryColor for Itaú; real value comes from GET /connectors"
-        }
-      }
-    },
-    "Institution/nubank": {
-      "bind": {
-        "background": {
-          "literal": "#820AD1",
-          "proposal": "sample Pluggy primaryColor for Nubank; real value comes from GET /connectors"
-        }
-      }
-    },
-    "Institution/santander": {
-      "bind": {
-        "background": {
-          "literal": "#EC0000",
-          "proposal": "sample Pluggy primaryColor for Santander; real value comes from GET /connectors"
-        }
-      }
-    },
-    "Institution/xp": {
-      "bind": {
-        "background": {
-          "literal": "#111111",
-          "proposal": "sample Pluggy primaryColor for XP Investimentos; real value comes from GET /connectors"
-        }
+      },
+      "css": {
+        "align-self": "flex-start"
       }
     },
     "Institutions/chips": {
@@ -2316,14 +2262,6 @@
     "Institutions/list": {
       "css": {
         "flex-shrink": "0"
-      }
-    },
-    "Institutions/offline": {
-      "bind": {
-        "opacity": {
-          "literal": "0.38",
-          "proposal": "health.status OFFLINE; same fade as a disabled OrbitButton"
-        }
       }
     },
     "Icon/plug": {
@@ -2398,6 +2336,13 @@
         "flex-direction": "column"
       }
     },
+    "Connectors/bodyTop": {
+      "bind": {
+        "padding-top": {
+          "token": "spacing.small"
+        }
+      }
+    },
     "Connectors/authorizePill": {
       "bind": {
         "color": {
@@ -2438,6 +2383,19 @@
       "css": {
         "display": "flex",
         "align-items": "center",
+        "flex-shrink": "0"
+      }
+    },
+    "Pluggy/helpLink": {
+      "bind": {
+        "gap": {
+          "token": "spacing.xxxSmall"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "align-items": "center",
+        "align-self": "flex-start",
         "flex-shrink": "0"
       }
     },
@@ -2543,7 +2501,9 @@
     },
     "MonthPicker/grid": {
       "bind": {
-        "gap": { "token": "spacing.xxSmall" }
+        "gap": {
+          "token": "spacing.xxSmall"
+        }
       },
       "css": {
         "display": "flex",
@@ -2557,8 +2517,12 @@
           "literal": "48dp",
           "proposal": "minimum touch target for a month option in the picker"
         },
-        "padding-left": { "token": "spacing.xxSmall" },
-        "padding-right": { "token": "spacing.xxSmall" }
+        "padding-left": {
+          "token": "spacing.xxSmall"
+        },
+        "padding-right": {
+          "token": "spacing.xxSmall"
+        }
       },
       "css": {
         "flex": "1",
