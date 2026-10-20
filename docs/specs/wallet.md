@@ -28,7 +28,7 @@ Status: Draft
 - R3: Sort offers Manual, Highest bill first, Next due date and A–Z. Choosing one closes the sheet and reorders both the stack and Open bills. The header of Open bills names the current order and opens the sheet.
 - R4: Edit order opens Sort cards, which lists the cards with a drag handle. Dragging lifts the row and changes the Manual order. Done returns to Wallet.
 - R5: Add card offers Import from your bank first (opens Connectors). The manual form never asks for the full card number or the security code, and the preview shows the typed name, last 4 digits and network.
-- R6: Removing a card asks for confirmation and says its expenses stay in history. Cancel returns to the card.
+- R6: Removing a card asks for confirmation and says its expenses and bills are deleted; for an imported card, that Don’t load in Card sync keeps them instead. Cancel returns to the card.
 - R7: Palette, light/dark mode and English/Portuguese apply to all six frames, and no text is clipped at 402 × 874.
 
 ## 4. Constraints

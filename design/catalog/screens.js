@@ -2794,7 +2794,7 @@ const walletRemove = sheetFrame('wallet-remove', 'Wallet · Remove card', WALLET
     gap(ctx, 'remove-gap-badge', 'spacing.medium'),
     text(ctx, 'remove-title', 'SignIn/title', { textKey: 'wallet_remove_title', textArgs: [card('azul').name] }),
     gap(ctx, 'remove-gap-title', 'spacing.xxSmall'),
-    text(ctx, 'remove-body', 'Screen/guidance', { textKey: 'wallet_remove_body' }),
+    text(ctx, 'remove-body', 'Screen/guidance', { textKey: 'wallet_remove_body_imported' }),
     gap(ctx, 'remove-gap-body', 'spacing.large'),
     actions(ctx, [
       OrbitButton(ctx, { key: 'remove-confirm', variant: 'Destructive', hotspot: true, styles: ['Screen/fill'] }, [
