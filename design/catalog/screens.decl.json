@@ -510,11 +510,11 @@
       "bind": {
         "width": {
           "literal": "56dp",
-          "proposal": "circular badge sized for the hero icon; no size token"
+          "source": "feature/wallet/src/commonMain/kotlin/br/com/weslleycampos/orbit/feature/wallet/bottomsheets/remove/CardRemoveSheet.kt:37"
         },
         "height": {
           "literal": "56dp",
-          "proposal": "circular badge sized for the hero icon; no size token"
+          "source": "feature/wallet/src/commonMain/kotlin/br/com/weslleycampos/orbit/feature/wallet/bottomsheets/remove/CardRemoveSheet.kt:37"
         },
         "border-radius": {
           "token": "shapes.pill"
@@ -618,7 +618,7 @@
       "bind": {
         "height": {
           "literal": "60dp",
-          "proposal": "list row height from the proposal; no size token"
+          "source": "feature/wallet/src/commonMain/kotlin/br/com/weslleycampos/orbit/feature/wallet/screens/wallet/WalletScreen.kt:80"
         },
         "padding-left": {
           "token": "spacing.small"
@@ -1017,7 +1017,7 @@
       "bind": {
         "height": {
           "literal": "64dp",
-          "proposal": "list row height shared by every Home list; no size token"
+          "source": "feature/transactions/src/commonMain/kotlin/br/com/weslleycampos/orbit/feature/transactions/components/TransactionRow.kt:29"
         },
         "padding-left": {
           "token": "spacing.small"
@@ -1805,7 +1805,7 @@
         "border": [
           {
             "literal": "1dp",
-            "proposal": "hairline border of the month switcher"
+            "source": "feature/transactions/src/commonMain/kotlin/br/com/weslleycampos/orbit/feature/transactions/components/PeriodStepper.kt:29"
           },
           {
             "token": "colors.border.base"
@@ -3164,7 +3164,7 @@
       "bind": {
         "height": {
           "literal": "176dp",
-          "proposal": "column chart plot height; no size token"
+          "source": "feature/transactions/src/commonMain/kotlin/br/com/weslleycampos/orbit/feature/transactions/components/ColumnChart.kt:32"
         }
       },
       "css": {
@@ -3352,7 +3352,7 @@
       "bind": {
         "margin-top": {
           "literal": "-169dp",
-          "proposal": "card stack overlap: each card behind the last shows a 64dp strip, like Apple Wallet"
+          "source": "feature/wallet/src/commonMain/kotlin/br/com/weslleycampos/orbit/feature/wallet/components/CardStack.kt:31"
         }
       }
     },
@@ -3399,7 +3399,7 @@
       "bind": {
         "height": {
           "literal": "14dp",
-          "proposal": "visible strip of each card waiting in the deck"
+          "source": "feature/wallet/src/commonMain/kotlin/br/com/weslleycampos/orbit/feature/wallet/components/CardStack.kt:33"
         }
       },
       "css": {
@@ -3411,7 +3411,7 @@
       "bind": {
         "margin-top": {
           "literal": "-4dp",
-          "proposal": "each waiting card overlaps the strip above it"
+          "source": "feature/wallet/src/commonMain/kotlin/br/com/weslleycampos/orbit/feature/wallet/components/CardStack.kt:34"
         }
       }
     },
@@ -3467,7 +3467,7 @@
       "bind": {
         "width": {
           "literal": "220dp",
-          "proposal": "card preview width; no size token"
+          "source": "feature/wallet/src/commonMain/kotlin/br/com/weslleycampos/orbit/feature/wallet/screens/add/WalletAddScreen.kt:59"
         },
         "background": {
           "token": "gradients.primary"
@@ -3518,7 +3518,7 @@
         "border": [
           {
             "literal": "1dp",
-            "proposal": "hairline edge so light card art stays visible on light surfaces"
+            "source": "feature/wallet/src/commonMain/kotlin/br/com/weslleycampos/orbit/feature/wallet/components/CardArt.kt:40"
           },
           {
             "token": "colors.border.base"
@@ -3555,7 +3555,7 @@
       "bind": {
         "width": {
           "literal": "180dp",
-          "proposal": "Edit card preview; smaller than the 220dp Add card preview so Save fits on the screen"
+          "source": "feature/wallet/src/commonMain/kotlin/br/com/weslleycampos/orbit/feature/wallet/screens/edit/CardEditScreen.kt:82"
         }
       },
       "css": {
@@ -3573,7 +3573,7 @@
       "bind": {
         "background": {
           "literal": "#0E6E5C",
-          "proposal": "card color: the Spruce palette's light primary, the same in every theme"
+          "source": "feature/wallet/src/commonMain/kotlin/br/com/weslleycampos/orbit/feature/wallet/components/CardColorFill.kt:6"
         }
       }
     },
@@ -3581,7 +3581,7 @@
       "bind": {
         "background": {
           "literal": "#3A4FC4",
-          "proposal": "card color: the Indigo palette's light primary, the same in every theme"
+          "source": "feature/wallet/src/commonMain/kotlin/br/com/weslleycampos/orbit/feature/wallet/components/CardColorFill.kt:7"
         }
       }
     },
@@ -3589,7 +3589,7 @@
       "bind": {
         "background": {
           "literal": "#6D3FF0",
-          "proposal": "card color: the Plum palette's light primary, the same in every theme"
+          "source": "feature/wallet/src/commonMain/kotlin/br/com/weslleycampos/orbit/feature/wallet/components/CardColorFill.kt:8"
         }
       }
     },
@@ -3597,7 +3597,7 @@
       "bind": {
         "background": {
           "literal": "#6A4C93",
-          "proposal": "card color: the Orchid palette's light primary, the same in every theme"
+          "source": "feature/wallet/src/commonMain/kotlin/br/com/weslleycampos/orbit/feature/wallet/components/CardColorFill.kt:9"
         }
       }
     },
@@ -3605,7 +3605,7 @@
       "bind": {
         "background": {
           "literal": "#C0396B",
-          "proposal": "card color: the Flamingo palette's light primary, the same in every theme"
+          "source": "feature/wallet/src/commonMain/kotlin/br/com/weslleycampos/orbit/feature/wallet/components/CardColorFill.kt:10"
         }
       }
     },
@@ -3613,7 +3613,7 @@
       "bind": {
         "background": {
           "literal": "#0F6FA8",
-          "proposal": "card color: the Azure palette's light primary, the same in every theme"
+          "source": "feature/wallet/src/commonMain/kotlin/br/com/weslleycampos/orbit/feature/wallet/components/CardColorFill.kt:11"
         }
       }
     },
@@ -3621,7 +3621,7 @@
       "bind": {
         "background": {
           "literal": "#B4501E",
-          "proposal": "card color: the Ember palette's light primary, the same in every theme"
+          "source": "feature/wallet/src/commonMain/kotlin/br/com/weslleycampos/orbit/feature/wallet/components/CardColorFill.kt:12"
         }
       }
     },
@@ -3629,7 +3629,7 @@
       "bind": {
         "background": {
           "literal": "#2E4A5E",
-          "proposal": "card color: the Graphite palette's light primary, the same in every theme"
+          "source": "feature/wallet/src/commonMain/kotlin/br/com/weslleycampos/orbit/feature/wallet/components/CardColorFill.kt:13"
         }
       }
     },
@@ -3637,7 +3637,7 @@
       "bind": {
         "background": {
           "literal": "#18181B",
-          "proposal": "card color: black, for black cards"
+          "source": "feature/wallet/src/commonMain/kotlin/br/com/weslleycampos/orbit/feature/wallet/components/CardColorFill.kt:14"
         }
       }
     },
@@ -3693,7 +3693,7 @@
         "outline": [
           {
             "literal": "2dp",
-            "proposal": "selected image ring, like the selected palette"
+            "source": "feature/wallet/src/commonMain/kotlin/br/com/weslleycampos/orbit/feature/wallet/components/CardTile.kt:33"
           },
           {
             "token": "colors.border.primary"
@@ -3701,7 +3701,7 @@
         ],
         "outline-offset": {
           "literal": "2dp",
-          "proposal": "gap between the card edge and the selected image ring"
+          "source": "feature/wallet/src/commonMain/kotlin/br/com/weslleycampos/orbit/feature/wallet/components/CardTile.kt:34"
         }
       },
       "css": {
@@ -3861,7 +3861,7 @@
         "border": [
           {
             "literal": "1dp",
-            "proposal": "hairline border of the bill status pill, like the Home status pill"
+            "source": "feature/wallet/src/commonMain/kotlin/br/com/weslleycampos/orbit/feature/wallet/components/BillStatusPill.kt:15"
           },
           {
             "token": "colors.brand.subtle"
@@ -3880,7 +3880,7 @@
         "border": [
           {
             "literal": "1dp",
-            "proposal": "hairline border of the bill status pill, like the Home status pill"
+            "source": "feature/wallet/src/commonMain/kotlin/br/com/weslleycampos/orbit/feature/wallet/components/BillStatusPill.kt:15"
           },
           {
             "token": "colors.direction.gainBorder"
@@ -3899,7 +3899,7 @@
         "border": [
           {
             "literal": "1dp",
-            "proposal": "hairline border of the bill status pill, like the Home status pill"
+            "source": "feature/wallet/src/commonMain/kotlin/br/com/weslleycampos/orbit/feature/wallet/components/BillStatusPill.kt:15"
           },
           {
             "token": "colors.direction.warnBorder"
@@ -3918,7 +3918,7 @@
         "border": [
           {
             "literal": "1dp",
-            "proposal": "hairline border of the bill status pill, like the Home status pill"
+            "source": "feature/wallet/src/commonMain/kotlin/br/com/weslleycampos/orbit/feature/wallet/components/BillStatusPill.kt:15"
           },
           {
             "token": "colors.border.base"
