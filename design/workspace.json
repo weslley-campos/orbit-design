@@ -13,9 +13,9 @@
       "id": "page-design-system",
       "name": "Design system",
       "view": {
-        "x": 40,
-        "y": 60,
-        "zoom": 0.3
+        "x": 689.1302860681387,
+        "y": 144.8924956110838,
+        "zoom": 0.429
       },
       "frames": [
         {
@@ -64,9 +64,9 @@
       "id": "page-components",
       "name": "Components",
       "view": {
-        "x": 40,
-        "y": 60,
-        "zoom": 0.3
+        "x": 181.95881041531698,
+        "y": -1201.46706053659,
+        "zoom": 1.047
       },
       "frames": [
         {
@@ -180,544 +180,520 @@
       "name": "Screens / Mobile",
       "platform": "mobile",
       "view": {
-        "x": 40,
-        "y": 40,
-        "zoom": 0.3
+        "x": 723.6714306240259,
+        "y": 312.5247305314011,
+        "zoom": 0.1
       },
       "frames": [
         {
           "id": "mobile-splash",
           "catalogId": "screens/splash",
-          "x": 0,
-          "y": 0,
+          "x": -2620,
+          "y": 148,
           "width": 402,
           "height": 874
         },
         {
           "id": "mobile-sign-in",
           "catalogId": "screens/sign-in",
-          "x": 512,
-          "y": 0,
+          "x": -2066,
+          "y": 148,
           "width": 402,
           "height": 874
         },
         {
           "id": "mobile-create-account",
           "catalogId": "screens/create-account",
-          "x": 1024,
-          "y": 0,
+          "x": -1288,
+          "y": -962,
           "width": 402,
           "height": 874
         },
         {
           "id": "mobile-email-validation",
           "catalogId": "screens/email-validation",
-          "x": 1536,
-          "y": 0,
+          "x": -740,
+          "y": -962,
           "width": 402,
           "height": 874
         },
         {
           "id": "mobile-join-family",
           "catalogId": "screens/join-family",
-          "x": 2048,
-          "y": 0,
+          "x": -186,
+          "y": -962,
           "width": 402,
           "height": 874
         },
         {
           "id": "mobile-family-members",
           "catalogId": "screens/family-members",
-          "x": 2560,
-          "y": 0,
+          "x": 368,
+          "y": -962,
           "width": 402,
           "height": 874
         },
         {
           "id": "mobile-invite",
           "catalogId": "screens/invite",
-          "x": 3072,
-          "y": 0,
+          "x": 922,
+          "y": -962,
           "width": 402,
           "height": 874
         },
         {
           "id": "mobile-forgot-password",
           "catalogId": "screens/forgot-password",
-          "x": 512,
-          "y": 966,
+          "x": -2066,
+          "y": 1174,
           "width": 402,
           "height": 874
         },
         {
           "id": "mobile-email-sent",
           "catalogId": "screens/email-sent",
-          "x": 1024,
-          "y": 966,
+          "x": -2066,
+          "y": 2200,
           "width": 402,
           "height": 874
         },
         {
           "id": "mobile-legal-terms",
           "catalogId": "screens/legal-terms",
-          "x": 1536,
-          "y": 966,
+          "x": -1288,
+          "y": -2002,
           "width": 402,
           "height": 874
         },
         {
           "id": "mobile-legal-privacy",
           "catalogId": "screens/legal-privacy",
-          "x": 2048,
-          "y": 966,
+          "x": -749,
+          "y": -1993,
           "width": 402,
           "height": 874
         },
         {
           "id": "mobile-home",
           "catalogId": "screens/home",
-          "x": 3584,
-          "y": 0,
-          "width": 402,
-          "height": 874
-        },
-        {
-          "id": "mobile-home-budget",
-          "catalogId": "screens/home-budget",
-          "x": 4096,
-          "y": 0,
-          "width": 402,
-          "height": 874
-        },
-        {
-          "id": "mobile-home-leftover",
-          "catalogId": "screens/home-leftover",
-          "x": 4608,
-          "y": 0,
-          "width": 402,
-          "height": 874
-        },
-        {
-          "id": "mobile-home-pulse",
-          "catalogId": "screens/home-pulse",
-          "x": 5120,
-          "y": 0,
+          "x": -1288,
+          "y": 148,
           "width": 402,
           "height": 874
         },
         {
           "id": "mobile-home-month-picker",
           "catalogId": "screens/home-month-picker",
-          "x": 3584,
-          "y": 966,
+          "x": -737,
+          "y": 148,
           "width": 402,
           "height": 874
         },
         {
           "id": "mobile-connectors",
           "catalogId": "screens/connectors",
-          "x": 4608,
-          "y": 966,
+          "x": 4088,
+          "y": -962,
           "width": 402,
           "height": 874
         },
         {
           "id": "mobile-connectors-empty",
           "catalogId": "screens/connectors-empty",
-          "x": 4096,
-          "y": 966,
+          "x": 3534,
+          "y": -962,
           "width": 402,
           "height": 874
         },
         {
           "id": "mobile-pluggy-setup",
           "catalogId": "screens/pluggy-setup",
-          "x": 5120,
-          "y": 966,
+          "x": 4642,
+          "y": -962,
           "width": 402,
           "height": 874
         },
         {
           "id": "mobile-pluggy",
           "catalogId": "screens/pluggy",
-          "x": 5632,
-          "y": 966,
+          "x": 5196,
+          "y": -962,
           "width": 402,
           "height": 874
         },
         {
           "id": "mobile-pluggy-disconnect",
           "catalogId": "screens/pluggy-disconnect",
-          "x": 6144,
-          "y": 966,
+          "x": 5750,
+          "y": -962,
           "width": 402,
           "height": 874
         },
         {
           "id": "mobile-pluggy-disconnect-delete",
           "catalogId": "screens/pluggy-disconnect-delete",
-          "x": 6656,
-          "y": 966,
+          "x": 6304,
+          "y": -962,
           "width": 402,
           "height": 874
         },
         {
           "id": "mobile-pluggy-secret-help",
           "catalogId": "screens/pluggy-secret-help",
-          "x": 5120,
-          "y": 1932,
-          "width": 402,
-          "height": 874
-        },
-        {
-          "id": "mobile-connectors-no-banks",
-          "catalogId": "screens/connectors-no-banks",
-          "x": 7168,
-          "y": 966,
-          "width": 402,
-          "height": 874
-        },
-        {
-          "id": "mobile-connectors-institutions",
-          "catalogId": "screens/connectors-institutions",
-          "x": 7680,
-          "y": 966,
-          "width": 402,
-          "height": 874
-        },
-        {
-          "id": "mobile-connectors-choose-bank-help",
-          "catalogId": "screens/connectors-choose-bank-help",
-          "x": 8192,
-          "y": 966,
-          "width": 402,
-          "height": 874
-        },
-        {
-          "id": "mobile-connectors-connect-bank",
-          "catalogId": "screens/connectors-connect-bank",
-          "x": 8704,
-          "y": 966,
-          "width": 402,
-          "height": 874
-        },
-        {
-          "id": "mobile-connectors-connect-bank-help",
-          "catalogId": "screens/connectors-connect-bank-help",
-          "x": 9216,
-          "y": 966,
+          "x": 7966,
+          "y": 323,
           "width": 402,
           "height": 874
         },
         {
           "id": "mobile-settings",
           "catalogId": "screens/settings",
-          "x": 3584,
-          "y": 1932,
+          "x": 2486,
+          "y": 323,
           "width": 402,
           "height": 874
         },
         {
           "id": "mobile-settings-theme",
           "catalogId": "screens/settings-theme",
-          "x": 4096,
-          "y": 1932,
+          "x": 3534,
+          "y": 1596,
           "width": 402,
           "height": 874
         },
         {
           "id": "mobile-settings-sign-out",
           "catalogId": "screens/settings-sign-out",
-          "x": 4608,
-          "y": 1932,
+          "x": 4088,
+          "y": 1596,
           "width": 402,
           "height": 874
         },
         {
           "id": "mobile-profile",
           "catalogId": "screens/profile",
-          "x": 5632,
-          "y": 1932,
+          "x": 3534,
+          "y": 323,
           "width": 402,
           "height": 874
         },
         {
           "id": "mobile-profile-photo",
           "catalogId": "screens/profile-photo",
-          "x": 6144,
-          "y": 1932,
+          "x": 4088,
+          "y": 323,
           "width": 402,
           "height": 874
         },
         {
           "id": "mobile-charts",
           "catalogId": "screens/charts",
-          "x": 3584,
-          "y": 2898,
+          "x": 2525,
+          "y": 2922,
           "width": 402,
           "height": 874
         },
         {
           "id": "mobile-charts-category",
           "catalogId": "screens/charts-category",
-          "x": 4096,
-          "y": 2898,
+          "x": 3534,
+          "y": 2922,
           "width": 402,
           "height": 874
         },
         {
           "id": "mobile-wallet",
           "catalogId": "screens/wallet",
-          "x": 3584,
-          "y": 3864,
+          "x": 2561,
+          "y": 5178,
           "width": 402,
           "height": 874
         },
         {
           "id": "mobile-wallet-card",
           "catalogId": "screens/wallet-card",
-          "x": 4096,
-          "y": 3864,
+          "x": 3534,
+          "y": 5178,
           "width": 402,
           "height": 874
         },
         {
           "id": "mobile-wallet-sort",
           "catalogId": "screens/wallet-sort",
-          "x": 4608,
-          "y": 3864,
+          "x": 4112,
+          "y": 5178,
           "width": 402,
           "height": 874
         },
         {
           "id": "mobile-wallet-edit",
           "catalogId": "screens/wallet-edit",
-          "x": 5120,
-          "y": 3864,
+          "x": 4666,
+          "y": 5178,
           "width": 402,
           "height": 874
         },
         {
           "id": "mobile-wallet-add",
           "catalogId": "screens/wallet-add",
-          "x": 5632,
-          "y": 3864,
+          "x": 5220,
+          "y": 5178,
           "width": 402,
           "height": 874
         },
         {
           "id": "mobile-wallet-remove",
           "catalogId": "screens/wallet-remove",
-          "x": 6144,
-          "y": 3864,
+          "x": 5774,
+          "y": 5178,
           "width": 402,
           "height": 874
         },
         {
           "id": "mobile-wallet-bill-july",
           "catalogId": "screens/wallet-bill-july",
-          "x": 6656,
-          "y": 3864,
+          "x": 6328,
+          "y": 5178,
           "width": 402,
           "height": 874
         },
         {
           "id": "mobile-wallet-bill-august",
           "catalogId": "screens/wallet-bill-august",
-          "x": 7168,
-          "y": 3864,
+          "x": 6882,
+          "y": 5178,
           "width": 402,
           "height": 874
         },
         {
           "id": "mobile-wallet-bill-september",
           "catalogId": "screens/wallet-bill-september",
-          "x": 7680,
-          "y": 3864,
+          "x": 7436,
+          "y": 5178,
           "width": 402,
           "height": 874
         },
         {
           "id": "mobile-wallet-bill",
           "catalogId": "screens/wallet-bill",
-          "x": 8192,
-          "y": 3864,
+          "x": 7990,
+          "y": 5178,
           "width": 402,
           "height": 874
         },
         {
           "id": "mobile-wallet-bill-november",
           "catalogId": "screens/wallet-bill-november",
-          "x": 8704,
-          "y": 3864,
+          "x": 8544,
+          "y": 5178,
           "width": 402,
           "height": 874
         },
         {
           "id": "mobile-wallet-card-sync",
           "catalogId": "screens/wallet-card-sync",
-          "x": 9216,
-          "y": 3864,
-          "width": 402,
-          "height": 874
-        },
-        {
-          "id": "mobile-wallet-card-edit",
-          "catalogId": "screens/wallet-card-edit",
-          "x": 9728,
-          "y": 3864,
-          "width": 402,
-          "height": 874
-        },
-        {
-          "id": "mobile-wallet-card-edit-imported",
-          "catalogId": "screens/wallet-card-edit-imported",
-          "x": 10240,
-          "y": 3864,
-          "width": 402,
-          "height": 874
-        },
-        {
-          "id": "mobile-wallet-card-edit-chosen",
-          "catalogId": "screens/wallet-card-edit-chosen",
-          "x": 10752,
-          "y": 3864,
-          "width": 402,
-          "height": 874
-        },
-        {
-          "id": "mobile-wallet-card-edit-saving",
-          "catalogId": "screens/wallet-card-edit-saving",
-          "x": 11264,
-          "y": 3864,
-          "width": 402,
-          "height": 874
-        },
-        {
-          "id": "mobile-wallet-card-edit-failed",
-          "catalogId": "screens/wallet-card-edit-failed",
-          "x": 11776,
-          "y": 3864,
-          "width": 402,
-          "height": 874
-        },
-        {
-          "id": "mobile-wallet-card-edit-color",
-          "catalogId": "screens/wallet-card-edit-color",
-          "x": 12288,
-          "y": 3864,
+          "x": 9098,
+          "y": 5178,
           "width": 402,
           "height": 874
         },
         {
           "id": "mobile-wallet-bill-closed",
           "catalogId": "screens/wallet-bill-closed",
-          "x": 7680,
-          "y": 4830,
+          "x": 6321,
+          "y": 6309,
           "width": 402,
           "height": 874
         },
         {
           "id": "mobile-wallet-bill-card",
           "catalogId": "screens/wallet-bill-card",
-          "x": 8192,
-          "y": 4830,
+          "x": 6875,
+          "y": 6309,
           "width": 402,
           "height": 874
         },
         {
           "id": "mobile-wallet-bill-manual",
           "catalogId": "screens/wallet-bill-manual",
-          "x": 8704,
-          "y": 4830,
+          "x": 7429,
+          "y": 6309,
           "width": 402,
           "height": 874
         },
         {
           "id": "mobile-transactions",
           "catalogId": "screens/transactions",
-          "x": 3584,
-          "y": 4830,
+          "x": 3551,
+          "y": 6309,
           "width": 402,
           "height": 874
         },
         {
           "id": "mobile-transactions-week",
           "catalogId": "screens/transactions-week",
-          "x": 4096,
-          "y": 4830,
+          "x": 4105,
+          "y": 6309,
           "width": 402,
           "height": 874
         },
         {
           "id": "mobile-transactions-day",
           "catalogId": "screens/transactions-day",
-          "x": 4608,
-          "y": 4830,
+          "x": 4659,
+          "y": 6309,
           "width": 402,
           "height": 874
         },
         {
           "id": "mobile-transactions-year",
           "catalogId": "screens/transactions-year",
-          "x": 5120,
-          "y": 4830,
+          "x": 5213,
+          "y": 6309,
           "width": 402,
           "height": 874
         },
         {
           "id": "mobile-transaction-detail",
           "catalogId": "screens/transaction-detail",
-          "x": 5632,
-          "y": 4830,
+          "x": 5767,
+          "y": 6309,
           "width": 402,
           "height": 874
         },
         {
           "id": "mobile-profile-name",
           "catalogId": "screens/profile-name",
-          "x": 6656,
-          "y": 1932,
+          "x": 4642,
+          "y": 323,
           "width": 402,
           "height": 874
         },
         {
           "id": "mobile-profile-password",
           "catalogId": "screens/profile-password",
-          "x": 7168,
-          "y": 1932,
+          "x": 5196,
+          "y": 323,
           "width": 402,
           "height": 874
         },
         {
           "id": "mobile-profile-google",
           "catalogId": "screens/profile-google",
-          "x": 7680,
-          "y": 1932,
+          "x": 5750,
+          "y": 323,
           "width": 402,
           "height": 874
         },
         {
           "id": "mobile-profile-password-add",
           "catalogId": "screens/profile-password-add",
-          "x": 8192,
-          "y": 1932,
+          "x": 6304,
+          "y": 323,
           "width": 402,
           "height": 874
         },
         {
           "id": "mobile-profile-photo-set",
           "catalogId": "screens/profile-photo-set",
-          "x": 8704,
-          "y": 1932,
+          "x": 6858,
+          "y": 323,
           "width": 402,
           "height": 874
         },
         {
           "id": "mobile-profile-phone",
           "catalogId": "screens/profile-phone",
-          "x": 9216,
-          "y": 1932,
+          "x": 7412,
+          "y": 323,
+          "width": 402,
+          "height": 874
+        },
+        {
+          "id": "mobile-connectors-no-banks",
+          "catalogId": "screens/connectors-no-banks",
+          "x": 6858,
+          "y": -962,
+          "width": 402,
+          "height": 874
+        },
+        {
+          "id": "mobile-connectors-institutions",
+          "catalogId": "screens/connectors-institutions",
+          "x": 7412,
+          "y": -962,
+          "width": 402,
+          "height": 874
+        },
+        {
+          "id": "mobile-connectors-choose-bank-help",
+          "catalogId": "screens/connectors-choose-bank-help",
+          "x": 7966,
+          "y": -962,
+          "width": 402,
+          "height": 874
+        },
+        {
+          "id": "mobile-connectors-connect-bank",
+          "catalogId": "screens/connectors-connect-bank",
+          "x": 8520,
+          "y": -962,
+          "width": 402,
+          "height": 874
+        },
+        {
+          "id": "mobile-connectors-connect-bank-help",
+          "catalogId": "screens/connectors-connect-bank-help",
+          "x": 9074,
+          "y": -962,
+          "width": 402,
+          "height": 874
+        },
+        {
+          "id": "mobile-wallet-card-edit",
+          "catalogId": "screens/wallet-card-edit",
+          "x": 9652,
+          "y": 5178,
+          "width": 402,
+          "height": 874
+        },
+        {
+          "id": "mobile-wallet-card-edit-imported",
+          "catalogId": "screens/wallet-card-edit-imported",
+          "x": 10206,
+          "y": 5178,
+          "width": 402,
+          "height": 874
+        },
+        {
+          "id": "mobile-wallet-card-edit-chosen",
+          "catalogId": "screens/wallet-card-edit-chosen",
+          "x": 10760,
+          "y": 5178,
+          "width": 402,
+          "height": 874
+        },
+        {
+          "id": "mobile-wallet-card-edit-saving",
+          "catalogId": "screens/wallet-card-edit-saving",
+          "x": 11314,
+          "y": 5178,
+          "width": 402,
+          "height": 874
+        },
+        {
+          "id": "mobile-wallet-card-edit-failed",
+          "catalogId": "screens/wallet-card-edit-failed",
+          "x": 11868,
+          "y": 5178,
+          "width": 402,
+          "height": 874
+        },
+        {
+          "id": "mobile-wallet-card-edit-color",
+          "catalogId": "screens/wallet-card-edit-color",
+          "x": 12422,
+          "y": 5178,
           "width": 402,
           "height": 874
         }
@@ -3255,6 +3231,60 @@
     "frames": {}
   },
   "archived": [
+    {
+      "frame": {
+        "x": 5120,
+        "y": 0,
+        "id": "mobile-home-pulse",
+        "width": 402,
+        "height": 874,
+        "catalogId": "screens/home-pulse"
+      },
+      "pageId": "page-mobile",
+      "pageName": "Screens / Mobile",
+      "index": 12,
+      "platform": "mobile",
+      "connections": [],
+      "overrides": {},
+      "start": false,
+      "at": "2026-10-19T21:31:14.794Z"
+    },
+    {
+      "frame": {
+        "x": 4608,
+        "y": 0,
+        "id": "mobile-home-leftover",
+        "width": 402,
+        "height": 874,
+        "catalogId": "screens/home-leftover"
+      },
+      "pageId": "page-mobile",
+      "pageName": "Screens / Mobile",
+      "index": 12,
+      "platform": "mobile",
+      "connections": [],
+      "overrides": {},
+      "start": false,
+      "at": "2026-10-19T21:31:13.395Z"
+    },
+    {
+      "frame": {
+        "x": 4096,
+        "y": 0,
+        "id": "mobile-home-budget",
+        "width": 402,
+        "height": 874,
+        "catalogId": "screens/home-budget"
+      },
+      "pageId": "page-mobile",
+      "pageName": "Screens / Mobile",
+      "index": 12,
+      "platform": "mobile",
+      "connections": [],
+      "overrides": {},
+      "start": false,
+      "at": "2026-10-19T21:31:11.660Z"
+    },
     {
       "frame": {
         "id": "mobile-wallet-bill-v1-september",
