@@ -618,7 +618,7 @@
       "bind": {
         "height": {
           "literal": "60dp",
-          "source": "feature/wallet/src/commonMain/kotlin/br/com/weslleycampos/orbit/feature/wallet/screens/wallet/WalletScreen.kt:80"
+          "source": "feature/wallet/src/commonMain/kotlin/br/com/weslleycampos/orbit/feature/wallet/screens/wallet/WalletScreen.kt:85"
         },
         "padding-left": {
           "token": "spacing.small"
@@ -3351,7 +3351,7 @@
     "Wallet/stacked": {
       "bind": {
         "margin-top": {
-          "literal": "-169dp",
+          "literal": "-164dp",
           "source": "feature/wallet/src/commonMain/kotlin/br/com/weslleycampos/orbit/feature/wallet/components/CardStack.kt:31"
         }
       }
@@ -3693,7 +3693,7 @@
         "outline": [
           {
             "literal": "2dp",
-            "source": "feature/wallet/src/commonMain/kotlin/br/com/weslleycampos/orbit/feature/wallet/components/CardTile.kt:33"
+            "source": "feature/wallet/src/commonMain/kotlin/br/com/weslleycampos/orbit/feature/wallet/components/CardTile.kt:39"
           },
           {
             "token": "colors.border.primary"
@@ -3701,7 +3701,7 @@
         ],
         "outline-offset": {
           "literal": "2dp",
-          "source": "feature/wallet/src/commonMain/kotlin/br/com/weslleycampos/orbit/feature/wallet/components/CardTile.kt:34"
+          "source": "feature/wallet/src/commonMain/kotlin/br/com/weslleycampos/orbit/feature/wallet/components/CardTile.kt:40"
         }
       },
       "css": {
