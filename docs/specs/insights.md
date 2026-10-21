@@ -13,9 +13,12 @@ Replaces the Charts draft ([charts.md](charts.md)): the second tab becomes Insig
 - Included:
   - The second tab renamed Insights (Análises), keeping the pie-chart icon.
   - `screens/insights` (Month), `screens/insights-week`, `screens/insights-year` with `screens/insights-year-line`: Week / Month / Year chips, the ‹ period › stepper, a summary with the change against the same days of the previous period and its chart, By category, Last 6 months (Month only), Family members, and Biggest expenses with See all.
+  - Two candidate period selectors, each as Month, Week and Year, to choose one before implementation:
+    - `screens/insights-segmented-*` (A): a Week / Month / Year segmented control under the title, then the period as a heading with a chevron that opens a picker, its days so far ("Oct 1 – 7 · 7 of 31 days") and a ‹ › pill.
+    - `screens/insights-timeline-*` (B): the segmented control beside the title, a rail of recent periods with a mini bar of what each spent, the current one highlighted and later ones as dashed empty slots, then the period heading, its days so far and the ‹ › pill.
   - `screens/insights-first-month`: the first month of a user without family members, with nothing to compare against.
   - `screens/insights-empty`: a user with no expenses yet.
-  - Prototype links: the bar's Insights from Home, Wallet, Card and Settings; the period chips; the Year chart's view switch; summaries, category rows, columns, family members and See all into the Transactions frames; expense rows into Transaction; Connect a bank into Connectors.
+  - Prototype links: the bar's Insights from Home, Wallet, Card and Settings; the period chips, and each candidate's segments within its own set; the Year chart's view switch; summaries, category rows, columns, family members and See all into the Transactions frames; expense rows into Transaction; Connect a bank into Connectors.
 - Excluded: budgets (the even-pace line, budget lines, "over budget"), a projection for Week or for a first month, the Day period, a category screen (Charts · Restaurants), generated insights ("Saturdays are your biggest days"), the filtered Transactions frames themselves, loading and error frames, exporting, production app changes.
 - Design: `screens/home` → `screens/insights` ⇄ `-week`, `-year` ⇄ `-year-line` → `screens/transactions*` → `screens/transaction-detail`. `screens/charts` and `screens/charts-category` move to Archived, with their links, and stay there for reference.
 
@@ -46,6 +49,7 @@ Replaces the Charts draft ([charts.md](charts.md)): the second tab becomes Insig
 - Marks take the palette's light `gradients.primary` in both modes, since the dark one is a near-black background that vanishes on a dark surface: columns run it bottom to top and lines left to right, both reaching past the plot so the lightest stop never lands on a mark, and in dark mode starting past the deepest one. Columns other than the current one take it at 55% opacity; areas under a line fade the brand color from 32% to none. The archived Charts frames keep flat colors.
 - The category colors still fail the colorblind check ([charts.md](charts.md)), so every colored mark has a row with an icon and a label beside it.
 - Two new proposed icons, Lucide `chart-column` and `chart-spline` (ISC), for the view switch. New styles: `Insights/deltaDown`, which reuses `Charts/deltaUp`'s proposed 1dp border with the success colors, and `Insights/swatch`, `Insights/swatchWide` and `Insights/viewSwitch`, all on existing tokens.
+- The candidate selectors add `Insights/segmented`, `Insights/segment`, `Insights/segmentSelected`, `Insights/periodText`, `Insights/periodTitle` and the `Insights/rail*` styles, on existing tokens and the 1dp border `PeriodStepper` already uses; the ‹ › pill reuses `Home/switcher`. The rail's amounts outside October are invented for the draft.
 
 ## 6. Acceptance criteria
 - [ ] R1 · manual — Given Home in Play, when Insights in the bar is activated, then Insights opens on October 2026 with Insights selected.
@@ -74,6 +78,7 @@ Replaces the Charts draft ([charts.md](charts.md)): the second tab becomes Insig
 - Where does income come from: checking accounts synced through Pluggy, or income the user enters? — orbit-api — blocks implementation of the income line, not this draft.
 - Is a projection of installments due plus the recent average good enough, or should it learn from the same month last year (December's gifts, January's taxes)? — product owner — does not block this draft.
 - Should chart marks get their own `gradients.chart` token per palette and mode, instead of reading the light `gradients.primary` in dark mode too? — design system — does not block this draft.
+- Which period selector replaces the chips and stepper: A (segmented control and period heading) or B (timeline rail)? Transactions has the same chips and stepper and follows the choice. — product owner — blocks implementation of the period controls, not this draft.
 - Should the app remember the Year view the user picked? — product owner — does not block this draft.
 - Do budgets, once `GET /budget` exists, come back as the even-pace and budget lines of the Charts draft? — product owner — does not block this draft.
 - Assumptions: today is Wed 7 October 2026; the user is Ana, with Marina as a family member, except in the first-month frame; amounts and counts match Home and Transactions.

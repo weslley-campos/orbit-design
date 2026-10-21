@@ -3710,12 +3710,174 @@ const insightsHeader = (ctx, period, stepper) => [
     gap(ctx, 'gap-stepper', 'spacing.medium'),
   ] : []),
 ];
-const insightsFrame = (id, name, period, p) => frame(id, name, { status: 'proposed', spec: INSIGHTS_SPEC }, (ctx) => screenFrame(ctx, [
+// Two proposals for the period controls, drafted to compare with the chips and stepper above.
+const weekStart = (ctx, month, day) => ({ textKey: 'insights_week_start', textArgs: [ctx.t(`charts_month_short_${month}`), day] });
+const PERIOD_SELECTOR = {
+  week: {
+    title: { textKey: 'tx_week_range' },
+    progress: 'insights_progress_week',
+    rail: (ctx) => [
+      ['sep-7', weekStart(ctx, 9, '7'), 980, 'past'],
+      ['sep-14', weekStart(ctx, 9, '14'), 1240, 'past'],
+      ['sep-21', weekStart(ctx, 9, '21'), 860, 'past'],
+      ['sep-28', weekStart(ctx, 9, '28'), 1402, 'past'],
+      ['oct-5', weekStart(ctx, 10, '5'), 1115.2, 'current'],
+      ['oct-12', weekStart(ctx, 10, '12'), 0, 'future'],
+      ['oct-19', weekStart(ctx, 10, '19'), 0, 'future'],
+    ],
+  },
+  month: {
+    title: { textKey: 'home_month' },
+    progress: 'insights_progress_month',
+    rail: () => [6, 7, 8, 9, 10, 11, 12].map((month) => [
+      `month-${month}`, { textKey: `charts_month_short_${month}` }, YEAR[month - 1], month < 10 ? 'past' : month === 10 ? 'current' : 'future',
+    ]),
+  },
+  year: {
+    title: { text: '2026' },
+    progress: 'insights_progress_year',
+    rail: () => [['2024', { text: '2024' }, 39800, 'past'], ['2025', { text: '2025' }, 51870, 'past'], ['2026', { text: '2026' }, 44520, 'current']],
+  },
+};
+
+const periodSegments = (ctx, period) => ctx.node({
+  key: 'periods',
+  styles: ['Insights/segmented'],
+  attrs: { role: 'group', 'aria-label': ctx.t('charts_periods') },
+  children: ['week', 'month', 'year'].map((option) => ctx.node({
+    key: `period-${option}`,
+    tag: 'button',
+    styles: ['Insights/segment', option === period && 'Insights/segmentSelected'],
+    textKey: `charts_period_${option}`,
+    hotspot: option !== period,
+    attrs: { 'aria-pressed': option === period },
+  })),
+});
+const periodSteps = (ctx) => ctx.node({
+  key: 'period/steps',
+  styles: ['Home/switcher'],
+  children: [
+    OrbitIconButton(ctx, { key: 'period-previous', styles: ['Home/switcherButton'], contentDescription: ctx.t('tx_previous') }, [
+      icon(ctx, 'period-previous/icon', 'chevron_left', 'medium', 'colors.text.secondary'),
+    ]),
+    OrbitIconButton(ctx, { key: 'period-next', enabled: false, styles: ['Home/switcherButton'], contentDescription: ctx.t('tx_next') }, [
+      icon(ctx, 'period-next/icon', 'chevron_right', 'medium', 'colors.text.disabled'),
+    ]),
+  ],
+});
+
+// A: a segmented control for the length, then the period itself as a heading that opens a picker, stepped by arrows.
+const segmentedHeader = (ctx, period) => {
+  const { title, progress } = PERIOD_SELECTOR[period];
+  return [
+    gap(ctx, 'gap-top', 'spacing.xxLarge'),
+    inset(ctx, 'title/inset', text(ctx, 'title', 'SignIn/title', { textKey: 'insights_title' })),
+    gap(ctx, 'gap-title', 'spacing.small'),
+    inset(ctx, 'periods/inset', periodSegments(ctx, period)),
+    gap(ctx, 'gap-periods', 'spacing.medium'),
+    inset(ctx, 'period/inset', ctx.node({
+      key: 'period',
+      styles: ['Home/spread'],
+      children: [
+        ctx.node({
+          key: 'period/text',
+          styles: ['Insights/periodText'],
+          children: [
+            ctx.node({
+              key: 'period-pick',
+              tag: 'button',
+              styles: ['Home/monthRow'],
+              attrs: { 'aria-label': ctx.t('insights_pick_period') },
+              children: [
+                text(ctx, 'period/title', 'Insights/periodTitle', title),
+                icon(ctx, 'period/chevron', 'chevron_down', 'small', 'colors.text.secondary'),
+              ],
+            }),
+            text(ctx, 'period/progress', 'Screen/tertiary', { textKey: progress }),
+          ],
+        }),
+        periodSteps(ctx),
+      ],
+    })),
+    gap(ctx, 'gap-period', 'spacing.medium'),
+  ];
+};
+
+// B: the length beside the title, and a rail of recent periods, each a mini bar of what was spent; later ones are empty slots.
+const RailHeight = 32;
+const railItem = (ctx, key, label, share, state) => {
+  const current = state === 'current';
+  const future = state === 'future';
+  const gradient = !future && themeGradient(ctx, `${key}/gradient`, [0, RailHeight, 0, 0], current ? 1 : 0.55);
+  const height = Math.max(3, share * RailHeight);
+  return ctx.node({
+    key,
+    tag: 'button',
+    styles: ['Insights/railItem', current && 'Insights/railItemSelected'],
+    attrs: { 'aria-pressed': current, ...(future ? { disabled: true } : {}) },
+    children: [
+      ctx.node({
+        key: `${key}/bar`, tag: 'svg', styles: ['Insights/railBar'], attrs: { viewBox: `0 0 8 ${RailHeight}`, 'aria-hidden': 'true' },
+        children: future ? [
+          ctx.node({
+            key: `${key}/slot`, tag: 'rect', bind: { stroke: { token: 'colors.border.strong' } },
+            attrs: { x: 0.5, y: 0.5, width: 7, height: RailHeight - 1, rx: 3.5, fill: 'none', 'stroke-dasharray': '2 2' },
+          }),
+        ] : [
+          ctx.node({ key: `${key}/defs`, tag: 'defs', children: [gradient.defs] }),
+          ctx.node({ key: `${key}/track`, tag: 'rect', bind: { fill: { token: 'colors.border.base' } }, attrs: { width: 8, height: RailHeight, rx: 4 } }),
+          ctx.node({ key: `${key}/value`, tag: 'rect', attrs: { y: RailHeight - height, width: 8, height, rx: 4, fill: gradient.fill } }),
+        ],
+      }),
+      text(ctx, `${key}/label`, 'Insights/railLabel', label, {
+        styles: ['Insights/railLabel', current && 'Insights/railLabelSelected', future && 'Insights/railLabelFuture'],
+      }),
+    ],
+  });
+};
+const periodRail = (ctx, items) => {
+  const max = Math.max(...items.map(([, , amount]) => amount));
+  return ctx.node({
+    key: 'rail',
+    styles: ['Insights/rail'],
+    attrs: { role: 'group', 'aria-label': ctx.t('insights_rail') },
+    children: items.map(([key, label, amount, state]) => railItem(ctx, `rail-${key}`, label, amount / max, state)),
+  });
+};
+const railHeader = (ctx, period) => {
+  const { title, progress, rail } = PERIOD_SELECTOR[period];
+  return [
+    gap(ctx, 'gap-top', 'spacing.xxLarge'),
+    ctx.node({
+      key: 'header',
+      styles: ['Home/spread', 'Home/inset'],
+      children: [text(ctx, 'title', 'SignIn/title', { textKey: 'insights_title' }), periodSegments(ctx, period)],
+    }),
+    gap(ctx, 'gap-title', 'spacing.medium'),
+    inset(ctx, 'rail/inset', periodRail(ctx, rail(ctx))),
+    gap(ctx, 'gap-rail', 'spacing.small'),
+    inset(ctx, 'period/inset', ctx.node({
+      key: 'period',
+      styles: ['Home/spread'],
+      children: [
+        ctx.node({
+          key: 'period/text',
+          styles: ['Insights/periodText'],
+          children: [text(ctx, 'period/title', 'Insights/periodTitle', title), text(ctx, 'period/progress', 'Screen/tertiary', { textKey: progress })],
+        }),
+        periodSteps(ctx),
+      ],
+    })),
+    gap(ctx, 'gap-period', 'spacing.medium'),
+  ];
+};
+
+const insightsFrame = (id, name, period, p, header = insightsHeader) => frame(id, name, { status: 'proposed', spec: INSIGHTS_SPEC }, (ctx) => screenFrame(ctx, [
   ctx.node({
     key: 'content',
     styles: ['Home/scroll'],
     children: [
-      ...insightsHeader(ctx, period, p.stepper),
+      ...header(ctx, period, p.stepper),
       inset(ctx, 'summary/inset', insightsSummary(ctx, p)),
       gap(ctx, 'gap-summary', 'spacing.large'),
       ...section(ctx, 'categories', sectionHeader(ctx, 'categories-header', 'charts_categories_eyebrow'), insightsCategories(ctx, p)),
@@ -3735,6 +3897,7 @@ const insightsFrame = (id, name, period, p) => frame(id, name, { status: 'propos
   mainNav(ctx, MAIN_NAV.insights),
 ]));
 
+const INSIGHTS_BY_PERIOD = { week: INSIGHTS_WEEK, month: INSIGHTS_MONTH, year: INSIGHTS_YEAR };
 const insights = insightsFrame('insights', 'Insights · Month', 'month', INSIGHTS_MONTH);
 const insightsWeek = insightsFrame('insights-week', 'Insights · Week', 'week', INSIGHTS_WEEK);
 const insightsYear = insightsFrame('insights-year', 'Insights · Year', 'year', INSIGHTS_YEAR);
@@ -3742,6 +3905,12 @@ const insightsYearLine = insightsFrame('insights-year-line', 'Insights · Year �
   ...INSIGHTS_YEAR,
   chart: { ...INSIGHTS_YEAR.chart, view: 'line', render: yearLineChart },
 });
+const insightsSegmented = ['month', 'week', 'year'].map((period) => insightsFrame(
+  `insights-segmented-${period}`, `Insights · Segmented · ${period[0].toUpperCase()}${period.slice(1)}`, period, INSIGHTS_BY_PERIOD[period], segmentedHeader,
+));
+const insightsTimeline = ['month', 'week', 'year'].map((period) => insightsFrame(
+  `insights-timeline-${period}`, `Insights · Timeline · ${period[0].toUpperCase()}${period.slice(1)}`, period, INSIGHTS_BY_PERIOD[period], railHeader,
+));
 const insightsFirstMonth = insightsFrame('insights-first-month', 'Insights · First month', 'month', INSIGHTS_FIRST_MONTH);
 
 // No expenses yet: the period controls would change nothing, so only the title and what will appear here.
@@ -4602,6 +4771,8 @@ export const frames = [
   insightsWeek,
   insightsYear,
   insightsYearLine,
+  ...insightsSegmented,
+  ...insightsTimeline,
   insightsFirstMonth,
   insightsEmpty,
   charts,

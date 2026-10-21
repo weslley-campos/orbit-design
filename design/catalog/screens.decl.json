@@ -3211,6 +3211,174 @@
         "flex-shrink": "0"
       }
     },
+    "Insights/segmented": {
+      "bind": {
+        "padding": {
+          "token": "spacing.xxxSmall"
+        },
+        "border-radius": {
+          "token": "shapes.control"
+        },
+        "background": {
+          "token": "colors.surface.base"
+        },
+        "border": [
+          {
+            "literal": "1dp",
+            "source": "feature/transactions/src/commonMain/kotlin/br/com/weslleycampos/orbit/feature/transactions/components/PeriodStepper.kt:29"
+          },
+          {
+            "token": "colors.border.base"
+          }
+        ]
+      },
+      "css": {
+        "display": "grid",
+        "grid-template-columns": "repeat(3, 1fr)",
+        "border-style": "solid",
+        "flex-shrink": "0"
+      }
+    },
+    "Insights/segment": {
+      "bind": {
+        "font": {
+          "token": "typography.labelMedium"
+        },
+        "color": {
+          "token": "colors.text.secondary"
+        },
+        "height": {
+          "token": "sizes.xxLarge"
+        },
+        "padding-left": {
+          "token": "spacing.xSmall"
+        },
+        "padding-right": {
+          "token": "spacing.xSmall"
+        },
+        "border-radius": {
+          "token": "shapes.chip"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "align-items": "center",
+        "justify-content": "center",
+        "white-space": "nowrap"
+      }
+    },
+    "Insights/segmentSelected": {
+      "bind": {
+        "background": {
+          "token": "colors.brand.subtle"
+        },
+        "color": {
+          "token": "colors.text.brand"
+        }
+      }
+    },
+    "Insights/periodText": {
+      "bind": {
+        "gap": {
+          "token": "spacing.xxxSmall"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "flex-direction": "column",
+        "min-width": "0"
+      }
+    },
+    "Insights/periodTitle": {
+      "bind": {
+        "font": {
+          "token": "typography.headlineMedium"
+        },
+        "color": {
+          "token": "colors.text.primary"
+        }
+      }
+    },
+    "Insights/rail": {
+      "css": {
+        "display": "grid",
+        "grid-auto-flow": "column",
+        "grid-auto-columns": "1fr",
+        "flex-shrink": "0"
+      }
+    },
+    "Insights/railItem": {
+      "bind": {
+        "gap": {
+          "token": "spacing.xxSmall"
+        },
+        "padding-top": {
+          "token": "spacing.xxSmall"
+        },
+        "padding-bottom": {
+          "token": "spacing.xxSmall"
+        },
+        "border-radius": {
+          "token": "shapes.control"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "flex-direction": "column",
+        "align-items": "center"
+      }
+    },
+    "Insights/railItemSelected": {
+      "bind": {
+        "background": {
+          "token": "colors.brand.subtle"
+        }
+      }
+    },
+    "Insights/railBar": {
+      "bind": {
+        "width": {
+          "token": "sizes.xxSmall"
+        },
+        "height": {
+          "token": "sizes.xxLarge"
+        }
+      },
+      "css": {
+        "display": "block",
+        "overflow": "visible"
+      }
+    },
+    "Insights/railLabel": {
+      "bind": {
+        "font": {
+          "token": "typography.bodySmall"
+        },
+        "color": {
+          "token": "colors.text.tertiary"
+        }
+      },
+      "css": {
+        "white-space": "nowrap"
+      }
+    },
+    "Insights/railLabelSelected": {
+      "bind": {
+        "color": {
+          "token": "colors.text.brand"
+        }
+      },
+      "css": {
+        "font-weight": "600"
+      }
+    },
+    "Insights/railLabelFuture": {
+      "bind": {
+        "color": {
+          "token": "colors.text.disabled"
+        }
+      }
+    },
     "Charts/stats": {
       "bind": {
         "margin-left": {
