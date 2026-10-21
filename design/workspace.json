@@ -180,9 +180,9 @@
       "name": "Screens / Mobile",
       "platform": "mobile",
       "view": {
-        "x": 723.6714306240259,
-        "y": 312.5247305314011,
-        "zoom": 0.1
+        "x": 133.6856855639234,
+        "y": 616.7528760633667,
+        "zoom": 0.104
       },
       "frames": [
         {
@@ -388,55 +388,87 @@
         {
           "id": "mobile-insights",
           "catalogId": "screens/insights",
-          "x": 2525,
-          "y": 2922,
+          "x": 3534,
+          "y": 3099,
           "width": 402,
           "height": 874
         },
         {
           "id": "mobile-insights-week",
           "catalogId": "screens/insights-week",
-          "x": 3079,
-          "y": 2922,
+          "x": 4088,
+          "y": 3081,
           "width": 402,
           "height": 874
         },
         {
           "id": "mobile-insights-year",
           "catalogId": "screens/insights-year",
-          "x": 3633,
-          "y": 2922,
+          "x": 2482,
+          "y": 3081,
           "width": 402,
           "height": 874
         },
         {
           "id": "mobile-insights-year-line",
           "catalogId": "screens/insights-year-line",
-          "x": 4187,
-          "y": 2922,
+          "x": 5196,
+          "y": 3081,
+          "width": 402,
+          "height": 874
+        },
+        {
+          "id": "mobile-insights-week-line",
+          "catalogId": "screens/insights-week-line",
+          "x": 4088,
+          "y": 4205,
+          "width": 402,
+          "height": 874
+        },
+        {
+          "id": "mobile-insights-months-line",
+          "catalogId": "screens/insights-months-line",
+          "x": 2980,
+          "y": 4205,
+          "width": 402,
+          "height": 874
+        },
+        {
+          "id": "mobile-insights-columns",
+          "catalogId": "screens/insights-columns",
+          "x": 3534,
+          "y": 4205,
           "width": 402,
           "height": 874
         },
         {
           "id": "mobile-insights-first-month",
           "catalogId": "screens/insights-first-month",
-          "x": 4741,
-          "y": 2922,
+          "x": 5750,
+          "y": 3081,
           "width": 402,
           "height": 874
         },
         {
           "id": "mobile-insights-empty",
           "catalogId": "screens/insights-empty",
-          "x": 5295,
-          "y": 2922,
+          "x": 6304,
+          "y": 3081,
+          "width": 402,
+          "height": 874
+        },
+        {
+          "id": "mobile-charts-category",
+          "catalogId": "screens/charts-category",
+          "x": 4642,
+          "y": 3081,
           "width": 402,
           "height": 874
         },
         {
           "id": "mobile-wallet",
           "catalogId": "screens/wallet",
-          "x": 2561,
+          "x": 2486,
           "y": 5178,
           "width": 402,
           "height": 874
@@ -4224,6 +4256,710 @@
         "frameId": "mobile-connectors-empty"
       },
       "trigger": "click"
+    },
+    {
+      "id": "mobile-charts-category-ifood",
+      "from": {
+        "frameId": "mobile-charts-category",
+        "hotspotId": "ifood"
+      },
+      "to": {
+        "frameId": "mobile-transaction-detail"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-columns-nav-house",
+      "from": {
+        "frameId": "mobile-insights-columns",
+        "hotspotId": "nav-house"
+      },
+      "to": {
+        "frameId": "mobile-home"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-columns-nav-wallet",
+      "from": {
+        "frameId": "mobile-insights-columns",
+        "hotspotId": "nav-wallet"
+      },
+      "to": {
+        "frameId": "mobile-wallet"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-columns-nav-user_round",
+      "from": {
+        "frameId": "mobile-insights-columns",
+        "hotspotId": "nav-user_round"
+      },
+      "to": {
+        "frameId": "mobile-settings"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-columns-period-week",
+      "from": {
+        "frameId": "mobile-insights-columns",
+        "hotspotId": "period-week"
+      },
+      "to": {
+        "frameId": "mobile-insights-week"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-columns-period-year",
+      "from": {
+        "frameId": "mobile-insights-columns",
+        "hotspotId": "period-year"
+      },
+      "to": {
+        "frameId": "mobile-insights-year"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-columns-summary",
+      "from": {
+        "frameId": "mobile-insights-columns",
+        "hotspotId": "summary"
+      },
+      "to": {
+        "frameId": "mobile-transactions"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-columns-share-groceries",
+      "from": {
+        "frameId": "mobile-insights-columns",
+        "hotspotId": "share-groceries"
+      },
+      "to": {
+        "frameId": "mobile-transactions"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-columns-share-restaurants",
+      "from": {
+        "frameId": "mobile-insights-columns",
+        "hotspotId": "share-restaurants"
+      },
+      "to": {
+        "frameId": "mobile-transactions"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-columns-share-transport",
+      "from": {
+        "frameId": "mobile-insights-columns",
+        "hotspotId": "share-transport"
+      },
+      "to": {
+        "frameId": "mobile-transactions"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-columns-share-health",
+      "from": {
+        "frameId": "mobile-insights-columns",
+        "hotspotId": "share-health"
+      },
+      "to": {
+        "frameId": "mobile-transactions"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-columns-share-leisure",
+      "from": {
+        "frameId": "mobile-insights-columns",
+        "hotspotId": "share-leisure"
+      },
+      "to": {
+        "frameId": "mobile-transactions"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-columns-share-bills",
+      "from": {
+        "frameId": "mobile-insights-columns",
+        "hotspotId": "share-bills"
+      },
+      "to": {
+        "frameId": "mobile-transactions"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-columns-member-ana",
+      "from": {
+        "frameId": "mobile-insights-columns",
+        "hotspotId": "member-ana"
+      },
+      "to": {
+        "frameId": "mobile-transactions"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-columns-member-marina",
+      "from": {
+        "frameId": "mobile-insights-columns",
+        "hotspotId": "member-marina"
+      },
+      "to": {
+        "frameId": "mobile-transactions"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-columns-months-month-10",
+      "from": {
+        "frameId": "mobile-insights-columns",
+        "hotspotId": "months-month-10"
+      },
+      "to": {
+        "frameId": "mobile-transactions"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-columns-biggest-header/link",
+      "from": {
+        "frameId": "mobile-insights-columns",
+        "hotspotId": "biggest-header/link"
+      },
+      "to": {
+        "frameId": "mobile-transactions"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-columns-carrefour",
+      "from": {
+        "frameId": "mobile-insights-columns",
+        "hotspotId": "carrefour"
+      },
+      "to": {
+        "frameId": "mobile-transaction-detail"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-columns-ipiranga",
+      "from": {
+        "frameId": "mobile-insights-columns",
+        "hotspotId": "ipiranga"
+      },
+      "to": {
+        "frameId": "mobile-transaction-detail"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-columns-outback",
+      "from": {
+        "frameId": "mobile-insights-columns",
+        "hotspotId": "outback"
+      },
+      "to": {
+        "frameId": "mobile-transaction-detail"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-months-line-nav-house",
+      "from": {
+        "frameId": "mobile-insights-months-line",
+        "hotspotId": "nav-house"
+      },
+      "to": {
+        "frameId": "mobile-home"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-months-line-nav-wallet",
+      "from": {
+        "frameId": "mobile-insights-months-line",
+        "hotspotId": "nav-wallet"
+      },
+      "to": {
+        "frameId": "mobile-wallet"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-months-line-nav-user_round",
+      "from": {
+        "frameId": "mobile-insights-months-line",
+        "hotspotId": "nav-user_round"
+      },
+      "to": {
+        "frameId": "mobile-settings"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-months-line-period-week",
+      "from": {
+        "frameId": "mobile-insights-months-line",
+        "hotspotId": "period-week"
+      },
+      "to": {
+        "frameId": "mobile-insights-week"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-months-line-period-year",
+      "from": {
+        "frameId": "mobile-insights-months-line",
+        "hotspotId": "period-year"
+      },
+      "to": {
+        "frameId": "mobile-insights-year"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-months-line-summary",
+      "from": {
+        "frameId": "mobile-insights-months-line",
+        "hotspotId": "summary"
+      },
+      "to": {
+        "frameId": "mobile-transactions"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-months-line-share-groceries",
+      "from": {
+        "frameId": "mobile-insights-months-line",
+        "hotspotId": "share-groceries"
+      },
+      "to": {
+        "frameId": "mobile-transactions"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-months-line-share-restaurants",
+      "from": {
+        "frameId": "mobile-insights-months-line",
+        "hotspotId": "share-restaurants"
+      },
+      "to": {
+        "frameId": "mobile-transactions"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-months-line-share-transport",
+      "from": {
+        "frameId": "mobile-insights-months-line",
+        "hotspotId": "share-transport"
+      },
+      "to": {
+        "frameId": "mobile-transactions"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-months-line-share-health",
+      "from": {
+        "frameId": "mobile-insights-months-line",
+        "hotspotId": "share-health"
+      },
+      "to": {
+        "frameId": "mobile-transactions"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-months-line-share-leisure",
+      "from": {
+        "frameId": "mobile-insights-months-line",
+        "hotspotId": "share-leisure"
+      },
+      "to": {
+        "frameId": "mobile-transactions"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-months-line-share-bills",
+      "from": {
+        "frameId": "mobile-insights-months-line",
+        "hotspotId": "share-bills"
+      },
+      "to": {
+        "frameId": "mobile-transactions"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-months-line-member-ana",
+      "from": {
+        "frameId": "mobile-insights-months-line",
+        "hotspotId": "member-ana"
+      },
+      "to": {
+        "frameId": "mobile-transactions"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-months-line-member-marina",
+      "from": {
+        "frameId": "mobile-insights-months-line",
+        "hotspotId": "member-marina"
+      },
+      "to": {
+        "frameId": "mobile-transactions"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-months-line-months-month-10",
+      "from": {
+        "frameId": "mobile-insights-months-line",
+        "hotspotId": "months-month-10"
+      },
+      "to": {
+        "frameId": "mobile-transactions"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-months-line-biggest-header/link",
+      "from": {
+        "frameId": "mobile-insights-months-line",
+        "hotspotId": "biggest-header/link"
+      },
+      "to": {
+        "frameId": "mobile-transactions"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-months-line-carrefour",
+      "from": {
+        "frameId": "mobile-insights-months-line",
+        "hotspotId": "carrefour"
+      },
+      "to": {
+        "frameId": "mobile-transaction-detail"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-months-line-ipiranga",
+      "from": {
+        "frameId": "mobile-insights-months-line",
+        "hotspotId": "ipiranga"
+      },
+      "to": {
+        "frameId": "mobile-transaction-detail"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-months-line-outback",
+      "from": {
+        "frameId": "mobile-insights-months-line",
+        "hotspotId": "outback"
+      },
+      "to": {
+        "frameId": "mobile-transaction-detail"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-week-line-nav-house",
+      "from": {
+        "frameId": "mobile-insights-week-line",
+        "hotspotId": "nav-house"
+      },
+      "to": {
+        "frameId": "mobile-home"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-week-line-nav-wallet",
+      "from": {
+        "frameId": "mobile-insights-week-line",
+        "hotspotId": "nav-wallet"
+      },
+      "to": {
+        "frameId": "mobile-wallet"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-week-line-nav-user_round",
+      "from": {
+        "frameId": "mobile-insights-week-line",
+        "hotspotId": "nav-user_round"
+      },
+      "to": {
+        "frameId": "mobile-settings"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-week-line-period-month",
+      "from": {
+        "frameId": "mobile-insights-week-line",
+        "hotspotId": "period-month"
+      },
+      "to": {
+        "frameId": "mobile-insights"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-week-line-period-year",
+      "from": {
+        "frameId": "mobile-insights-week-line",
+        "hotspotId": "period-year"
+      },
+      "to": {
+        "frameId": "mobile-insights-year"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-week-line-summary",
+      "from": {
+        "frameId": "mobile-insights-week-line",
+        "hotspotId": "summary"
+      },
+      "to": {
+        "frameId": "mobile-transactions-week"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-week-line-share-groceries",
+      "from": {
+        "frameId": "mobile-insights-week-line",
+        "hotspotId": "share-groceries"
+      },
+      "to": {
+        "frameId": "mobile-transactions-week"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-week-line-share-restaurants",
+      "from": {
+        "frameId": "mobile-insights-week-line",
+        "hotspotId": "share-restaurants"
+      },
+      "to": {
+        "frameId": "mobile-transactions-week"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-week-line-share-transport",
+      "from": {
+        "frameId": "mobile-insights-week-line",
+        "hotspotId": "share-transport"
+      },
+      "to": {
+        "frameId": "mobile-transactions-week"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-week-line-share-health",
+      "from": {
+        "frameId": "mobile-insights-week-line",
+        "hotspotId": "share-health"
+      },
+      "to": {
+        "frameId": "mobile-transactions-week"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-week-line-share-leisure",
+      "from": {
+        "frameId": "mobile-insights-week-line",
+        "hotspotId": "share-leisure"
+      },
+      "to": {
+        "frameId": "mobile-transactions-week"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-week-line-share-bills",
+      "from": {
+        "frameId": "mobile-insights-week-line",
+        "hotspotId": "share-bills"
+      },
+      "to": {
+        "frameId": "mobile-transactions-week"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-week-line-member-ana",
+      "from": {
+        "frameId": "mobile-insights-week-line",
+        "hotspotId": "member-ana"
+      },
+      "to": {
+        "frameId": "mobile-transactions-week"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-week-line-member-marina",
+      "from": {
+        "frameId": "mobile-insights-week-line",
+        "hotspotId": "member-marina"
+      },
+      "to": {
+        "frameId": "mobile-transactions-week"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-week-line-biggest-header/link",
+      "from": {
+        "frameId": "mobile-insights-week-line",
+        "hotspotId": "biggest-header/link"
+      },
+      "to": {
+        "frameId": "mobile-transactions-week"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-week-line-ipiranga",
+      "from": {
+        "frameId": "mobile-insights-week-line",
+        "hotspotId": "ipiranga"
+      },
+      "to": {
+        "frameId": "mobile-transaction-detail"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-week-line-outback",
+      "from": {
+        "frameId": "mobile-insights-week-line",
+        "hotspotId": "outback"
+      },
+      "to": {
+        "frameId": "mobile-transaction-detail"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-week-line-pao-de-acucar",
+      "from": {
+        "frameId": "mobile-insights-week-line",
+        "hotspotId": "pao-de-acucar"
+      },
+      "to": {
+        "frameId": "mobile-transaction-detail"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-view-columns",
+      "from": {
+        "frameId": "mobile-insights",
+        "hotspotId": "view-columns"
+      },
+      "to": {
+        "frameId": "mobile-insights-columns"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-months-view-line",
+      "from": {
+        "frameId": "mobile-insights",
+        "hotspotId": "months-view-line"
+      },
+      "to": {
+        "frameId": "mobile-insights-months-line"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-columns-view-line",
+      "from": {
+        "frameId": "mobile-insights-columns",
+        "hotspotId": "view-line"
+      },
+      "to": {
+        "frameId": "mobile-insights"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-columns-pace-day-7",
+      "from": {
+        "frameId": "mobile-insights-columns",
+        "hotspotId": "pace-day-7"
+      },
+      "to": {
+        "frameId": "mobile-transactions-day"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-months-line-months-view-columns",
+      "from": {
+        "frameId": "mobile-insights-months-line",
+        "hotspotId": "months-view-columns"
+      },
+      "to": {
+        "frameId": "mobile-insights"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-week-view-line",
+      "from": {
+        "frameId": "mobile-insights-week",
+        "hotspotId": "view-line"
+      },
+      "to": {
+        "frameId": "mobile-insights-week-line"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-week-line-view-columns",
+      "from": {
+        "frameId": "mobile-insights-week-line",
+        "hotspotId": "view-columns"
+      },
+      "to": {
+        "frameId": "mobile-insights-week"
+      },
+      "trigger": "click"
     }
   ],
   "overrides": {
@@ -5581,8 +6317,8 @@
       "frame": {
         "id": "mobile-charts",
         "catalogId": "screens/charts",
-        "x": 2525,
-        "y": 2922,
+        "x": 6940,
+        "y": 2948,
         "width": 402,
         "height": 874
       },
@@ -5636,6 +6372,17 @@
           "trigger": "click"
         },
         {
+          "id": "mobile-charts-category-back",
+          "from": {
+            "frameId": "mobile-charts-category",
+            "hotspotId": "back"
+          },
+          "to": {
+            "frameId": "mobile-charts"
+          },
+          "trigger": "click"
+        },
+        {
           "id": "mobile-charts-nav-wallet",
           "from": {
             "frameId": "mobile-charts",
@@ -5649,48 +6396,7 @@
       ],
       "overrides": {},
       "start": false,
-      "at": "2026-10-21T12:00:00.000Z"
-    },
-    {
-      "frame": {
-        "id": "mobile-charts-category",
-        "catalogId": "screens/charts-category",
-        "x": 3534,
-        "y": 2922,
-        "width": 402,
-        "height": 874
-      },
-      "pageId": "page-mobile",
-      "pageName": "Screens / Mobile",
-      "index": 25,
-      "platform": "mobile",
-      "connections": [
-        {
-          "id": "mobile-charts-category-back",
-          "from": {
-            "frameId": "mobile-charts-category",
-            "hotspotId": "back"
-          },
-          "to": {
-            "frameId": "mobile-charts"
-          },
-          "trigger": "click"
-        },
-        {
-          "id": "mobile-charts-category-ifood",
-          "from": {
-            "frameId": "mobile-charts-category",
-            "hotspotId": "ifood"
-          },
-          "to": {
-            "frameId": "mobile-transaction-detail"
-          },
-          "trigger": "click"
-        }
-      ],
-      "overrides": {},
-      "start": false,
-      "at": "2026-10-21T12:00:00.000Z"
+      "at": "2026-10-21T05:09:58.446Z"
     },
     {
       "frame": {

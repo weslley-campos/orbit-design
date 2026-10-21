@@ -3314,6 +3314,58 @@ const monthPace = (ctx, previous) => [
     ? insightsPace(ctx, { previous, max: 5000, grid: [[0, '0'], [2500, '2.5'], [5000, '5']] })
     : insightsPace(ctx, { previous, max: 4000, grid: [[0, '0'], [2000, '2'], [4000, '4']] }),
 ];
+// Month as columns: what each day spent, today's at full strength, and the days left sharing the projection's rest evenly.
+const INSIGHTS_DAYS = INSIGHTS_PACE.slice(1).map(([, value], i) => Math.round((value - INSIGHTS_PACE[i][1]) * 10) / 10);
+const paceColumns = (ctx) => {
+  const top = 28;
+  const bottom = COLUMNS_HEIGHT - 24;
+  const band = PLOT_WIDTH / PACE.days;
+  const width = 8;
+  const [today, spent] = INSIGHTS_PACE.at(-1);
+  const rest = (INSIGHTS_PROJECTED_MONTH - spent) / (PACE.days - today);
+  const y = (value) => Math.round((bottom - (value / 800) * (bottom - top)) * 10) / 10;
+  const center = (i) => Math.round((band * i + band / 2) * 10) / 10;
+  const column = (i, value) => {
+    const left = center(i) - width / 2;
+    const cap = y(value);
+    return `M${left},${bottom} V${cap + 4} Q${left},${cap} ${left + 4},${cap} H${left + width - 4} Q${left + width},${cap} ${left + width},${cap + 4} V${bottom} Z`;
+  };
+  const biggest = INSIGHTS_DAYS.indexOf(Math.max(...INSIGHTS_DAYS));
+  const { rest: past, accent: current } = columnGradients(ctx, 'pace-columns', top, bottom);
+  return plot(ctx, 'pace-plot', 'Charts/columns', COLUMNS_HEIGHT, ctx.t('insights_pace_columns_label'), [
+    ctx.node({ key: 'pace-defs', tag: 'defs', children: [past.defs, current.defs] }),
+    svgLine(ctx, 'pace-baseline', [0, bottom, PLOT_WIDTH, bottom], 'colors.border.base'),
+    ...INSIGHTS_DAYS.map((value, i) => ctx.node({
+      key: `pace-day-${i + 1}`, tag: 'path', hotspot: i === today - 1, attrs: { d: column(i, value), fill: (i === today - 1 ? current : past).fill },
+    })),
+    ...Array.from({ length: PACE.days - today }, (_, k) => ctx.node({
+      key: `pace-day-${today + k + 1}/projected`, tag: 'path',
+      bind: { fill: { token: 'colors.brand.primary', alpha: 0.12 }, stroke: { token: 'colors.brand.primary', alpha: 0.6 } },
+      attrs: { d: column(today + k, rest), 'stroke-width': 1, 'stroke-dasharray': '3 2' },
+    })),
+    svgText(ctx, `pace-day-${biggest + 1}/value`, `R$ ${Math.round(INSIGHTS_DAYS[biggest])}`, {
+      x: center(biggest), y: y(INSIGHTS_DAYS[biggest]) - 6, anchor: 'middle', font: 'typography.labelMedium', color: 'colors.text.primary',
+    }),
+    // Today's value sits beside its column, over the short projected ones, so it never covers the taller days before it.
+    svgText(ctx, `pace-day-${today}/value`, `R$ ${Math.round(INSIGHTS_DAYS[today - 1])}`, {
+      x: center(today - 1) + width / 2 + 4, y: y(INSIGHTS_DAYS[today - 1]) + 4, anchor: 'start', font: 'typography.labelMedium', color: 'colors.text.primary',
+    }),
+    svgText(ctx, 'pace-projected/value', ctx.t('insights_year_projected', 'R$ 4.620'), {
+      x: PLOT_WIDTH, y: y(rest) - 10, anchor: 'end', font: 'typography.labelMedium', color: 'colors.text.secondary',
+    }),
+    svgText(ctx, 'pace-axis-1', '1', { x: center(0), y: COLUMNS_HEIGHT - 6, anchor: 'middle' }),
+    svgText(ctx, 'pace-axis-today', ctx.t('charts_today'), { x: center(today - 1), y: COLUMNS_HEIGHT - 6, anchor: 'middle', color: 'colors.text.primary' }),
+    svgText(ctx, 'pace-axis-15', '15', { x: center(14), y: COLUMNS_HEIGHT - 6, anchor: 'middle' }),
+    svgText(ctx, 'pace-axis-31', '31', { x: PLOT_WIDTH, y: COLUMNS_HEIGHT - 6, anchor: 'end' }),
+  ]);
+};
+const monthColumns = (ctx) => [
+  chartLegend(ctx, 'pace-legend', [
+    legendSwatch(ctx, 'legend-spent', 'insights_legend_spent', false),
+    legendSwatch(ctx, 'legend-projected', 'insights_legend_projected', true),
+  ]),
+  paceColumns(ctx),
+];
 const weekColumns = (ctx) => [columnChart(ctx, 'week', {
   months: WEEK_TOTALS.map((value, i) => ({ month: i + 1, value, label: ctx.t(`tx_weekday_${i + 1}`), caption: `R$ ${Math.round(value)}` })),
   max: 640,
@@ -3322,6 +3374,49 @@ const weekColumns = (ctx) => [columnChart(ctx, 'week', {
   label: ctx.t('tx_week_label'),
   gradient: true,
 })];
+// Week as a line: the running total so far against all of last week. Mon–Wed are Oct 5–7, and last week's Thu–Sun are Oct 1–4.
+const WEEK_PACE = [[0, 0], [1, 361.8], [2, 884.5], [3, 1115.2]];
+const WEEK_PACE_PREVIOUS = [[0, 0], [1, 486.3], [2, 998.7], [3, 1402.2], [4, 2014.6], [5, 2512.7], [6, 3217.3], [7, 3737]];
+const weekPace = (ctx) => {
+  const top = 18;
+  const bottom = PACE_HEIGHT - 24;
+  const x = (day) => Math.round((day / 7) * PLOT_WIDTH * 10) / 10;
+  const y = (value) => Math.round((bottom - (value / 4000) * (bottom - top)) * 10) / 10;
+  const line = (points) => points.map(([day, value], i) => `${i ? 'L' : 'M'}${x(day)},${y(value)}`).join(' ');
+  const [todayDay, todayValue] = WEEK_PACE.at(-1);
+  const stroke = { fill: 'none', 'stroke-width': 2, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' };
+  const gradient = lineGradient(ctx, 'week-pace-stroke');
+  const area = fadeGradient(ctx, 'week-pace-area-fade', y(todayValue), y(0));
+  return plot(ctx, 'week-pace-plot', 'Charts/pace', PACE_HEIGHT, ctx.t('insights_week_line_label'), [
+    ctx.node({ key: 'week-pace-defs', tag: 'defs', children: [gradient.defs, area.defs] }),
+    ...[[0, '0'], [2000, '2'], [4000, '4']].flatMap(([value, label]) => [
+      svgLine(ctx, `week-pace-grid-${value}`, [0, y(value), PLOT_WIDTH, y(value)], 'colors.border.base'),
+      svgText(ctx, `week-pace-grid-${value}/label`, value ? thousands(ctx, label) : label, { x: 0, y: y(value) - 4 }),
+    ]),
+    svgPath(ctx, 'week-pace-previous', line(WEEK_PACE_PREVIOUS), { stroke: { token: 'colors.border.strong' } }, stroke),
+    svgPath(ctx, 'week-pace-area', `${line(WEEK_PACE)} L${x(todayDay)},${y(0)} Z`, {}, { fill: area.fill }),
+    svgPath(ctx, 'week-pace-current', line(WEEK_PACE), {}, { ...stroke, stroke: gradient.fill }),
+    ctx.node({
+      key: 'week-pace-today', tag: 'circle', bind: { fill: { token: 'colors.brand.primary' }, stroke: { token: 'colors.surface.base' } },
+      attrs: { cx: x(todayDay), cy: y(todayValue), r: 5, 'stroke-width': 2 },
+    }),
+    svgText(ctx, 'week-pace-today/value', 'R$ 1.115', { x: x(todayDay), y: y(todayValue) - 12, anchor: 'middle', font: 'typography.labelMedium', color: 'colors.text.primary' }),
+    ...WEEK_TOTALS.map((_, i) => svgText(ctx, `week-pace-axis-${i + 1}`, ctx.t(`tx_weekday_${i + 1}`), {
+      x: x(i + 1), y: PACE_HEIGHT - 6, anchor: i === 6 ? 'end' : 'middle', color: i + 1 === todayDay ? 'colors.text.primary' : 'colors.text.tertiary',
+    })),
+  ]);
+};
+const weekLine = (ctx) => [
+  ctx.node({
+    key: 'pace-legend',
+    styles: ['Charts/legend'],
+    children: [
+      legendGradientLine(ctx, 'legend-current', 'insights_legend_this_week'),
+      legendKey(ctx, 'legend-previous', 'insights_legend_last_week', 'colors.border.strong'),
+    ],
+  }),
+  weekPace(ctx),
+];
 // 2026 by month, past, present and future: Jan–Sep spent, October spent so far with its projected rest, Nov–Dec projected.
 // Projections add the installments already due to the recent average. December's income carries the 13th salary.
 const INSIGHTS_YEAR_PROJECTED = [0, 0, 0, 0, 0, 0, 0, 0, 0, 4620, 4480, 4310];
@@ -3372,8 +3467,8 @@ const chartLegend = (ctx, key, items) => ctx.node({ key, styles: ['Charts/legend
 // Shared geometry for both views: twelve months across the plot, labeled by initial, the current one emphasized.
 const YEAR_TOP = 16;
 const YEAR_BOTTOM = COLUMNS_HEIGHT - 24;
-const yearGeometry = (max, min = 0) => {
-  const band = PLOT_WIDTH / 12;
+const yearGeometry = (max, min = 0, count = 12) => {
+  const band = PLOT_WIDTH / count;
   return {
     y: (value) => Math.round((YEAR_BOTTOM - ((value - min) / (max - min)) * (YEAR_BOTTOM - YEAR_TOP)) * 10) / 10,
     center: (i) => Math.round((band * i + band / 2) * 10) / 10,
@@ -3468,18 +3563,19 @@ const yearColumns = (ctx) => [
   ]),
   yearBars(ctx),
 ];
-// Year draws as columns or as lines; the selected view's button is tonal.
-const chartViewSwitch = (ctx, selected) => ctx.node({
-  key: 'view-switch',
+// Every chart over time draws as columns or as lines; the selected view's button is tonal. A second chart on the
+// frame prefixes its keys, so each switch has its own hotspots.
+const chartViewSwitch = (ctx, selected, prefix = '') => ctx.node({
+  key: `${prefix}view-switch`,
   styles: ['Insights/viewSwitch'],
   attrs: { role: 'group', 'aria-label': ctx.t('insights_views') },
   children: [['columns', 'chart_column', 'insights_view_columns'], ['line', 'chart_spline', 'insights_view_line']].map(([view, glyph, labelKey]) => OrbitIconButton(ctx, {
-    key: `view-${view}`,
+    key: `${prefix}view-${view}`,
     variant: view === selected ? 'Tonal' : 'Standard',
     hotspot: true,
     styles: ['Home/switcherButton'],
     contentDescription: ctx.t(labelKey),
-  }, [icon(ctx, `view-${view}/icon`, glyph, 'medium', view === selected ? 'colors.brand.primary' : 'colors.text.secondary')])),
+  }, [icon(ctx, `${prefix}view-${view}/icon`, glyph, 'medium', view === selected ? 'colors.brand.primary' : 'colors.text.secondary')])),
 });
 const yearLineChart = (ctx) => [
   chartLegend(ctx, 'year-legend', [
@@ -3488,6 +3584,48 @@ const yearLineChart = (ctx) => [
     legendKey(ctx, 'legend-projected', 'insights_legend_projected', 'colors.text.tertiary', true),
   ]),
   yearLines(ctx),
+];
+// Last 6 months as a line, like Year's: solid through September, dashed to October's projection, with its spent so far as a dot.
+const monthsLines = (ctx) => {
+  const { y, center } = yearGeometry(6000, 2000, MONTHS.length);
+  const now = MONTHS.length - 1;
+  const points = MONTHS.map(([, value], i) => [center(i), y(i < now ? value : INSIGHTS_PROJECTED_MONTH)]);
+  const stroke = { fill: 'none', 'stroke-width': 2.5, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' };
+  const line = lineGradient(ctx, 'months-line-stroke');
+  const area = fadeGradient(ctx, 'months-line-area', YEAR_TOP, YEAR_BOTTOM);
+  const [spentX, spentY] = [center(now), y(MONTHS[now][1])];
+  return plot(ctx, 'months-plot', 'Charts/columns', COLUMNS_HEIGHT, ctx.t('insights_months_line_label'), [
+    ctx.node({ key: 'months-defs', tag: 'defs', children: [line.defs, area.defs] }),
+    svgLine(ctx, 'months-baseline', [0, YEAR_BOTTOM, PLOT_WIDTH, YEAR_BOTTOM], 'colors.border.base'),
+    svgLine(ctx, 'months-now', [spentX, YEAR_TOP, spentX, YEAR_BOTTOM], 'colors.border.strong', 1, '2 3'),
+    svgPath(ctx, 'months-area', `${smooth(points, 0, now - 1)} L${points[now - 1][0]},${YEAR_BOTTOM} L${points[0][0]},${YEAR_BOTTOM} Z`, {}, { fill: area.fill }),
+    svgPath(ctx, 'months-spending', smooth(points, 0, now - 1), {}, { ...stroke, stroke: line.fill }),
+    svgPath(ctx, 'months-spending-projected', smooth(points, now - 1, now), {}, { ...stroke, stroke: line.fill, 'stroke-dasharray': '4 5' }),
+    ctx.node({
+      key: 'months-projected-now', tag: 'circle', bind: { fill: { token: 'colors.surface.base' }, stroke: { token: 'colors.brand.primary' } },
+      attrs: { cx: points[now][0], cy: points[now][1], r: 4, 'stroke-width': 2 },
+    }),
+    ctx.node({
+      key: `months-month-${MONTHS[now][0]}`, tag: 'circle', hotspot: true, bind: { fill: { token: 'colors.brand.primary' }, stroke: { token: 'colors.surface.base' } },
+      attrs: { cx: spentX, cy: spentY, r: 5, 'stroke-width': 2 },
+    }),
+    svgText(ctx, 'months-peak/value', thousands(ctx, String(MONTHS[2][1] / 1000)), {
+      x: points[2][0], y: points[2][1] - 10, anchor: 'middle', font: 'typography.labelMedium', color: 'colors.text.primary',
+    }),
+    svgText(ctx, 'months-now/value', thousands(ctx, String(MONTHS[now][1] / 1000)), {
+      x: spentX - 9, y: spentY + 4, anchor: 'end', font: 'typography.labelMedium', color: 'colors.text.primary',
+    }),
+    ...MONTHS.map(([month], i) => svgText(ctx, `months-month-${month}/label`, ctx.t(`charts_month_short_${month}`), {
+      x: center(i), y: COLUMNS_HEIGHT - 6, anchor: 'middle', color: i === now ? 'colors.text.primary' : 'colors.text.tertiary',
+    })),
+  ]);
+};
+const monthsLineChart = (ctx) => [
+  chartLegend(ctx, 'months-legend', [
+    legendGradientLine(ctx, 'months-legend-spending', 'insights_legend_spending'),
+    legendKey(ctx, 'months-legend-projected', 'insights_legend_projected', 'colors.text.tertiary', true),
+  ]),
+  monthsLines(ctx),
 ];
 
 // [category, amount, share, direction, change against the same days, purchases]. Each period's amounts add up to its total.
@@ -3498,7 +3636,7 @@ const INSIGHTS_MONTH = {
   change: ['up', 'R$ 1.910'],
   vsKey: 'insights_vs_month',
   stats: [['charts_daily_average', 'R$ 492,86'], ['charts_biggest_day', 'R$ 704,60'], ['charts_purchases', '48']],
-  chart: { titleKey: 'charts_pace_title', caption: { textKey: 'insights_days_of', textArgs: ['7', '31'] }, render: (ctx) => monthPace(ctx, true) },
+  chart: { titleKey: 'charts_pace_title', caption: { textKey: 'insights_days_of', textArgs: ['7', '31'] }, view: 'line', render: (ctx) => monthPace(ctx, true) },
   bar: [['groceries', 37], ['restaurants', 22], ['transport', 13], ['other', 28]],
   shares: [
     ['groceries', 'R$ 1.284,40', '37%', 'up', 'R$ 904', 14],
@@ -3508,7 +3646,7 @@ const INSIGHTS_MONTH = {
     ['leisure', 'R$ 320,00', '9%', 'up', 'R$ 260', 5],
     ['bills', 'R$ 250,00', '7%', 'down', 'R$ 60', 4],
   ],
-  months: true,
+  months: 'columns',
   family: [['A', 'Ana', 'R$ 2.139,00', 62], ['M', 'Marina', 'R$ 1.311,00', 38]],
   biggest: [
     ['carrefour', 'Carrefour', 'groceries', 'azul', null, 'R$ 412,30'],
@@ -3524,7 +3662,7 @@ const INSIGHTS_WEEK = {
   change: ['down', 'R$ 287'],
   vsKey: 'insights_vs_week',
   stats: [['charts_daily_average', 'R$ 371,73'], ['charts_biggest_day', 'R$ 522,70'], ['charts_purchases', '10']],
-  chart: { titleKey: 'insights_by_day', caption: { textKey: 'insights_days_of', textArgs: ['3', '7'] }, render: weekColumns },
+  chart: { titleKey: 'insights_by_day', caption: { textKey: 'insights_days_of', textArgs: ['3', '7'] }, view: 'columns', render: weekColumns },
   bar: [['restaurants', 25], ['transport', 21], ['groceries', 16], ['other', 38]],
   shares: [
     ['restaurants', 'R$ 278,80', '25%', 'up', 'R$ 92', 3],
@@ -3604,7 +3742,7 @@ const insightsSummary = (ctx, p) => OrbitCard(ctx, { key: 'summary', variant: 'B
       }),
       HorizontalDivider(ctx, { key: 'summary/divider' }),
       gap(ctx, 'summary/gap-chart', 'spacing.xxSmall'),
-      p.chart.view ? ctx.node({
+      ctx.node({
         key: 'chart-header',
         styles: ['Home/spread'],
         children: [
@@ -3617,13 +3755,6 @@ const insightsSummary = (ctx, p) => OrbitCard(ctx, { key: 'summary', variant: 'B
             ],
           }),
           chartViewSwitch(ctx, p.chart.view),
-        ],
-      }) : ctx.node({
-        key: 'chart-header',
-        styles: ['Home/spread'],
-        children: [
-          text(ctx, 'chart-title', 'Family/name', { textKey: p.chart.titleKey }),
-          text(ctx, 'chart-caption', 'Screen/tertiary', p.chart.caption),
         ],
       }),
       ...p.chart.render(ctx),
@@ -3639,13 +3770,21 @@ const insightsCategories = (ctx, p) => OrbitCard(ctx, { key: 'shares', variant: 
       : text(ctx, `share-${category}/count`, 'Screen/tertiary', { textKey: 'charts_tooltip_purchases', textArgs: [String(count)] })),
   ]),
 ]);
-// Tapping a column opens that month; October is the one the prototype links.
-const insightsMonths = (ctx) => OrbitCard(ctx, { key: 'months', variant: 'Base' }, [
+// Tapping a column, or October's dot, opens that month; October is the one the prototype links.
+const insightsMonths = (ctx, view) => OrbitCard(ctx, { key: 'months', variant: 'Base' }, [
   ctx.node({
     key: 'months/body',
     styles: ['Home/cardBody'],
     children: [
-      columnChart(ctx, 'months', {
+      ctx.node({
+        key: 'months/header',
+        styles: ['Home/spread'],
+        children: [
+          text(ctx, 'months/average', 'Screen/secondary', { textKey: 'charts_average_month', textArgs: ['R$ 4.726'] }),
+          chartViewSwitch(ctx, view, 'months-'),
+        ],
+      }),
+      ...(view === 'line' ? monthsLineChart(ctx) : [columnChart(ctx, 'months', {
         months: MONTHS.map(([month, value]) => ({ month, value, caption: thousands(ctx, String(value / 1000)) })),
         max: 6000,
         accent: MONTHS.length - 1,
@@ -3653,8 +3792,7 @@ const insightsMonths = (ctx) => OrbitCard(ctx, { key: 'months', variant: 'Base' 
         label: ctx.t('insights_months_label'),
         hotspots: MONTHS.map((_, i) => i),
         gradient: true,
-      }),
-      text(ctx, 'months/average', 'Screen/secondary', { textKey: 'charts_average_month', textArgs: ['R$ 4.726'] }),
+      })]),
     ],
   }),
 ]);
@@ -3885,7 +4023,7 @@ const insightsFrame = (id, name, period, p, header = segmentedHeader) => frame(i
       ...section(ctx, 'categories', sectionHeader(ctx, 'categories-header', 'charts_categories_eyebrow'), insightsCategories(ctx, p)),
       gap(ctx, 'gap-categories', 'spacing.large'),
       ...(p.months ? [
-        ...section(ctx, 'months', sectionHeader(ctx, 'months-header', 'charts_months_eyebrow'), insightsMonths(ctx)),
+        ...section(ctx, 'months', sectionHeader(ctx, 'months-header', 'charts_months_eyebrow'), insightsMonths(ctx, p.months)),
         gap(ctx, 'gap-months', 'spacing.large'),
       ] : []),
       ...(p.family ? [
@@ -3901,7 +4039,16 @@ const insightsFrame = (id, name, period, p, header = segmentedHeader) => frame(i
 
 const INSIGHTS_BY_PERIOD = { week: INSIGHTS_WEEK, month: INSIGHTS_MONTH, year: INSIGHTS_YEAR };
 const insights = insightsFrame('insights', 'Insights · Month', 'month', INSIGHTS_MONTH);
+const insightsColumns = insightsFrame('insights-columns', 'Insights · Month · Columns', 'month', {
+  ...INSIGHTS_MONTH,
+  chart: { ...INSIGHTS_MONTH.chart, titleKey: 'insights_by_day', view: 'columns', render: monthColumns },
+});
+const insightsMonthsLine = insightsFrame('insights-months-line', 'Insights · Month · Last 6 months line', 'month', { ...INSIGHTS_MONTH, months: 'line' });
 const insightsWeek = insightsFrame('insights-week', 'Insights · Week', 'week', INSIGHTS_WEEK);
+const insightsWeekLine = insightsFrame('insights-week-line', 'Insights · Week · Line', 'week', {
+  ...INSIGHTS_WEEK,
+  chart: { ...INSIGHTS_WEEK.chart, titleKey: 'charts_pace_title', view: 'line', render: weekLine },
+});
 const insightsYear = insightsFrame('insights-year', 'Insights · Year', 'year', INSIGHTS_YEAR);
 const insightsYearLine = insightsFrame('insights-year-line', 'Insights · Year · Line', 'year', {
   ...INSIGHTS_YEAR,
@@ -4770,7 +4917,10 @@ export const frames = [
   homeBudget,
   homeLeftover,
   insights,
+  insightsColumns,
+  insightsMonthsLine,
   insightsWeek,
+  insightsWeekLine,
   insightsYear,
   insightsYearLine,
   ...insightsChips,

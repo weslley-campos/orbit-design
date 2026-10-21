@@ -13,39 +13,42 @@ Replaces the Charts draft ([charts.md](charts.md)): the second tab becomes Insig
 - Included:
   - The second tab renamed Insights (Análises), keeping the pie-chart icon.
   - `screens/insights` (Month), `screens/insights-week`, `screens/insights-year` with `screens/insights-year-line`: a Week / Month / Year segmented control under the title, the period as a heading with a chevron that opens a picker, its days so far ("Oct 1 – 7 · 7 of 31 days") and a ‹ › pill, a summary with the change against the same days of the previous period and its chart, By category, Last 6 months (Month only), Family members, and Biggest expenses with See all.
+  - A columns / lines switch on every chart over time: `screens/insights-columns` (Month's Pace as columns), `screens/insights-months-line` (Last 6 months as lines) and `screens/insights-week-line` (Week's chart as lines), beside Year's two views. By category and Family members are part-to-whole bars and have no switch.
   - Archived for reference, as Month, Week and Year: `screens/insights-chips-*`, the first draft's chips over a ‹ period › stepper, and `screens/insights-timeline-*`, the candidate not chosen, with the segmented control beside the title and a rail of recent periods, each with a mini bar of what it spent.
   - `screens/insights-first-month`: the first month of a user without family members, with nothing to compare against.
   - `screens/insights-empty`: a user with no expenses yet.
-  - Prototype links: the bar's Insights from Home, Wallet, Card and Settings; the period segments; the Year chart's view switch; summaries, category rows, columns, family members and See all into the Transactions frames; expense rows into Transaction; Connect a bank into Connectors.
+  - Prototype links: the bar's Insights from Home, Wallet, Card and Settings; the period segments; every chart's view switch; summaries, category rows, columns, family members and See all into the Transactions frames; expense rows into Transaction; Connect a bank into Connectors.
 - Excluded: budgets (the even-pace line, budget lines, "over budget"), a projection for Week or for a first month, the Day period, a category screen (Charts · Restaurants), generated insights ("Saturdays are your biggest days"), the filtered Transactions frames themselves, loading and error frames, exporting, production app changes.
-- Design: `screens/home` → `screens/insights` ⇄ `-week`, `-year` ⇄ `-year-line` → `screens/transactions*` → `screens/transaction-detail`. `screens/charts` and `screens/charts-category` move to Archived, with their links, and stay there for reference.
+- Design: `screens/home` → `screens/insights` ⇄ `-columns`, `-months-line`; `-week` ⇄ `-week-line`; `-year` ⇄ `-year-line` → `screens/transactions*` → `screens/transaction-detail`. `screens/charts` and `screens/charts-category` move to Archived, with their links, and stay there for reference.
 
 ## 3. Required behavior
 - R1: The bar's second item must read Insights (Análises) with the pie-chart icon, and open Month on the current month with Insights selected.
 - R2: Week, Month and Year must switch the period, and the ‹ › pill must step through them, with › disabled on the current period; the heading names it: "Oct 5 – 11", "October 2026", "2026".
 - R3: The summary must show the period's total and its change against the same days of the previous period, signed, with an arrow, in the error color when spending is higher and the success color when lower. Under it: daily average (monthly for Year), biggest day (month for Year) and purchases. Tapping it must open Transactions for the period.
-- R4: The summary's chart must show Week as a column per day, today's at full strength and days still to come empty.
-- R5: Month's chart must show this month's running total against last month's, with a dashed projection from today to the month's end labeled with its total ("R$ 4.620"), and Projected in the legend. This month's line and its area take the palette's gradient.
-- R6: Year's chart must show past, present and future in one of two views, picked by two icon buttons beside its header (columns, the default, and lines), the selected one tonal. Its header must read the year's projected total ("R$ 54.480 projected").
+- R4: Every chart over time (the summary's chart in Week, Month and Year, and Last 6 months) must offer two views, picked by two icon buttons beside its header (columns and lines), the selected one tonal. Columns show what each day or month spent; lines show the trend. Each chart keeps its own view.
+- R4.1: Week's chart defaults to columns: a column per day, today's at full strength and days still to come empty. Its lines show this week's running total against last week's, with today's total as a labeled dot ("R$ 1.115"). Legend: This week, Last week.
+- R5: Month's chart must show this month's running total against last month's, with a dashed projection from today to the month's end labeled with its total ("R$ 4.620"), and Projected in the legend. This month's line and its area take the palette's gradient. This is the default view; its columns show a column per day so far, the biggest day and today labeled, and the days left as dashed projected columns sharing the projection's rest, labeled "R$ 4.620 projected". Legend: Spent, Projected. Tapping today's column must open Transactions for the day.
+- R6: Year's chart must show past, present and future in either view (R4), columns by default. Its header must read the year's projected total ("R$ 54.480 projected").
   - Columns: past months as softened spent columns, the current month's spent part at full strength with its projected rest dashed on top, months to come as dashed projected columns. Legend: Spent, Projected.
   - Lines: spending as a smooth line, solid through last month and dashed through the projection to December, with the current month's spent so far as a dot under its projected point; income as a thinner smooth line, solid through the current month and dashed after it. Legend: Spending, Income, Projected.
   - Tapping October (its column, or its dot) must open Transactions for it.
 - R7: By category must show a part-to-whole bar (the three largest in their category colors, the rest as Other) and one row per category with icon, amount, share and change, largest first. Tapping a row must open Transactions filtered to it.
-- R8: Month must show Last 6 months as columns, the current one at full strength, the highest and current labeled, with the average of the five complete months. Tapping a column must open that month in Transactions.
+- R8: Month must show Last 6 months as columns, the current one at full strength, the highest and current labeled, with the average of the five complete months. Columns are the default; its lines show spending as a smooth line through September, dashed to October's projection, with October's spent so far as a dot under it. Legend: Spending, Projected. Tapping a column, or October's dot, must open that month in Transactions.
 - R9: Family members must show each member's amount and share, and appear only when the user has family members. Tapping one must open Transactions filtered to them.
 - R10: Biggest expenses must list the period's three largest purchases, each opening its Transaction, with See all opening Transactions for the period.
 - R11: In a user's first month, the change, last month's line, the projection and Last 6 months must be hidden, the summary must read "Comparisons start in November", and category rows must show their purchase count instead of a change.
 - R12: With no expenses, Insights must hide the period controls and explain what will appear, with Connect a bank and Add expense.
-- R13: Every chart's marks must take the palette's gradient, and palette, light/dark mode and English/Portuguese must apply to all six frames, with no text clipped at 402 × 874.
+- R13: Every chart's marks must take the palette's gradient, and palette, light/dark mode and English/Portuguese must apply to all nine frames, with no text clipped at 402 × 874.
 
 ## 4. Constraints
 - Spending comes from `GET /transactions` (orbit-api's `transactions.md`): `total`, `count` and `totals` for the period and the previous one, and the lines' `category` and `member` for the breakdowns.
 - A projection adds the installments already due in the period (bills' `installments.next`, cards' `futureInstallments`) to the recent daily or monthly average for what is left. Week and a first month have none.
 - Income is not in the API: `GET /transactions` leaves out income, transfers and checking or savings accounts. The income line needs checking-account data from orbit-api.
 - "The same days" means the previous period up to the same day: Oct 1–7 against Sep 1–7, Mon–Wed against the previous Mon–Wed, Jan 1–Oct 7 against the same days of last year.
-- Charts are SVG marks bound to theme tokens: 2dp lines (2.5dp for Year's spending), 24dp columns (18dp in Year) with 4dp rounded caps. Lines are smooth only in Year; Month's running total keeps its daily steps.
+- Charts are SVG marks bound to theme tokens: 2dp lines (2.5dp for Year's spending), 24dp columns (18dp in Year) with 4dp rounded caps. Pace columns are 8dp, to fit 31 days. Lines are smooth only in Year and Last 6 months; the running totals of Week and Month keep their daily steps.
 - Marks take the palette's light `gradients.primary` in both modes, since the dark one is a near-black background that vanishes on a dark surface: columns run it bottom to top and lines left to right, both reaching past the plot so the lightest stop never lands on a mark, and in dark mode starting past the deepest one. Columns other than the current one take it at 55% opacity; areas under a line fade the brand color from 32% to none. The archived Charts frames keep flat colors.
 - The category colors still fail the colorblind check ([charts.md](charts.md)), so every colored mark has a row with an icon and a label beside it.
+- Each switch's hotspots are its own: the summary's are `view-columns` and `view-line`, Last 6 months' are `months-view-columns` and `months-view-line`. Play links one switch at a time from each default frame, so a frame that already shows one chart's other view leaves the second switch unlinked rather than drafting every combination.
 - Two new proposed icons, Lucide `chart-column` and `chart-spline` (ISC), for the view switch. New styles: `Insights/deltaDown`, which reuses `Charts/deltaUp`'s proposed 1dp border with the success colors, and `Insights/swatch`, `Insights/swatchWide` and `Insights/viewSwitch`, all on existing tokens.
 - The period controls add `Insights/segmented`, `Insights/segment`, `Insights/segmentSelected`, `Insights/periodText` and `Insights/periodTitle`, on existing tokens and the 1dp border `PeriodStepper` already uses; the ‹ › pill reuses `Home/switcher`. The archived rail keeps its `Insights/rail*` styles, and its amounts outside October are invented.
 
@@ -54,7 +57,9 @@ Replaces the Charts draft ([charts.md](charts.md)): the second tab becomes Insig
 - [ ] R2 · manual — Given Insights in Play, when Week and then Year are activated, then the period heading reads "Oct 5 – 11" and then "2026".
 - [ ] R3 · manual — Given Insights, when inspected, then the summary reads R$ 3.450,00 with "+R$ 1.910 vs. Sep 1–7".
 - [ ] R4 · manual — Given Insights · Week, when inspected, then Mon to Wed have columns, Wed at full strength, and Thu to Sun are empty.
-- [ ] R5 · manual — Given Insights, when inspected, then Pace shows October to day 7 against September, with a dashed projection to "R$ 4.620".
+- [ ] R4 · manual — Given Insights · Week in Play, when the line icon is activated, then Insights · Week · Line opens with this week to Wed ("R$ 1.115") against last week; when the column icon is activated there, then Insights · Week opens.
+- [ ] R4 · manual — Given Insights in Play, when Last 6 months' line icon is activated, then Insights · Month · Last 6 months line opens with October's dot at 3.45k under its projection; when its column icon is activated there, then Insights opens.
+- [ ] R5 · manual — Given Insights, when inspected, then Pace shows October to day 7 against September, with a dashed projection to "R$ 4.620"; when Pace's column icon is activated in Play, then Insights · Month · Columns opens with R$ 705 and R$ 231 labeled and days 8 to 31 dashed, and activating today's column opens Transactions · Day.
 - [ ] R6 · manual — Given Insights · Year in Play, when the line icon is activated, then Insights · Year · Line opens; when the column icon is activated there, then Insights · Year opens; and in either view, activating October opens Transactions.
 - [ ] R6 · manual — Given Insights · Year, when inspected, then Jul (5.32k) and Oct (3.45k) are labeled, Oct has a dashed projected rest, Nov and Dec are dashed, and the header reads "R$ 54.480 projected".
 - [ ] R7 · manual — Given Insights in Play, when Restaurants is activated, then Transactions · Month opens.
@@ -62,7 +67,7 @@ Replaces the Charts draft ([charts.md](charts.md)): the second tab becomes Insig
 - [ ] R9, R10 · manual — Given Insights in Play, when Marina, then See all, then Carrefour are activated, then Transactions, Transactions and Transaction open.
 - [ ] R11 · manual — Given the first-month frame, when inspected, then it has no change, no September line, no projection, no Last 6 months and no family members, and Groceries reads "14 purchases".
 - [ ] R12 · manual — Given the empty frame in Play, when Connect a bank is activated, then Connectors opens.
-- [ ] R13 · manual — Given Flamingo, Spruce, Graphite and Orchid, light and dark, in English and Portuguese, when the six frames are viewed at 402 × 874, then every chart takes the palette's gradient and no text is clipped.
+- [ ] R13 · manual — Given Flamingo, Spruce, Graphite and Orchid, light and dark, in English and Portuguese, when the nine frames are viewed at 402 × 874, then every chart takes the palette's gradient and no text is clipped.
 
 ## 7. Definition of Done (Verification)
 - [ ] `node design/check.mjs` passes.
@@ -77,6 +82,6 @@ Replaces the Charts draft ([charts.md](charts.md)): the second tab becomes Insig
 - Is a projection of installments due plus the recent average good enough, or should it learn from the same month last year (December's gifts, January's taxes)? — product owner — does not block this draft.
 - Should chart marks get their own `gradients.chart` token per palette and mode, instead of reading the light `gradients.primary` in dark mode too? — design system — does not block this draft.
 - Transactions still shows the chips and stepper. Should it take the segmented control and period heading too? — product owner — does not block this draft.
-- Should the app remember the Year view the user picked? — product owner — does not block this draft.
+- Should the app remember the view the user picked for each chart, and should one switch change them all? — product owner — does not block this draft.
 - Do budgets, once `GET /budget` exists, come back as the even-pace and budget lines of the Charts draft? — product owner — does not block this draft.
 - Assumptions: today is Wed 7 October 2026; the user is Ana, with Marina as a family member, except in the first-month frame; amounts and counts match Home and Transactions.
