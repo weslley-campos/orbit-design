@@ -2,6 +2,8 @@
 
 Status: Draft
 
+Superseded by [insights.md](insights.md). Its frames are kept in the workspace's Archived shelf for reference.
+
 ## 1. Outcome
 - User: anyone tracking a monthly budget in Orbit, alone or with family members.
 - Problem: Home answers "how much is left", but nothing shows how spending got there: its pace through the month, which categories drive it, how this month compares with earlier ones, and who spent what.

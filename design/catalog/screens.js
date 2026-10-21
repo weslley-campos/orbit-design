@@ -1094,9 +1094,11 @@ const splitBar = (ctx, key, segments) => ctx.node({
   })),
 });
 
-const splitMember = (ctx, key, initial, name, amount, percent, avatarBind, youPill) => ctx.node({
+const splitMember = (ctx, key, initial, name, amount, percent, avatarBind, youPill, hotspot = false) => ctx.node({
   key,
   styles: ['Home/memberRow'],
+  hotspot,
+  attrs: hotspot ? { role: 'button', tabindex: 0 } : {},
   children: [
     text(ctx, `${key}/avatar`, 'Family/avatar', { text: initial }, { bind: avatarBind }),
     ctx.node({
@@ -1339,9 +1341,9 @@ const addNavItem = (ctx) => ({
   }),
 });
 
-// Home, Charts, Add, Wallet and Settings, each with filled artwork when selected. The destinations other than the selected one are hotspots;
+// Home, Insights, Add, Wallet and Settings, each with filled artwork when selected. The destinations other than the selected one are hotspots;
 // their keys stay the old hotspot ids (`nav-house`, `nav-user_round`) so saved prototype links keep working.
-const MAIN_NAV = { home: 0, charts: 1, wallet: 3, settings: 4 };
+const MAIN_NAV = { home: 0, charts: 1, insights: 1, wallet: 3, settings: 4 };
 const mainNav = (ctx, selectedIndex) => ctx.node({
   key: 'bottom',
   styles: ['Home/bottom'],
@@ -1350,7 +1352,7 @@ const mainNav = (ctx, selectedIndex) => ctx.node({
     selectedIndex,
     items: [
       navToggleItem(ctx, 'nav-house', 'home', 'home_nav_home', selectedIndex !== MAIN_NAV.home),
-      navToggleItem(ctx, 'nav-charts', 'chart_pie', 'home_nav_charts', selectedIndex !== MAIN_NAV.charts),
+      navToggleItem(ctx, 'nav-charts', 'chart_pie', 'home_nav_insights', selectedIndex !== MAIN_NAV.insights),
       addNavItem(ctx),
       navToggleItem(ctx, 'nav-wallet', 'wallet', 'home_nav_wallet', selectedIndex !== MAIN_NAV.wallet),
       navToggleItem(ctx, 'nav-user_round', 'settings', 'home_nav_settings', selectedIndex !== MAIN_NAV.settings),
@@ -1559,7 +1561,7 @@ const legendKey = (ctx, key, labelKey, color, dashed) => ctx.node({
 
 // Columns with 4dp rounded caps, square at the baseline; `selected` adds the tooltip a tap shows.
 const COLUMNS_HEIGHT = 176;
-const columnChart = (ctx, key, { months, max, budget, budgetLabel, budgetEnd = false, accent, labelled = [], tooltip, label }) => {
+const columnChart = (ctx, key, { months, max, budget, budgetLabel, budgetEnd = false, accent, labelled = [], tooltip, label, hotspots = [] }) => {
   const top = 28;
   const bottom = COLUMNS_HEIGHT - 24;
   const band = PLOT_WIDTH / months.length;
@@ -1574,8 +1576,12 @@ const columnChart = (ctx, key, { months, max, budget, budgetLabel, budgetEnd = f
   return plot(ctx, `${key}-plot`, 'Charts/columns', COLUMNS_HEIGHT, label, [
     svgLine(ctx, `${key}-baseline`, [0, bottom, PLOT_WIDTH, bottom], 'colors.border.base'),
     ...months.flatMap(({ month, value, caption }, i) => [
-      value > 0 && svgPath(ctx, `${key}-month-${month}`, column(i, value), {
-        fill: i === accent ? { token: 'colors.brand.primary' } : { token: 'colors.text.tertiary', alpha: 0.28 },
+      value > 0 && ctx.node({
+        key: `${key}-month-${month}`,
+        tag: 'path',
+        hotspot: hotspots.includes(i),
+        bind: { fill: i === accent ? { token: 'colors.brand.primary' } : { token: 'colors.text.tertiary', alpha: 0.28 } },
+        attrs: { d: column(i, value) },
       }),
       labelled.includes(i) && svgText(ctx, `${key}-month-${month}/value`, caption, {
         x: center(i), y: y(value) - 6, anchor: 'middle', font: 'typography.labelMedium', color: 'colors.text.primary',
@@ -3191,6 +3197,338 @@ const transactionsYear = txFrame('transactions-year', 'Transactions · Year', 'y
   ]))),
 ]);
 
+// Insights: an overview of a week, month or year that answers how much went out, whether that is more than before, where it went,
+// who spent it and on what. Every mark opens Transactions narrowed to it, so the list stays the detail view. Nothing reads a budget.
+const INSIGHTS_SPEC = 'docs/specs/insights.md';
+const signed = (direction, value) => `${direction === 'up' ? '+' : '−'}${value}`;
+// Spending more is the bad direction, so up reads as error and down as success; the arrow keeps it from being color alone.
+const changeOf = (ctx, key, direction, value, textKey, styles = ['Family/pending']) => ctx.node({
+  key,
+  styles,
+  children: [
+    icon(ctx, `${key}/icon`, `trending_${direction}`, 'xSmall', direction === 'up' ? 'colors.text.error' : 'colors.text.success'),
+    ctx.node({ key: `${key}/text`, tag: 'span', textKey, textArgs: [signed(direction, value)] }),
+  ],
+});
+
+// Oct 1–7 running totals: the days add up to the month's R$ 3.450,00, and Oct 5–7 match Transactions' days.
+const INSIGHTS_PACE = [[0, 0], [1, 612.4], [2, 1110.5], [3, 1815.1], [4, 2334.8], [5, 2696.6], [6, 3219.3], [7, 3450]];
+const insightsPace = (ctx, { previous, max, grid }) => {
+  const top = 8;
+  const bottom = PACE_HEIGHT - 24;
+  const x = (dayOfMonth) => Math.round((dayOfMonth / PACE.days) * PLOT_WIDTH * 10) / 10;
+  const y = (value) => Math.round((bottom - (value / max) * (bottom - top)) * 10) / 10;
+  const line = (points) => points.map(([dayOfMonth, value], i) => `${i ? 'L' : 'M'}${x(dayOfMonth)},${y(value)}`).join(' ');
+  const [todayDay, todayValue] = INSIGHTS_PACE.at(-1);
+  const stroke = { fill: 'none', 'stroke-width': 2, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' };
+  return plot(ctx, 'pace-plot', 'Charts/pace', PACE_HEIGHT, ctx.t(previous ? 'insights_pace_label' : 'insights_pace_label_first'), [
+    ...grid.flatMap(([value, label]) => [
+      svgLine(ctx, `pace-grid-${value}`, [0, y(value), PLOT_WIDTH, y(value)], 'colors.border.base'),
+      svgText(ctx, `pace-grid-${value}/label`, value ? thousands(ctx, label) : label, { x: 0, y: y(value) - 4 }),
+    ]),
+    previous && svgPath(ctx, 'pace-previous', line(PACE.previous), { stroke: { token: 'colors.border.strong' } }, stroke),
+    svgPath(ctx, 'pace-area', `${line(INSIGHTS_PACE)} L${x(todayDay)},${y(0)} Z`, { fill: { token: 'colors.brand.primary', alpha: 0.1 } }),
+    svgPath(ctx, 'pace-current', line(INSIGHTS_PACE), { stroke: { token: 'colors.brand.primary' } }, stroke),
+    ctx.node({
+      key: 'pace-today', tag: 'circle', bind: { fill: { token: 'colors.brand.primary' }, stroke: { token: 'colors.surface.base' } },
+      attrs: { cx: x(todayDay), cy: y(todayValue), r: 5, 'stroke-width': 2 },
+    }),
+    svgText(ctx, 'pace-today/value', 'R$ 3.450', { x: x(todayDay) + 10, y: y(todayValue) - 2, font: 'typography.labelMedium', color: 'colors.text.primary' }),
+    svgText(ctx, 'pace-axis-1', '1', { x: x(1), y: PACE_HEIGHT - 6, anchor: 'middle' }),
+    svgText(ctx, 'pace-axis-today', ctx.t('charts_today'), { x: x(todayDay), y: PACE_HEIGHT - 6, anchor: 'middle', color: 'colors.text.primary' }),
+    svgText(ctx, 'pace-axis-15', '15', { x: x(15), y: PACE_HEIGHT - 6, anchor: 'middle' }),
+    svgText(ctx, 'pace-axis-31', '31', { x: PLOT_WIDTH, y: PACE_HEIGHT - 6, anchor: 'end' }),
+  ]);
+};
+const monthPace = (ctx, previous) => [
+  previous && ctx.node({
+    key: 'pace-legend',
+    styles: ['Charts/legend'],
+    children: [
+      legendKey(ctx, 'legend-current', 'charts_legend_this_month', 'colors.brand.primary'),
+      legendKey(ctx, 'legend-previous', 'charts_legend_last_month', 'colors.border.strong'),
+    ],
+  }),
+  previous
+    ? insightsPace(ctx, { previous, max: 5000, grid: [[0, '0'], [2500, '2.5'], [5000, '5']] })
+    : insightsPace(ctx, { previous, max: 4000, grid: [[0, '0'], [2000, '2'], [4000, '4']] }),
+];
+const weekColumns = (ctx) => [columnChart(ctx, 'week', {
+  months: WEEK_TOTALS.map((value, i) => ({ month: i + 1, value, label: ctx.t(`tx_weekday_${i + 1}`), caption: `R$ ${Math.round(value)}` })),
+  max: 640,
+  accent: 2,
+  labelled: [0, 1, 2],
+  label: ctx.t('tx_week_label'),
+})];
+const yearColumns = (ctx) => [columnChart(ctx, 'year', {
+  months: YEAR.map((value, i) => ({ month: i + 1, value, label: ctx.t(`charts_month_short_${i + 1}`).slice(0, 1), caption: thousands(ctx, String(value / 1000)) })),
+  max: 6000,
+  accent: 9,
+  labelled: [6, 9],
+  label: ctx.t('insights_year_label'),
+})];
+
+// [category, amount, share, direction, change against the same days, purchases]. Each period's amounts add up to its total.
+const INSIGHTS_MONTH = {
+  stepper: { textKey: 'home_month' },
+  eyebrow: 'tx_spent_month',
+  total: 'R$ 3.450,00',
+  change: ['up', 'R$ 1.910'],
+  vsKey: 'insights_vs_month',
+  stats: [['charts_daily_average', 'R$ 492,86'], ['charts_biggest_day', 'R$ 704,60'], ['charts_purchases', '48']],
+  chart: { titleKey: 'charts_pace_title', caption: { textKey: 'insights_days_of', textArgs: ['7', '31'] }, render: (ctx) => monthPace(ctx, true) },
+  bar: [['groceries', 37], ['restaurants', 22], ['transport', 13], ['other', 28]],
+  shares: [
+    ['groceries', 'R$ 1.284,40', '37%', 'up', 'R$ 904', 14],
+    ['restaurants', 'R$ 767,60', '22%', 'up', 'R$ 578', 12],
+    ['transport', 'R$ 440,00', '13%', 'down', 'R$ 80', 8],
+    ['health', 'R$ 388,00', '11%', 'up', 'R$ 308', 5],
+    ['leisure', 'R$ 320,00', '9%', 'up', 'R$ 260', 5],
+    ['bills', 'R$ 250,00', '7%', 'down', 'R$ 60', 4],
+  ],
+  months: true,
+  family: [['A', 'Ana', 'R$ 2.139,00', 62], ['M', 'Marina', 'R$ 1.311,00', 38]],
+  biggest: [
+    ['carrefour', 'Carrefour', 'groceries', 'azul', null, 'R$ 412,30'],
+    ['ipiranga', 'Posto Ipiranga', 'transport', 'azul', null, 'R$ 210,00', null, 'fuel'],
+    ['outback', 'Outback', 'restaurants', 'bradesco', 'Marina', 'R$ 186,90'],
+  ],
+};
+const INSIGHTS_WEEK = {
+  ...INSIGHTS_MONTH,
+  stepper: { textKey: 'tx_week_range' },
+  eyebrow: 'tx_spent_week',
+  total: 'R$ 1.115,20',
+  change: ['down', 'R$ 287'],
+  vsKey: 'insights_vs_week',
+  stats: [['charts_daily_average', 'R$ 371,73'], ['charts_biggest_day', 'R$ 522,70'], ['charts_purchases', '10']],
+  chart: { titleKey: 'insights_by_day', caption: { textKey: 'insights_days_of', textArgs: ['3', '7'] }, render: weekColumns },
+  bar: [['restaurants', 25], ['transport', 21], ['groceries', 16], ['other', 38]],
+  shares: [
+    ['restaurants', 'R$ 278,80', '25%', 'up', 'R$ 92', 3],
+    ['transport', 'R$ 234,90', '21%', 'down', 'R$ 120', 2],
+    ['groceries', 'R$ 182,40', '16%', 'down', 'R$ 64', 1],
+    ['health', 'R$ 177,20', '16%', 'up', 'R$ 57', 2],
+    ['bills', 'R$ 155,90', '14%', 'up', 'R$ 156', 1],
+    ['leisure', 'R$ 86,00', '8%', 'down', 'R$ 408', 1],
+  ],
+  months: false,
+  family: [['A', 'Ana', 'R$ 760,10', 68], ['M', 'Marina', 'R$ 355,10', 32]],
+  biggest: [
+    ['ipiranga', 'Posto Ipiranga', 'transport', 'azul', null, 'R$ 210,00', null, 'fuel'],
+    ['outback', 'Outback', 'restaurants', 'bradesco', 'Marina', 'R$ 186,90'],
+    ['pao-de-acucar', 'Pão de Açúcar', 'groceries', 'azul', null, 'R$ 182,40'],
+  ],
+};
+const INSIGHTS_YEAR = {
+  ...INSIGHTS_MONTH,
+  stepper: { text: '2026' },
+  eyebrow: 'tx_spent_year',
+  total: 'R$ 44.520,00',
+  change: ['up', 'R$ 2.650'],
+  vsKey: 'insights_vs_year',
+  stats: [['insights_monthly_average', 'R$ 4.452,00'], ['insights_biggest_month', 'R$ 5.320,00'], ['charts_purchases', '548']],
+  chart: { titleKey: 'insights_by_month', caption: { textKey: 'insights_months_of', textArgs: ['10', '12'] }, render: yearColumns },
+  bar: [['groceries', 36], ['restaurants', 21], ['transport', 14], ['other', 29]],
+  shares: [
+    ['groceries', 'R$ 16.030,00', '36%', 'up', 'R$ 1.120', 162],
+    ['restaurants', 'R$ 9.350,00', '21%', 'up', 'R$ 1.480', 141],
+    ['transport', 'R$ 6.230,00', '14%', 'down', 'R$ 310', 98],
+    ['health', 'R$ 4.900,00', '11%', 'up', 'R$ 240', 52],
+    ['leisure', 'R$ 4.450,00', '10%', 'up', 'R$ 380', 61],
+    ['bills', 'R$ 3.560,00', '8%', 'down', 'R$ 260', 34],
+  ],
+  months: false,
+  family: [['A', 'Ana', 'R$ 27.160,00', 61], ['M', 'Marina', 'R$ 17.360,00', 39]],
+  biggest: [
+    ['decolar', 'Decolar', 'leisure', 'amex', null, 'R$ 2.480,00'],
+    ['fleury', 'Fleury', 'health', 'bradesco', 'Marina', 'R$ 1.240,00'],
+    ['assai', 'Assaí Atacadista', 'groceries', 'azul', null, 'R$ 986,40'],
+  ],
+};
+// Ana alone in her first month: nothing to compare, no family members, and only October's line.
+const INSIGHTS_FIRST_MONTH = {
+  ...INSIGHTS_MONTH,
+  change: null,
+  chart: { ...INSIGHTS_MONTH.chart, render: (ctx) => monthPace(ctx, false) },
+  months: false,
+  family: null,
+  biggest: [
+    ['carrefour', 'Carrefour', 'groceries', 'azul', null, 'R$ 412,30'],
+    ['ipiranga', 'Posto Ipiranga', 'transport', 'azul', null, 'R$ 210,00', null, 'fuel'],
+    ['outback', 'Outback', 'restaurants', 'bradesco', null, 'R$ 186,90'],
+  ],
+};
+
+const insightsSummary = (ctx, p) => OrbitCard(ctx, { key: 'summary', variant: 'Base', hotspot: true }, [
+  ctx.node({
+    key: 'summary/content',
+    styles: ['Home/hero'],
+    children: [
+      ctx.node({
+        key: 'summary/top',
+        styles: ['Home/spread'],
+        children: [
+          text(ctx, 'summary/eyebrow', 'Screen/eyebrow', { textKey: p.eyebrow }),
+          p.change && changeOf(ctx, 'summary/delta', ...p.change, p.vsKey, [p.change[0] === 'up' ? 'Charts/deltaUp' : 'Insights/deltaDown']),
+        ],
+      }),
+      text(ctx, 'summary/amount', 'OrbitCard/amount', { text: p.total }),
+      !p.change && status(ctx, 'summary/first', 'calendar_days', 'colors.text.tertiary', 'insights_first_month'),
+      ctx.node({
+        key: 'stats',
+        styles: ['Home/stats', 'Charts/stats'],
+        children: p.stats.map(([labelKey, value], i) => stat(ctx, `stat-${i}`, labelKey, { text: value })),
+      }),
+      HorizontalDivider(ctx, { key: 'summary/divider' }),
+      gap(ctx, 'summary/gap-chart', 'spacing.xxSmall'),
+      ctx.node({
+        key: 'chart-header',
+        styles: ['Home/spread'],
+        children: [
+          text(ctx, 'chart-title', 'Family/name', { textKey: p.chart.titleKey }),
+          text(ctx, 'chart-caption', 'Screen/tertiary', p.chart.caption),
+        ],
+      }),
+      ...p.chart.render(ctx),
+    ],
+  }),
+]);
+const insightsCategories = (ctx, p) => OrbitCard(ctx, { key: 'shares', variant: 'Base' }, [
+  shareBar(ctx, 'shares', p.bar),
+  ...p.shares.flatMap(([category, amount, share, direction, change, count], i) => [
+    i > 0 && HorizontalDivider(ctx, { key: `shares/divider-${i}` }),
+    shareRow(ctx, [category, amount, share], p.change
+      ? changeOf(ctx, `share-${category}/change`, direction, change, p.vsKey)
+      : text(ctx, `share-${category}/count`, 'Screen/tertiary', { textKey: 'charts_tooltip_purchases', textArgs: [String(count)] })),
+  ]),
+]);
+// Tapping a column opens that month; October is the one the prototype links.
+const insightsMonths = (ctx) => OrbitCard(ctx, { key: 'months', variant: 'Base' }, [
+  ctx.node({
+    key: 'months/body',
+    styles: ['Home/cardBody'],
+    children: [
+      columnChart(ctx, 'months', {
+        months: MONTHS.map(([month, value]) => ({ month, value, caption: thousands(ctx, String(value / 1000)) })),
+        max: 6000,
+        accent: MONTHS.length - 1,
+        labelled: [2, MONTHS.length - 1],
+        label: ctx.t('insights_months_label'),
+        hotspots: MONTHS.map((_, i) => i),
+      }),
+      text(ctx, 'months/average', 'Screen/secondary', { textKey: 'charts_average_month', textArgs: ['R$ 4.726'] }),
+    ],
+  }),
+]);
+const MEMBER_AVATARS = [
+  { background: { token: 'colors.brand.primary' }, color: { token: 'colors.text.onBrand' } },
+  { background: { token: 'colors.brand.accent' }, color: { token: 'colors.brand.ink' } },
+];
+const insightsFamily = (ctx, members) => OrbitCard(ctx, { key: 'family', variant: 'Base' }, [
+  ctx.node({
+    key: 'family/body',
+    styles: ['Home/cardBody'],
+    children: [
+      splitBar(ctx, 'split', members.map(([, name, , share], i) => [name.toLowerCase(), share, MEMBER_AVATARS[i].background.token])),
+      ...members.map(([initial, name, amount, share], i) => splitMember(
+        ctx, `member-${name.toLowerCase()}`, initial, name, amount, `${share}%`, MEMBER_AVATARS[i], i === 0, true,
+      )),
+    ],
+  }),
+]);
+
+const insightsHeader = (ctx, period, stepper) => [
+  gap(ctx, 'gap-top', 'spacing.xxLarge'),
+  inset(ctx, 'title/inset', text(ctx, 'title', 'SignIn/title', { textKey: 'insights_title' })),
+  gap(ctx, 'gap-title', 'spacing.small'),
+  ...(period ? [
+    inset(ctx, 'periods/inset', ctx.node({
+      key: 'periods',
+      styles: ['Charts/periods'],
+      attrs: { role: 'group', 'aria-label': ctx.t('charts_periods') },
+      children: ['week', 'month', 'year'].map((option) => OrbitFilterChip(ctx, {
+        key: `period-${option}`,
+        labelKey: `charts_period_${option}`,
+        selected: option === period,
+        hotspot: true,
+        styles: ['Settings/option'],
+        attrs: { role: 'button', 'aria-pressed': option === period, tabindex: 0 },
+      })),
+    })),
+    gap(ctx, 'gap-periods', 'spacing.small'),
+    inset(ctx, 'stepper/inset', ctx.node({
+      key: 'stepper',
+      styles: ['Home/switcher'],
+      children: [
+        OrbitIconButton(ctx, { key: 'period-previous', hotspot: true, styles: ['Home/switcherButton'], contentDescription: ctx.t('tx_previous') }, [
+          icon(ctx, 'period-previous/icon', 'chevron_left', 'medium', 'colors.text.secondary'),
+        ]),
+        text(ctx, 'stepper/label', 'Family/name', stepper, { styles: ['Family/name', 'Home/switcherLabel'] }),
+        OrbitIconButton(ctx, { key: 'period-next', enabled: false, styles: ['Home/switcherButton'], contentDescription: ctx.t('tx_next') }, [
+          icon(ctx, 'period-next/icon', 'chevron_right', 'medium', 'colors.text.disabled'),
+        ]),
+      ],
+    })),
+    gap(ctx, 'gap-stepper', 'spacing.medium'),
+  ] : []),
+];
+const insightsFrame = (id, name, period, p) => frame(id, name, { status: 'proposed', spec: INSIGHTS_SPEC }, (ctx) => screenFrame(ctx, [
+  ctx.node({
+    key: 'content',
+    styles: ['Home/scroll'],
+    children: [
+      ...insightsHeader(ctx, period, p.stepper),
+      inset(ctx, 'summary/inset', insightsSummary(ctx, p)),
+      gap(ctx, 'gap-summary', 'spacing.large'),
+      ...section(ctx, 'categories', sectionHeader(ctx, 'categories-header', 'charts_categories_eyebrow'), insightsCategories(ctx, p)),
+      gap(ctx, 'gap-categories', 'spacing.large'),
+      ...(p.months ? [
+        ...section(ctx, 'months', sectionHeader(ctx, 'months-header', 'charts_months_eyebrow'), insightsMonths(ctx)),
+        gap(ctx, 'gap-months', 'spacing.large'),
+      ] : []),
+      ...(p.family ? [
+        ...section(ctx, 'family', sectionHeader(ctx, 'family-header', 'home_family_eyebrow'), insightsFamily(ctx, p.family)),
+        gap(ctx, 'gap-family', 'spacing.large'),
+      ] : []),
+      ...section(ctx, 'biggest', sectionHeader(ctx, 'biggest-header', 'insights_biggest_eyebrow', 'home_see_all'), txCard(ctx, 'biggest', p.biggest)),
+      gap(ctx, 'gap-bottom', 'spacing.large'),
+    ],
+  }),
+  mainNav(ctx, MAIN_NAV.insights),
+]));
+
+const insights = insightsFrame('insights', 'Insights · Month', 'month', INSIGHTS_MONTH);
+const insightsWeek = insightsFrame('insights-week', 'Insights · Week', 'week', INSIGHTS_WEEK);
+const insightsYear = insightsFrame('insights-year', 'Insights · Year', 'year', INSIGHTS_YEAR);
+const insightsFirstMonth = insightsFrame('insights-first-month', 'Insights · First month', 'month', INSIGHTS_FIRST_MONTH);
+
+// No expenses yet: the period controls would change nothing, so only the title and what will appear here.
+const insightsEmpty = frame('insights-empty', 'Insights · No expenses yet', { status: 'proposed', spec: INSIGHTS_SPEC }, (ctx) => screenFrame(ctx, [
+  ctx.node({
+    key: 'content',
+    styles: ['Home/scroll'],
+    children: [
+      ...insightsHeader(ctx, null),
+      gap(ctx, 'gap-empty', 'spacing.small'),
+      inset(ctx, 'empty/inset', OrbitCard(ctx, { key: 'empty', variant: 'Base' }, [
+        ctx.node({
+          key: 'empty/body',
+          styles: ['Home/cardBody'],
+          children: [
+            ctx.node({ key: 'empty/badge', styles: ['Charts/infoBadge'], children: [icon(ctx, 'empty/icon', 'chart_pie_outline', 'medium', 'colors.direction.info')] }),
+            text(ctx, 'empty/title', 'Home/cardTitle', { textKey: 'insights_empty_title' }),
+            text(ctx, 'empty/text', 'Screen/guidance', { textKey: 'insights_empty_body' }),
+            primary(ctx, 'connect', 'insights_empty_connect'),
+            textButton(ctx, 'add-expense-empty', 'home_add_expense'),
+          ],
+        }),
+      ])),
+    ],
+  }),
+  mainNav(ctx, MAIN_NAV.insights),
+]));
+
 // One transaction: what, when, how it was paid, where it came from, and what it did to the budget.
 const detailRow = (ctx, key, leading, labelKey, value, hotspot = false) => ctx.node({
   key,
@@ -4019,6 +4357,11 @@ export const frames = [
   homePulse,
   homeBudget,
   homeLeftover,
+  insights,
+  insightsWeek,
+  insightsYear,
+  insightsFirstMonth,
+  insightsEmpty,
   charts,
   chartsCategory,
   wallet,

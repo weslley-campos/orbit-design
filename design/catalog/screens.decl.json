@@ -3029,6 +3029,51 @@
         "flex-grow": "37"
       }
     },
+    "Home/grow/14": {
+      "css": {
+        "flex-grow": "14"
+      }
+    },
+    "Home/grow/21": {
+      "css": {
+        "flex-grow": "21"
+      }
+    },
+    "Home/grow/25": {
+      "css": {
+        "flex-grow": "25"
+      }
+    },
+    "Home/grow/29": {
+      "css": {
+        "flex-grow": "29"
+      }
+    },
+    "Home/grow/32": {
+      "css": {
+        "flex-grow": "32"
+      }
+    },
+    "Home/grow/36": {
+      "css": {
+        "flex-grow": "36"
+      }
+    },
+    "Home/grow/39": {
+      "css": {
+        "flex-grow": "39"
+      }
+    },
+    "Home/grow/61": {
+      "css": {
+        "flex-grow": "61"
+      }
+    },
+    "Home/grow/68": {
+      "css": {
+        "flex-grow": "68"
+      }
+    },
     "Charts/periods": {
       "bind": {
         "gap": {
@@ -3058,6 +3103,53 @@
           },
           {
             "token": "colors.direction.lossBorder"
+          }
+        ],
+        "border-radius": {
+          "token": "shapes.pill"
+        },
+        "gap": {
+          "token": "spacing.xxxSmall"
+        },
+        "padding-top": {
+          "token": "spacing.xxxSmall"
+        },
+        "padding-bottom": {
+          "token": "spacing.xxxSmall"
+        },
+        "padding-left": {
+          "token": "spacing.xxSmall"
+        },
+        "padding-right": {
+          "token": "spacing.xxSmall"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "align-items": "center",
+        "border-style": "solid",
+        "flex-shrink": "0",
+        "white-space": "nowrap"
+      }
+    },
+    "Insights/deltaDown": {
+      "bind": {
+        "font": {
+          "token": "typography.labelSmall"
+        },
+        "color": {
+          "token": "colors.text.success"
+        },
+        "background": {
+          "token": "colors.direction.gainSubtle"
+        },
+        "border": [
+          {
+            "literal": "1dp",
+            "proposal": "hairline border of the delta pill, like the status pill"
+          },
+          {
+            "token": "colors.direction.gainBorder"
           }
         ],
         "border-radius": {
