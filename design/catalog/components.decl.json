@@ -1709,7 +1709,7 @@
           "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitLinearProgressIndicator.kt:42"
         },
         "background": {
-          "token": "colors.surface.raised",
+          "token": "colors.surface.sunken",
           "source": "core/ui/src/commonMain/kotlin/br/com/weslleycampos/orbit/core/ui/components/OrbitLinearProgressIndicator.kt:47"
         }
       },

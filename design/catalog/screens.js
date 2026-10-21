@@ -3675,6 +3675,8 @@ const insightsFamily = (ctx, members) => OrbitCard(ctx, { key: 'family', variant
   }),
 ]);
 
+// The first draft's period controls, archived for reference: Week / Month / Year chips over a ‹ period › stepper.
+// Without a period it is the title alone, as on the empty frame.
 const insightsHeader = (ctx, period, stepper) => [
   gap(ctx, 'gap-top', 'spacing.xxLarge'),
   inset(ctx, 'title/inset', text(ctx, 'title', 'SignIn/title', { textKey: 'insights_title' })),
@@ -3710,7 +3712,6 @@ const insightsHeader = (ctx, period, stepper) => [
     gap(ctx, 'gap-stepper', 'spacing.medium'),
   ] : []),
 ];
-// Two proposals for the period controls, drafted to compare with the chips and stepper above.
 const weekStart = (ctx, month, day) => ({ textKey: 'insights_week_start', textArgs: [ctx.t(`charts_month_short_${month}`), day] });
 const PERIOD_SELECTOR = {
   week: {
@@ -3766,7 +3767,7 @@ const periodSteps = (ctx) => ctx.node({
   ],
 });
 
-// A: a segmented control for the length, then the period itself as a heading that opens a picker, stepped by arrows.
+// A segmented control for the length, then the period itself as a heading that opens a picker, stepped by arrows.
 const segmentedHeader = (ctx, period) => {
   const { title, progress } = PERIOD_SELECTOR[period];
   return [
@@ -3803,7 +3804,8 @@ const segmentedHeader = (ctx, period) => {
   ];
 };
 
-// B: the length beside the title, and a rail of recent periods, each a mini bar of what was spent; later ones are empty slots.
+// The candidate not chosen, archived for reference: the length beside the title, and a rail of recent periods, each a
+// mini bar of what was spent; later ones are empty slots.
 const RailHeight = 32;
 const railItem = (ctx, key, label, share, state) => {
   const current = state === 'current';
@@ -3872,7 +3874,7 @@ const railHeader = (ctx, period) => {
   ];
 };
 
-const insightsFrame = (id, name, period, p, header = insightsHeader) => frame(id, name, { status: 'proposed', spec: INSIGHTS_SPEC }, (ctx) => screenFrame(ctx, [
+const insightsFrame = (id, name, period, p, header = segmentedHeader) => frame(id, name, { status: 'proposed', spec: INSIGHTS_SPEC }, (ctx) => screenFrame(ctx, [
   ctx.node({
     key: 'content',
     styles: ['Home/scroll'],
@@ -3905,8 +3907,8 @@ const insightsYearLine = insightsFrame('insights-year-line', 'Insights · Year �
   ...INSIGHTS_YEAR,
   chart: { ...INSIGHTS_YEAR.chart, view: 'line', render: yearLineChart },
 });
-const insightsSegmented = ['month', 'week', 'year'].map((period) => insightsFrame(
-  `insights-segmented-${period}`, `Insights · Segmented · ${period[0].toUpperCase()}${period.slice(1)}`, period, INSIGHTS_BY_PERIOD[period], segmentedHeader,
+const insightsChips = ['month', 'week', 'year'].map((period) => insightsFrame(
+  `insights-chips-${period}`, `Insights · Chips · ${period[0].toUpperCase()}${period.slice(1)}`, period, INSIGHTS_BY_PERIOD[period], insightsHeader,
 ));
 const insightsTimeline = ['month', 'week', 'year'].map((period) => insightsFrame(
   `insights-timeline-${period}`, `Insights · Timeline · ${period[0].toUpperCase()}${period.slice(1)}`, period, INSIGHTS_BY_PERIOD[period], railHeader,
@@ -4771,7 +4773,7 @@ export const frames = [
   insightsWeek,
   insightsYear,
   insightsYearLine,
-  ...insightsSegmented,
+  ...insightsChips,
   ...insightsTimeline,
   insightsFirstMonth,
   insightsEmpty,
