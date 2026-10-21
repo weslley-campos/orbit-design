@@ -1559,9 +1559,55 @@ const legendKey = (ctx, key, labelKey, color, dashed) => ctx.node({
   ],
 });
 
+// Chart marks take the palette's light gradient in both modes: the dark one is a background and vanishes on a dark surface.
+let gradientCount = 0;
+const themeGradient = (ctx, key, [x1, y1, x2, y2], opacity = 1) => {
+  const id = `${key}-${++gradientCount}`;
+  const { css } = ctx.tokens.themed[`${ctx.settings.palette}/light`]['gradients.primary'];
+  const stops = [...css.matchAll(/(#[0-9a-f]{6})\s+([\d.]+)%/gi)];
+  return {
+    fill: `url(#${id})`,
+    defs: ctx.node({
+      key,
+      tag: 'linearGradient',
+      attrs: { id, gradientUnits: 'userSpaceOnUse', x1, y1, x2, y2 },
+      children: stops.map(([, color, offset], i) => ctx.node({
+        key: `${key}/stop-${i}`, tag: 'stop', attrs: { offset: `${offset}%`, 'stop-color': color, 'stop-opacity': opacity },
+      })),
+    }),
+  };
+};
+const fadeGradient = (ctx, key, top, bottom) => {
+  const id = `${key}-${++gradientCount}`;
+  return {
+    fill: `url(#${id})`,
+    defs: ctx.node({
+      key,
+      tag: 'linearGradient',
+      attrs: { id, gradientUnits: 'userSpaceOnUse', x1: 0, y1: top, x2: 0, y2: bottom },
+      children: [[0, 0.32], [100, 0]].map(([offset, opacity]) => ctx.node({
+        key: `${key}/stop-${offset}`, tag: 'stop', bind: { 'stop-color': { token: 'colors.brand.primary' } },
+        attrs: { offset: `${offset}%`, 'stop-opacity': opacity },
+      })),
+    }),
+  };
+};
+// Columns fill with the gradient from the baseline up: the accent at full strength, the rest softened. The gradient
+// runs past the plot's top, so the tallest column keeps a color that reads on the surface, and on a dark surface it
+// also starts below the baseline, past the deepest stop.
+const columnGradients = (ctx, key, top, bottom) => {
+  const reach = top - (bottom - top) * 0.4;
+  const start = bottom + (ctx.settings.mode === 'dark' ? (bottom - top) * 0.4 : 0);
+  return {
+    rest: themeGradient(ctx, `${key}-gradient`, [0, start, 0, reach], 0.55),
+    accent: themeGradient(ctx, `${key}-gradient-accent`, [0, start, 0, reach]),
+  };
+};
+// A line's gradient runs left to right, past the plot's end; on a dark surface it starts past the deepest stop.
+const lineGradient = (ctx, key) => themeGradient(ctx, key, [ctx.settings.mode === 'dark' ? -PLOT_WIDTH * 0.4 : 0, 0, PLOT_WIDTH * 1.25, 0]);
 // Columns with 4dp rounded caps, square at the baseline; `selected` adds the tooltip a tap shows.
 const COLUMNS_HEIGHT = 176;
-const columnChart = (ctx, key, { months, max, budget, budgetLabel, budgetEnd = false, accent, labelled = [], tooltip, label, hotspots = [] }) => {
+const columnChart = (ctx, key, { months, max, budget, budgetLabel, budgetEnd = false, accent, labelled = [], tooltip, label, hotspots = [], gradient = false }) => {
   const top = 28;
   const bottom = COLUMNS_HEIGHT - 24;
   const band = PLOT_WIDTH / months.length;
@@ -1573,15 +1619,17 @@ const columnChart = (ctx, key, { months, max, budget, budgetLabel, budgetEnd = f
     const cap = y(value);
     return `M${left},${bottom} V${cap + 4} Q${left},${cap} ${left + 4},${cap} H${left + width - 4} Q${left + width},${cap} ${left + width},${cap + 4} V${bottom} Z`;
   };
+  const fills = gradient && columnGradients(ctx, key, top, bottom);
   return plot(ctx, `${key}-plot`, 'Charts/columns', COLUMNS_HEIGHT, label, [
+    fills && ctx.node({ key: `${key}-defs`, tag: 'defs', children: [fills.rest.defs, fills.accent.defs] }),
     svgLine(ctx, `${key}-baseline`, [0, bottom, PLOT_WIDTH, bottom], 'colors.border.base'),
     ...months.flatMap(({ month, value, caption }, i) => [
       value > 0 && ctx.node({
         key: `${key}-month-${month}`,
         tag: 'path',
         hotspot: hotspots.includes(i),
-        bind: { fill: i === accent ? { token: 'colors.brand.primary' } : { token: 'colors.text.tertiary', alpha: 0.28 } },
-        attrs: { d: column(i, value) },
+        bind: fills ? {} : { fill: i === accent ? { token: 'colors.brand.primary' } : { token: 'colors.text.tertiary', alpha: 0.28 } },
+        attrs: { d: column(i, value), ...(fills && { fill: (i === accent ? fills.accent : fills.rest).fill }) },
       }),
       labelled.includes(i) && svgText(ctx, `${key}-month-${month}/value`, caption, {
         x: center(i), y: y(value) - 6, anchor: 'middle', font: 'typography.labelMedium', color: 'colors.text.primary',
@@ -3129,6 +3177,7 @@ const transactionsWeek = txFrame('transactions-week', 'Transactions · Week', 'w
     accent: 2,
     labelled: [0, 1, 2],
     label: ctx.t('tx_week_label'),
+    gradient: true,
   })),
   gap(ctx, 'gap-summary', 'spacing.small'),
   txFilters(ctx),
@@ -3187,6 +3236,7 @@ const transactionsYear = txFrame('transactions-year', 'Transactions · Year', 'y
     accent: 9,
     labelled: [6, 9],
     label: ctx.t('tx_year_label'),
+    gradient: true,
   })),
   gap(ctx, 'gap-summary', 'spacing.small'),
   txFilters(ctx),
@@ -3213,27 +3263,37 @@ const changeOf = (ctx, key, direction, value, textKey, styles = ['Family/pending
 
 // Oct 1–7 running totals: the days add up to the month's R$ 3.450,00, and Oct 5–7 match Transactions' days.
 const INSIGHTS_PACE = [[0, 0], [1, 612.4], [2, 1110.5], [3, 1815.1], [4, 2334.8], [5, 2696.6], [6, 3219.3], [7, 3450]];
+// October's projection: what is spent so far, the installments still due this month and the recent daily average for the days left.
+const INSIGHTS_PROJECTED_MONTH = 4620;
 const insightsPace = (ctx, { previous, max, grid }) => {
-  const top = 8;
+  const top = 18;
   const bottom = PACE_HEIGHT - 24;
   const x = (dayOfMonth) => Math.round((dayOfMonth / PACE.days) * PLOT_WIDTH * 10) / 10;
   const y = (value) => Math.round((bottom - (value / max) * (bottom - top)) * 10) / 10;
   const line = (points) => points.map(([dayOfMonth, value], i) => `${i ? 'L' : 'M'}${x(dayOfMonth)},${y(value)}`).join(' ');
   const [todayDay, todayValue] = INSIGHTS_PACE.at(-1);
   const stroke = { fill: 'none', 'stroke-width': 2, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' };
+  const gradient = lineGradient(ctx, 'pace-stroke');
+  const area = fadeGradient(ctx, 'pace-area-fade', y(todayValue), y(0));
   return plot(ctx, 'pace-plot', 'Charts/pace', PACE_HEIGHT, ctx.t(previous ? 'insights_pace_label' : 'insights_pace_label_first'), [
+    ctx.node({ key: 'pace-defs', tag: 'defs', children: [gradient.defs, area.defs] }),
     ...grid.flatMap(([value, label]) => [
       svgLine(ctx, `pace-grid-${value}`, [0, y(value), PLOT_WIDTH, y(value)], 'colors.border.base'),
       svgText(ctx, `pace-grid-${value}/label`, value ? thousands(ctx, label) : label, { x: 0, y: y(value) - 4 }),
     ]),
     previous && svgPath(ctx, 'pace-previous', line(PACE.previous), { stroke: { token: 'colors.border.strong' } }, stroke),
-    svgPath(ctx, 'pace-area', `${line(INSIGHTS_PACE)} L${x(todayDay)},${y(0)} Z`, { fill: { token: 'colors.brand.primary', alpha: 0.1 } }),
-    svgPath(ctx, 'pace-current', line(INSIGHTS_PACE), { stroke: { token: 'colors.brand.primary' } }, stroke),
+    svgPath(ctx, 'pace-area', `${line(INSIGHTS_PACE)} L${x(todayDay)},${y(0)} Z`, {}, { fill: area.fill }),
+    svgPath(ctx, 'pace-current', line(INSIGHTS_PACE), {}, { ...stroke, stroke: gradient.fill }),
+    previous && svgPath(ctx, 'pace-projected', line([[todayDay, todayValue], [PACE.days, INSIGHTS_PROJECTED_MONTH]]),
+      {}, { ...stroke, stroke: gradient.fill, 'stroke-dasharray': '4 4' }),
+    previous && svgText(ctx, 'pace-projected/value', 'R$ 4.620', {
+      x: PLOT_WIDTH, y: y(INSIGHTS_PROJECTED_MONTH) + 28, anchor: 'end', font: 'typography.labelMedium', color: 'colors.text.secondary',
+    }),
     ctx.node({
       key: 'pace-today', tag: 'circle', bind: { fill: { token: 'colors.brand.primary' }, stroke: { token: 'colors.surface.base' } },
       attrs: { cx: x(todayDay), cy: y(todayValue), r: 5, 'stroke-width': 2 },
     }),
-    svgText(ctx, 'pace-today/value', 'R$ 3.450', { x: x(todayDay) + 10, y: y(todayValue) - 2, font: 'typography.labelMedium', color: 'colors.text.primary' }),
+    svgText(ctx, 'pace-today/value', 'R$ 3.450', { x: x(todayDay), y: y(todayValue) - 12, anchor: 'middle', font: 'typography.labelMedium', color: 'colors.text.primary' }),
     svgText(ctx, 'pace-axis-1', '1', { x: x(1), y: PACE_HEIGHT - 6, anchor: 'middle' }),
     svgText(ctx, 'pace-axis-today', ctx.t('charts_today'), { x: x(todayDay), y: PACE_HEIGHT - 6, anchor: 'middle', color: 'colors.text.primary' }),
     svgText(ctx, 'pace-axis-15', '15', { x: x(15), y: PACE_HEIGHT - 6, anchor: 'middle' }),
@@ -3245,8 +3305,9 @@ const monthPace = (ctx, previous) => [
     key: 'pace-legend',
     styles: ['Charts/legend'],
     children: [
-      legendKey(ctx, 'legend-current', 'charts_legend_this_month', 'colors.brand.primary'),
+      legendGradientLine(ctx, 'legend-current', 'charts_legend_this_month'),
       legendKey(ctx, 'legend-previous', 'charts_legend_last_month', 'colors.border.strong'),
+      legendKey(ctx, 'legend-projected', 'insights_legend_projected', 'colors.brand.primary', true),
     ],
   }),
   previous
@@ -3259,14 +3320,175 @@ const weekColumns = (ctx) => [columnChart(ctx, 'week', {
   accent: 2,
   labelled: [0, 1, 2],
   label: ctx.t('tx_week_label'),
+  gradient: true,
 })];
-const yearColumns = (ctx) => [columnChart(ctx, 'year', {
-  months: YEAR.map((value, i) => ({ month: i + 1, value, label: ctx.t(`charts_month_short_${i + 1}`).slice(0, 1), caption: thousands(ctx, String(value / 1000)) })),
-  max: 6000,
-  accent: 9,
-  labelled: [6, 9],
-  label: ctx.t('insights_year_label'),
-})];
+// 2026 by month, past, present and future: Jan–Sep spent, October spent so far with its projected rest, Nov–Dec projected.
+// Projections add the installments already due to the recent average. December's income carries the 13th salary.
+const INSIGHTS_YEAR_PROJECTED = [0, 0, 0, 0, 0, 0, 0, 0, 0, 4620, 4480, 4310];
+const INSIGHTS_INCOME = [6200, 6200, 6200, 6450, 6200, 6200, 6200, 6200, 6200, 6350, 6200, 9300];
+const INSIGHTS_THIS_MONTH = 9;
+
+const legendSwatch = (ctx, key, labelKey, projected) => {
+  const gradient = !projected && themeGradient(ctx, `${key}/gradient`, [0, 12, 12, 0]);
+  return ctx.node({
+    key,
+    styles: ['Charts/legendItem'],
+    children: [
+      ctx.node({
+        key: `${key}/mark`, tag: 'svg', styles: ['Insights/swatch'], attrs: { viewBox: '0 0 12 12', 'aria-hidden': 'true' },
+        children: [
+          gradient && ctx.node({ key: `${key}/defs`, tag: 'defs', children: [gradient.defs] }),
+          ctx.node({
+            key: `${key}/mark/fill`,
+            tag: 'rect',
+            bind: projected ? { fill: { token: 'colors.brand.primary', alpha: 0.12 }, stroke: { token: 'colors.brand.primary', alpha: 0.6 } } : {},
+            attrs: { x: 0.5, y: 0.5, width: 11, height: 11, rx: 3, ...(projected ? { 'stroke-dasharray': '3 2' } : { fill: gradient.fill }) },
+          }),
+        ],
+      }),
+      text(ctx, `${key}/label`, 'Screen/tertiary', { textKey: labelKey }),
+    ],
+  });
+};
+const legendGradientLine = (ctx, key, labelKey) => {
+  const gradient = themeGradient(ctx, `${key}/gradient`, [0, 0, 16, 0]);
+  return ctx.node({
+    key,
+    styles: ['Charts/legendItem'],
+    children: [
+      ctx.node({
+        key: `${key}/mark`, tag: 'svg', styles: ['Insights/swatch', 'Insights/swatchWide'], attrs: { viewBox: '0 0 16 12', 'aria-hidden': 'true' },
+        children: [
+          ctx.node({ key: `${key}/defs`, tag: 'defs', children: [gradient.defs] }),
+          ctx.node({ key: `${key}/line`, tag: 'path', attrs: { d: 'M1,6 H15', stroke: gradient.fill, 'stroke-width': 2, 'stroke-linecap': 'round' } }),
+        ],
+      }),
+      text(ctx, `${key}/label`, 'Screen/tertiary', { textKey: labelKey }),
+    ],
+  });
+};
+const chartLegend = (ctx, key, items) => ctx.node({ key, styles: ['Charts/legend'], children: items });
+
+// Shared geometry for both views: twelve months across the plot, labeled by initial, the current one emphasized.
+const YEAR_TOP = 16;
+const YEAR_BOTTOM = COLUMNS_HEIGHT - 24;
+const yearGeometry = (max, min = 0) => {
+  const band = PLOT_WIDTH / 12;
+  return {
+    y: (value) => Math.round((YEAR_BOTTOM - ((value - min) / (max - min)) * (YEAR_BOTTOM - YEAR_TOP)) * 10) / 10,
+    center: (i) => Math.round((band * i + band / 2) * 10) / 10,
+  };
+};
+const monthInitials = (ctx, key, center) => YEAR.map((_, i) => svgText(ctx, `${key}-month-${i + 1}/label`, ctx.t(`charts_month_short_${i + 1}`).slice(0, 1), {
+  x: center(i), y: COLUMNS_HEIGHT - 6, anchor: 'middle', color: i === INSIGHTS_THIS_MONTH ? 'colors.text.primary' : 'colors.text.tertiary',
+}));
+
+const yearBars = (ctx) => {
+  const { y, center } = yearGeometry(6000);
+  const width = 18;
+  const now = INSIGHTS_THIS_MONTH;
+  const left = (i) => center(i) - width / 2;
+  const capped = (i, from, to) => {
+    const cap = y(to);
+    return `M${left(i)},${y(from)} V${cap + 4} Q${left(i)},${cap} ${left(i) + 4},${cap} H${left(i) + width - 4} Q${left(i) + width},${cap} ${left(i) + width},${cap + 4} V${y(from)} Z`;
+  };
+  const square = (i, to) => `M${left(i)},${YEAR_BOTTOM} V${y(to)} H${left(i) + width} V${YEAR_BOTTOM} Z`;
+  const { rest: past, accent: current } = columnGradients(ctx, 'year-bars', YEAR_TOP, YEAR_BOTTOM);
+  return plot(ctx, 'year-plot', 'Charts/columns', COLUMNS_HEIGHT, ctx.t('insights_year_label'), [
+    ctx.node({ key: 'year-defs', tag: 'defs', children: [past.defs, current.defs] }),
+    svgLine(ctx, 'year-baseline', [0, YEAR_BOTTOM, PLOT_WIDTH, YEAR_BOTTOM], 'colors.border.base'),
+    ...YEAR.flatMap((value, i) => {
+      const month = i + 1;
+      const projected = INSIGHTS_YEAR_PROJECTED[i];
+      return [
+        i < now && ctx.node({ key: `year-month-${month}`, tag: 'path', hotspot: true, attrs: { d: capped(i, 0, value), fill: past.fill } }),
+        i === now && ctx.node({ key: `year-month-${month}`, tag: 'path', hotspot: true, attrs: { d: square(i, value), fill: current.fill } }),
+        projected > 0 && ctx.node({
+          key: `year-month-${month}/projected`, tag: 'path',
+          bind: { fill: { token: 'colors.brand.primary', alpha: 0.12 }, stroke: { token: 'colors.brand.primary', alpha: 0.6 } },
+          attrs: { d: capped(i, value, projected), 'stroke-width': 1, 'stroke-dasharray': '3 2' },
+        }),
+        (i === 6 || i === now) && svgText(ctx, `year-month-${month}/value`, thousands(ctx, String(value / 1000)), {
+          x: center(i), y: y(Math.max(value, projected)) - 6, anchor: 'middle', font: 'typography.labelMedium', color: 'colors.text.primary',
+        }),
+      ];
+    }),
+    ...monthInitials(ctx, 'year', center),
+  ]);
+};
+
+// A smooth curve through the points (Catmull-Rom as cubic Béziers), drawn from one index to another so a solid
+// past and a dashed future meet without a kink.
+const smooth = (points, from, to) => points.slice(from, to).map(([x1, y1], k) => {
+  const i = from + k;
+  const [x0, y0] = points[Math.max(i - 1, 0)];
+  const [x2, y2] = points[i + 1];
+  const [x3, y3] = points[Math.min(i + 2, points.length - 1)];
+  const c1 = [x1 + (x2 - x0) / 6, y1 + (y2 - y0) / 6].map((v) => Math.round(v * 10) / 10);
+  const c2 = [x2 - (x3 - x1) / 6, y2 - (y3 - y1) / 6].map((v) => Math.round(v * 10) / 10);
+  return `${k ? '' : `M${x1},${y1} `}C${c1} ${c2} ${x2},${y2}`;
+}).join(' ');
+const yearLines = (ctx) => {
+  // Lines start above zero, so a month's change shows; columns keep a zero baseline.
+  const { y, center } = yearGeometry(10000, 2000);
+  const now = INSIGHTS_THIS_MONTH;
+  const spending = YEAR.map((value, i) => [center(i), y(i < now ? value : INSIGHTS_YEAR_PROJECTED[i])]);
+  const income = INSIGHTS_INCOME.map((value, i) => [center(i), y(value)]);
+  const stroke = { fill: 'none', 'stroke-width': 2.5, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' };
+  const line = lineGradient(ctx, 'year-line-stroke');
+  const area = fadeGradient(ctx, 'year-line-area', YEAR_TOP, YEAR_BOTTOM);
+  const [spentX, spentY] = [center(now), y(YEAR[now])];
+  return plot(ctx, 'year-plot', 'Charts/columns', COLUMNS_HEIGHT, ctx.t('insights_year_line_label'), [
+    ctx.node({ key: 'year-defs', tag: 'defs', children: [line.defs, area.defs] }),
+    svgLine(ctx, 'year-baseline', [0, YEAR_BOTTOM, PLOT_WIDTH, YEAR_BOTTOM], 'colors.border.base'),
+    svgLine(ctx, 'year-now', [center(now), YEAR_TOP, center(now), YEAR_BOTTOM], 'colors.border.strong', 1, '2 3'),
+    svgPath(ctx, 'year-spending-area', `${smooth(spending, 0, now - 1)} L${spending[now - 1][0]},${YEAR_BOTTOM} L${spending[0][0]},${YEAR_BOTTOM} Z`, {}, { fill: area.fill }),
+    svgPath(ctx, 'year-income', smooth(income, 0, now), { stroke: { token: 'colors.border.strong' } }, { ...stroke, 'stroke-width': 1.5 }),
+    svgPath(ctx, 'year-income-expected', smooth(income, now, 11), { stroke: { token: 'colors.border.strong' } }, { ...stroke, 'stroke-width': 1.5, 'stroke-dasharray': '3 4' }),
+    svgPath(ctx, 'year-spending', smooth(spending, 0, now - 1), {}, { ...stroke, stroke: line.fill }),
+    svgPath(ctx, 'year-spending-projected', smooth(spending, now - 1, 11), {}, { ...stroke, stroke: line.fill, 'stroke-dasharray': '4 5' }),
+    ctx.node({
+      key: 'year-spending-projected-now', tag: 'circle', bind: { fill: { token: 'colors.surface.base' }, stroke: { token: 'colors.brand.primary' } },
+      attrs: { cx: spending[now][0], cy: spending[now][1], r: 4, 'stroke-width': 2 },
+    }),
+    ctx.node({
+      key: 'year-spending-now', tag: 'circle', hotspot: true, bind: { fill: { token: 'colors.brand.primary' }, stroke: { token: 'colors.surface.base' } },
+      attrs: { cx: spentX, cy: spentY, r: 5, 'stroke-width': 2 },
+    }),
+    svgText(ctx, 'year-spending-now/value', thousands(ctx, String(YEAR[now] / 1000)), {
+      x: spentX - 9, y: spentY + 4, anchor: 'end', font: 'typography.labelMedium', color: 'colors.text.primary',
+    }),
+    ...monthInitials(ctx, 'year', center),
+  ]);
+};
+const yearColumns = (ctx) => [
+  chartLegend(ctx, 'year-legend', [
+    legendSwatch(ctx, 'legend-spent', 'insights_legend_spent', false),
+    legendSwatch(ctx, 'legend-projected', 'insights_legend_projected', true),
+  ]),
+  yearBars(ctx),
+];
+// Year draws as columns or as lines; the selected view's button is tonal.
+const chartViewSwitch = (ctx, selected) => ctx.node({
+  key: 'view-switch',
+  styles: ['Insights/viewSwitch'],
+  attrs: { role: 'group', 'aria-label': ctx.t('insights_views') },
+  children: [['columns', 'chart_column', 'insights_view_columns'], ['line', 'chart_spline', 'insights_view_line']].map(([view, glyph, labelKey]) => OrbitIconButton(ctx, {
+    key: `view-${view}`,
+    variant: view === selected ? 'Tonal' : 'Standard',
+    hotspot: true,
+    styles: ['Home/switcherButton'],
+    contentDescription: ctx.t(labelKey),
+  }, [icon(ctx, `view-${view}/icon`, glyph, 'medium', view === selected ? 'colors.brand.primary' : 'colors.text.secondary')])),
+});
+const yearLineChart = (ctx) => [
+  chartLegend(ctx, 'year-legend', [
+    legendGradientLine(ctx, 'legend-spending', 'insights_legend_spending'),
+    legendKey(ctx, 'legend-income', 'insights_legend_income', 'colors.border.strong'),
+    legendKey(ctx, 'legend-projected', 'insights_legend_projected', 'colors.text.tertiary', true),
+  ]),
+  yearLines(ctx),
+];
 
 // [category, amount, share, direction, change against the same days, purchases]. Each period's amounts add up to its total.
 const INSIGHTS_MONTH = {
@@ -3328,7 +3550,7 @@ const INSIGHTS_YEAR = {
   change: ['up', 'R$ 2.650'],
   vsKey: 'insights_vs_year',
   stats: [['insights_monthly_average', 'R$ 4.452,00'], ['insights_biggest_month', 'R$ 5.320,00'], ['charts_purchases', '548']],
-  chart: { titleKey: 'insights_by_month', caption: { textKey: 'insights_months_of', textArgs: ['10', '12'] }, render: yearColumns },
+  chart: { titleKey: 'insights_by_month', caption: { textKey: 'insights_year_projected', textArgs: ['R$ 54.480'] }, view: 'columns', render: yearColumns },
   bar: [['groceries', 36], ['restaurants', 21], ['transport', 14], ['other', 29]],
   shares: [
     ['groceries', 'R$ 16.030,00', '36%', 'up', 'R$ 1.120', 162],
@@ -3382,7 +3604,21 @@ const insightsSummary = (ctx, p) => OrbitCard(ctx, { key: 'summary', variant: 'B
       }),
       HorizontalDivider(ctx, { key: 'summary/divider' }),
       gap(ctx, 'summary/gap-chart', 'spacing.xxSmall'),
-      ctx.node({
+      p.chart.view ? ctx.node({
+        key: 'chart-header',
+        styles: ['Home/spread'],
+        children: [
+          ctx.node({
+            key: 'chart-heading',
+            styles: ['Family/info'],
+            children: [
+              text(ctx, 'chart-title', 'Family/name', { textKey: p.chart.titleKey }),
+              text(ctx, 'chart-caption', 'Screen/tertiary', p.chart.caption),
+            ],
+          }),
+          chartViewSwitch(ctx, p.chart.view),
+        ],
+      }) : ctx.node({
         key: 'chart-header',
         styles: ['Home/spread'],
         children: [
@@ -3416,6 +3652,7 @@ const insightsMonths = (ctx) => OrbitCard(ctx, { key: 'months', variant: 'Base' 
         labelled: [2, MONTHS.length - 1],
         label: ctx.t('insights_months_label'),
         hotspots: MONTHS.map((_, i) => i),
+        gradient: true,
       }),
       text(ctx, 'months/average', 'Screen/secondary', { textKey: 'charts_average_month', textArgs: ['R$ 4.726'] }),
     ],
@@ -3501,6 +3738,10 @@ const insightsFrame = (id, name, period, p) => frame(id, name, { status: 'propos
 const insights = insightsFrame('insights', 'Insights · Month', 'month', INSIGHTS_MONTH);
 const insightsWeek = insightsFrame('insights-week', 'Insights · Week', 'week', INSIGHTS_WEEK);
 const insightsYear = insightsFrame('insights-year', 'Insights · Year', 'year', INSIGHTS_YEAR);
+const insightsYearLine = insightsFrame('insights-year-line', 'Insights · Year · Line', 'year', {
+  ...INSIGHTS_YEAR,
+  chart: { ...INSIGHTS_YEAR.chart, view: 'line', render: yearLineChart },
+});
 const insightsFirstMonth = insightsFrame('insights-first-month', 'Insights · First month', 'month', INSIGHTS_FIRST_MONTH);
 
 // No expenses yet: the period controls would change nothing, so only the title and what will appear here.
@@ -4360,6 +4601,7 @@ export const frames = [
   insights,
   insightsWeek,
   insightsYear,
+  insightsYearLine,
   insightsFirstMonth,
   insightsEmpty,
   charts,

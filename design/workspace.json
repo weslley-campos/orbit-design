@@ -410,9 +410,17 @@
           "height": 874
         },
         {
+          "id": "mobile-insights-year-line",
+          "catalogId": "screens/insights-year-line",
+          "x": 4187,
+          "y": 2922,
+          "width": 402,
+          "height": 874
+        },
+        {
           "id": "mobile-insights-first-month",
           "catalogId": "screens/insights-first-month",
-          "x": 4187,
+          "x": 4741,
           "y": 2922,
           "width": 402,
           "height": 874
@@ -420,7 +428,7 @@
         {
           "id": "mobile-insights-empty",
           "catalogId": "screens/insights-empty",
-          "x": 4741,
+          "x": 5295,
           "y": 2922,
           "width": 402,
           "height": 874
@@ -3745,6 +3753,17 @@
       "trigger": "click"
     },
     {
+      "id": "mobile-insights-year-year-month-10",
+      "from": {
+        "frameId": "mobile-insights-year",
+        "hotspotId": "year-month-10"
+      },
+      "to": {
+        "frameId": "mobile-transactions"
+      },
+      "trigger": "click"
+    },
+    {
       "id": "mobile-insights-year-decolar",
       "from": {
         "frameId": "mobile-insights-year",
@@ -3774,6 +3793,237 @@
       },
       "to": {
         "frameId": "mobile-transaction-detail"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-year-view-line",
+      "from": {
+        "frameId": "mobile-insights-year",
+        "hotspotId": "view-line"
+      },
+      "to": {
+        "frameId": "mobile-insights-year-line"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-year-line-nav-house",
+      "from": {
+        "frameId": "mobile-insights-year-line",
+        "hotspotId": "nav-house"
+      },
+      "to": {
+        "frameId": "mobile-home"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-year-line-nav-wallet",
+      "from": {
+        "frameId": "mobile-insights-year-line",
+        "hotspotId": "nav-wallet"
+      },
+      "to": {
+        "frameId": "mobile-wallet"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-year-line-nav-user_round",
+      "from": {
+        "frameId": "mobile-insights-year-line",
+        "hotspotId": "nav-user_round"
+      },
+      "to": {
+        "frameId": "mobile-settings"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-year-line-period-week",
+      "from": {
+        "frameId": "mobile-insights-year-line",
+        "hotspotId": "period-week"
+      },
+      "to": {
+        "frameId": "mobile-insights-week"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-year-line-period-month",
+      "from": {
+        "frameId": "mobile-insights-year-line",
+        "hotspotId": "period-month"
+      },
+      "to": {
+        "frameId": "mobile-insights"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-year-line-summary",
+      "from": {
+        "frameId": "mobile-insights-year-line",
+        "hotspotId": "summary"
+      },
+      "to": {
+        "frameId": "mobile-transactions-year"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-year-line-share-groceries",
+      "from": {
+        "frameId": "mobile-insights-year-line",
+        "hotspotId": "share-groceries"
+      },
+      "to": {
+        "frameId": "mobile-transactions-year"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-year-line-share-restaurants",
+      "from": {
+        "frameId": "mobile-insights-year-line",
+        "hotspotId": "share-restaurants"
+      },
+      "to": {
+        "frameId": "mobile-transactions-year"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-year-line-share-transport",
+      "from": {
+        "frameId": "mobile-insights-year-line",
+        "hotspotId": "share-transport"
+      },
+      "to": {
+        "frameId": "mobile-transactions-year"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-year-line-share-health",
+      "from": {
+        "frameId": "mobile-insights-year-line",
+        "hotspotId": "share-health"
+      },
+      "to": {
+        "frameId": "mobile-transactions-year"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-year-line-share-leisure",
+      "from": {
+        "frameId": "mobile-insights-year-line",
+        "hotspotId": "share-leisure"
+      },
+      "to": {
+        "frameId": "mobile-transactions-year"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-year-line-share-bills",
+      "from": {
+        "frameId": "mobile-insights-year-line",
+        "hotspotId": "share-bills"
+      },
+      "to": {
+        "frameId": "mobile-transactions-year"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-year-line-member-ana",
+      "from": {
+        "frameId": "mobile-insights-year-line",
+        "hotspotId": "member-ana"
+      },
+      "to": {
+        "frameId": "mobile-transactions-year"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-year-line-member-marina",
+      "from": {
+        "frameId": "mobile-insights-year-line",
+        "hotspotId": "member-marina"
+      },
+      "to": {
+        "frameId": "mobile-transactions-year"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-year-line-biggest-header/link",
+      "from": {
+        "frameId": "mobile-insights-year-line",
+        "hotspotId": "biggest-header/link"
+      },
+      "to": {
+        "frameId": "mobile-transactions-year"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-year-line-year-spending-now",
+      "from": {
+        "frameId": "mobile-insights-year-line",
+        "hotspotId": "year-spending-now"
+      },
+      "to": {
+        "frameId": "mobile-transactions"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-year-line-decolar",
+      "from": {
+        "frameId": "mobile-insights-year-line",
+        "hotspotId": "decolar"
+      },
+      "to": {
+        "frameId": "mobile-transaction-detail"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-year-line-fleury",
+      "from": {
+        "frameId": "mobile-insights-year-line",
+        "hotspotId": "fleury"
+      },
+      "to": {
+        "frameId": "mobile-transaction-detail"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-year-line-assai",
+      "from": {
+        "frameId": "mobile-insights-year-line",
+        "hotspotId": "assai"
+      },
+      "to": {
+        "frameId": "mobile-transaction-detail"
+      },
+      "trigger": "click"
+    },
+    {
+      "id": "mobile-insights-year-line-view-columns",
+      "from": {
+        "frameId": "mobile-insights-year-line",
+        "hotspotId": "view-columns"
+      },
+      "to": {
+        "frameId": "mobile-insights-year"
       },
       "trigger": "click"
     },

@@ -30,7 +30,7 @@ Status: Draft
 - R1: Choosing Day, Week, Month or Year switches the list and keeps search and filters. The stepper moves to the previous or next period, and its label shows the current one (Today, Oct 7 · Oct 5 – 11 · October 2026 · 2026).
 - R2: Week and Month group expenses under day headers with the day's total. Today and Yesterday are named; other days show weekday and date.
 - R3: Day lists that day's expenses with their time first.
-- R4: Week shows a column per day against an even daily budget (R$ 161). Today is in the brand color, and days still to come are empty.
+- R4: Week shows a column per day against an even daily budget (R$ 161). Columns fill with the palette's gradient, today at full strength and the other days softened, and days still to come are empty.
 - R5: Year shows a column per month against the R$ 5.000 budget, and one row per month with purchases, share of budget and a bar (warning near the budget, error over it). A row opens that month.
 - R6: Each row shows merchant, category, card (short name) and the family member when it isn't you. Tapping it opens the transaction.
 - R7: The Transaction screen shows merchant, amount, date and time, plus:
@@ -40,7 +40,7 @@ Status: Draft
 - R8: Palette, light/dark mode and English/Portuguese apply to all five frames, and no text is clipped at 402 × 874.
 
 ## 4. Constraints
-- Reuse the Charts column chart, `OrbitCard`, `OrbitFilterChip`, `OrbitLinearProgressIndicator`, `OrbitIconButton`, the Home switcher and the Settings rows.
+- Reuse the Insights column chart, with the gradient of [insights.md](insights.md), `OrbitCard`, `OrbitFilterChip`, `OrbitLinearProgressIndicator`, `OrbitIconButton`, the Home switcher and the Settings rows.
 - New icons are Lucide proposals (`ic_sliders_horizontal`, `ic_trash`, `ic_store`).
 
 ## 6. Acceptance criteria

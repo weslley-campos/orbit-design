@@ -3179,6 +3179,38 @@
         "white-space": "nowrap"
       }
     },
+    "Insights/swatch": {
+      "bind": {
+        "width": {
+          "token": "sizes.xSmall"
+        },
+        "height": {
+          "token": "sizes.xSmall"
+        }
+      },
+      "css": {
+        "display": "block",
+        "flex-shrink": "0"
+      }
+    },
+    "Insights/swatchWide": {
+      "bind": {
+        "width": {
+          "token": "sizes.small"
+        }
+      }
+    },
+    "Insights/viewSwitch": {
+      "bind": {
+        "gap": {
+          "token": "spacing.xxxSmall"
+        }
+      },
+      "css": {
+        "display": "flex",
+        "flex-shrink": "0"
+      }
+    },
     "Charts/stats": {
       "bind": {
         "margin-left": {
@@ -4235,6 +4267,28 @@
       },
       "css": {
         "outline-style": "solid"
+      }
+    },
+    "Icon/chart_column": {
+      "bind": {
+        "icon": {
+          "resource": "proposed.drawable.ic_chart_column",
+          "proposal": "Lucide chart-column (ISC)"
+        }
+      },
+      "css": {
+        "flex-shrink": "0"
+      }
+    },
+    "Icon/chart_spline": {
+      "bind": {
+        "icon": {
+          "resource": "proposed.drawable.ic_chart_spline",
+          "proposal": "Lucide chart-spline (ISC)"
+        }
+      },
+      "css": {
+        "flex-shrink": "0"
       }
     }
   }
